@@ -1,7 +1,7 @@
 {
-  "name": "lib-template",
+  "name": "@mapl/web",
   "version": "0.0.1",
-  "description": "",
+  "description": "A compiled web standard framework",
   "keywords": [],
   "license": "MIT",
   "type": "module",
@@ -25,5 +25,8 @@
     "tsx": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest"
+  },
+  "dependencies": {
+    "@mapl/framework": "^0.0.15"
   }
 }

@@ -194,7 +194,6 @@ export default tsEslint.config({
     "@typescript-eslint/restrict-plus-operands": "error",
     "@typescript-eslint/restrict-template-expressions": "error",
     "@typescript-eslint/return-await": "error",
-    "@typescript-eslint/switch-exhaustiveness-check": "error",
     "@typescript-eslint/triple-slash-reference": "error",
     "@typescript-eslint/unified-signatures": "error",
     "@typescript-eslint/explicit-function-return-type": [
