@@ -1,9 +1,7 @@
 import { jitc, router } from '@mapl/app';
 
-const app = router().apply((c) => {
-  c.headers.push(['access-control-allow-origins', '*'])
-});
-for (let i = 0; i < 100; i++)
+const app = router();
+for (let i = 0; i < 1000; i++)
   app.get(`/${i}/*/${i}`, Math.random() < 0.5 ? () => "Hi" : async (_, c) => c.req.text());
 
 (async () => {

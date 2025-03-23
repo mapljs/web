@@ -1,5 +1,5 @@
 import type { Err, InferErr, InferResult } from 'safe-throw';
-import { transformRoute, type InferRoute } from '@mapl/router/transform';
+import type { InferRoute } from '@mapl/router/transform';
 
 import { proto } from './utils';
 import type { ErrorFunc, HandlerData, HandlerFunc, HandlerGroup, MiddlewareFunc } from './handler';
@@ -49,7 +49,7 @@ export interface Router<
 export type AnyRouter = Router<any, any, any> | Router<any, any>;
 
 const createMethodRegister = (method: any) => function (this: AnyRouter, path: string, handler: HandlerFunc, ...data: any[]) {
-  this.group[1].push([method, transformRoute(path), handler, proto(...data)]);
+  this.group[1].push([method, path, handler, proto(...data)]);
   return this as any;
 };
 

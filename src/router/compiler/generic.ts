@@ -6,6 +6,7 @@ import compile from '@mapl/router/method/compiler';
 
 import type { AnyRouter } from '..';
 import type { ErrorFunc, HandlerData, HandlerFunc } from '../handler';
+import { transformRoute } from '@mapl/router/transform';
 
 type State = CompilerState<ErrorFunc, HandlerFunc, HandlerData>;
 
@@ -146,7 +147,8 @@ export default (router: AnyRouter, args: string[]): (req: Request) => any => {
       createArgSet([constants.CTX, ...args]),
       constants.CTX_INIT,
       compileHandler,
-      compileErrorHandler
+      compileErrorHandler,
+      transformRoute
     ],
     '',
     '',

@@ -27,6 +27,8 @@
     "typescript-eslint": "latest"
   },
   "dependencies": {
-    "@mapl/framework": "^0.0.15"
+    "@mapl/framework": "^0.0.19",
+    "@mapl/router": "^0.4.10",
+    "safe-throw": "^0.0.9"
   }
 }
