@@ -5,7 +5,7 @@ import { o2 } from '@mapl/router/tree/compiler';
 import compile from '@mapl/router/method/compiler';
 
 import type { AnyRouter } from '..';
-import type { ErrorFunc, HandlerData, HandlerFunc } from '../handler';
+import type { Data, ErrorFunc, HandlerData, HandlerFunc } from '../handler';
 import { transformRoute } from '@mapl/router/transform';
 import { isErr } from 'safe-throw';
 import { createContext } from '../context';
@@ -14,79 +14,76 @@ type State = CompilerState<ErrorFunc, HandlerFunc, HandlerData>;
 
 const paramArgs: string[] = createArgSet(new Array(16).fill(0).map((_1, i) => constants.PARAMS + i));
 
-const compileHandler: State[4] = (data, path, state, scopeAsync, contextCreated) => {
-  const fn = data[2];
-  const dat = data[3];
-
-  // String builders
-  let str = '';
-  let call = constants.DEP + state[1].push(fn) + '(';
-  {
-    // Load parameter args
-    const paramCount = path[0].length;
-    if (paramCount > 0)
-      call += paramArgs[paramCount];
-
-    // Load other args
-    if (fn.length > paramCount) {
-      if (paramCount > 0)
-        call += ',';
-      call += selectArgs(state[2], fn.length - paramCount);
-
-      // Create context to pass in the function
-      if (!contextCreated) {
-        contextCreated = true;
-        str += state[3];
-      }
-    }
-  }
-  call += ')';
-
-  {
-    const typ = dat.type;
-
-    if (typ == null) {
-      return str + 'return new Response(' + call + (
-        contextCreated ? ',' + constants.CTX + ');' : ');'
+const compileReturn = (state: State, dat: Data, wrapAsync: boolean, contextCreated: boolean, result: string): string => {
+  const typ = dat.type;
+  // Basic types
+  return typ == null
+    ? 'return new Response(' + result + (contextCreated ? ',' + constants.CTX + ');' : ');')
+    : typ === 'raw'
+      ? 'return ' + result + ';'
+      // Other type
+      : (wrapAsync
+        ? constants.ASYNC_START
+        : ''
+      ) + (contextCreated
+        ? ''
+        : state[3]
+      ) + constants.HEADERS + '.push(' + (typ === 'json'
+        ? constants.CJSON
+        : constants.CHTML
+      ) + ');return new Response(' + (
+        typ === 'json'
+          ? 'JSON.stringify(' + result + ')'
+          : result
+      ) + ',' + constants.CTX + ');' + (wrapAsync
+        ? constants.ASYNC_END
+        : ''
       );
-    }
-
-    if (typ === 'raw')
-      return str + 'return ' + call + ';';
-
-    // Create context to pass in the Response
-    if (!contextCreated) str += state[3];
-
-    // Wrap in an async scope when necessary
-    let append = '';
-    if (isFuncAsync(fn)) {
-      call = 'await ' + call;
-      if (!scopeAsync) {
-        str += constants.ASYNC_START;
-        append = constants.ASYNC_END;
-      }
-    }
-
-    str += constants.HEADERS + '.push(' + (typ === 'json'
-      ? constants.CJSON
-      : constants.CHTML
-    ) + ');return new Response(' + (
-      typ === 'json'
-        ? 'JSON.stringify(' + call + ')'
-        : call
-    ) + ',' + constants.CTX + ');' + append;
-  }
-
-  return str;
 };
 
-const compileErrorHandler: State[5] = (data, state, scopeAsync, contextCreated) => {
-  const fn = data[0];
-  const dat = data[1];
-
+const compileHandler: State[4] = (fn, dat, path, state, scopeAsync, contextCreated) => {
   // String builders
-  let str = '';
+  let wrapAsync = false;
+  let call = constants.DEP + state[1].push(fn) + '(';
+
+  if (isFuncAsync(fn)) {
+    call = 'await ' + call;
+    // Need wrapping when the scope contains await and is not async
+    wrapAsync = !scopeAsync;
+  }
+
+  // Load parameter args
+  const paramCount = path[0].length;
+  if (paramCount > 0)
+    call += paramArgs[paramCount];
+
+  // Load other args
+  if (fn.length > paramCount) {
+    if (paramCount > 0)
+      call += ',';
+    call += selectArgs(state[2], fn.length - paramCount);
+
+    // Create context to pass in the function
+    if (!contextCreated) {
+      contextCreated = true;
+      call = state[3] + call;
+    }
+  }
+
+  return compileReturn(state, dat, wrapAsync, contextCreated, call + ')');
+};
+
+const compileErrorHandler: State[5] = (fn, dat, state, scopeAsync, contextCreated) => {
+  // String builders
+  let wrapAsync = false;
   let call = constants.DEP + state[1].push(fn) + '(' + constants.ERR;
+
+  if (isFuncAsync(fn)) {
+    call = 'await ' + call;
+    // Need wrapping when the scope contains await and is not async
+    wrapAsync = !scopeAsync;
+  }
+
   // Load other args
   if (fn.length > 1) {
     call += ',' + selectArgs(state[2], fn.length - 1);
@@ -94,47 +91,11 @@ const compileErrorHandler: State[5] = (data, state, scopeAsync, contextCreated) 
     // Create context to pass in the function
     if (!contextCreated) {
       contextCreated = true;
-      str += state[3];
+      call = state[3] + call;
     }
   }
-  call += ')';
 
-  {
-    const typ = dat.type;
-
-    if (typ == null) {
-      return str + 'return new Response(' + call + (
-        contextCreated ? ',' + constants.CTX + ');' : ');'
-      );
-    }
-
-    if (typ === 'raw')
-      return str + 'return ' + call + ';';
-
-    // Create context to pass in the Response
-    if (!contextCreated) str += state[3];
-
-    // Wrap in an async scope when necessary
-    let append = '';
-    if (isFuncAsync(fn)) {
-      call = 'await ' + call;
-      if (!scopeAsync) {
-        str += constants.ASYNC_START;
-        append = constants.ASYNC_END;
-      }
-    }
-
-    str += constants.HEADERS + '.push(' + (typ === 'json'
-      ? constants.CJSON
-      : constants.CHTML
-    ) + ');return new Response(' + (
-      typ === 'json'
-        ? 'JSON.stringify(' + call + ')'
-        : call
-    ) + ',' + constants.CTX + ');' + append;
-  }
-
-  return str;
+  return compileReturn(state, dat, wrapAsync, contextCreated, call + ')');
 };
 
 export default (router: AnyRouter, args: string[]): (req: Request) => any => {
@@ -169,5 +130,5 @@ export default (router: AnyRouter, args: string[]): (req: Request) => any => {
     isErr,
     createContext,
     ...dependencies
-  )
+  );
 };
