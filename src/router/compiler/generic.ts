@@ -1,4 +1,4 @@
-import { buildFunc, compileGroup, createArgSet, isFuncAsync, selectArgs, type CompilerState } from '@mapl/framework';
+import { compileGroup, createArgSet, isFuncAsync, selectArgs, type CompilerState } from '@mapl/framework';
 
 import type { Router } from '@mapl/router/method';
 import { o2 } from '@mapl/router/tree/compiler';
@@ -7,12 +7,14 @@ import compile from '@mapl/router/method/compiler';
 import type { AnyRouter } from '..';
 import type { ErrorFunc, HandlerData, HandlerFunc } from '../handler';
 import { transformRoute } from '@mapl/router/transform';
+import { isErr } from 'safe-throw';
+import { createContext } from '../context';
 
 type State = CompilerState<ErrorFunc, HandlerFunc, HandlerData>;
 
 const paramArgs: string[] = createArgSet(new Array(16).fill(0).map((_1, i) => constants.PARAMS + i));
 
-const compileHandler: State[4] = (data, state, scopeAsync, contextCreated) => {
+const compileHandler: State[4] = (data, path, state, scopeAsync, contextCreated) => {
   const fn = data[2];
   const dat = data[3];
 
@@ -21,7 +23,7 @@ const compileHandler: State[4] = (data, state, scopeAsync, contextCreated) => {
   let call = constants.DEP + state[1].push(fn) + '(';
   {
     // Load parameter args
-    const paramCount = data[1][0].length;
+    const paramCount = path[0].length;
     if (paramCount > 0)
       call += paramArgs[paramCount];
 
@@ -154,8 +156,18 @@ export default (router: AnyRouter, args: string[]): (req: Request) => any => {
     '',
     false,
     false,
-    ''
+    // Fallback error handler
+    'return ' + constants.R400 + ';'
   );
 
-  return buildFunc(constants.GLOBALS + 'return (' + constants.REQ + ')=>{' + compile(baseRouter, o2, constants.REQ + '.method', constants.PARSE_PATH, 1) + '}', dependencies);
+  return Function(
+    constants.IS_ERR,
+    constants.CTX_FN,
+    ...dependencies.map((_, i) => constants.DEP + (i + 1)),
+    constants.GLOBALS + 'return (' + constants.REQ + ')=>{' + compile(baseRouter, o2, constants.REQ + '.method', constants.PARSE_PATH, 1) + 'return ' + constants.R404 + '}'
+  )(
+    isErr,
+    createContext,
+    ...dependencies
+  )
 };
