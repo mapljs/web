@@ -1,11 +1,15 @@
 import { router, compile } from '@mapl/web';
 
-const app = router();
-for (let i = 0; i < 1000; i++)
-  app.get(`/${i}/:param/${i}`, Math.random() < 0.5 ? () => "Hi" : async (_, c) => c.req.text());
-
 let t = process.hrtime.bigint();
+
+const app = router();
+for (let i = 0; i < 50; i++)
+  app.apply((c) => {
+    c.headers.push(['cookie', 'a=b']);
+  });
+app.get(`/a/:param/a`, Math.random() < 0.5 ? () => "Hi" : async (_, c) => c.req.text())
 compile(app);
+
 t = process.hrtime.bigint() - t;
 
-console.log("Build time:", (t / 1000n) + 'ps');
+console.log("@mapl/web:", (Number(t / 1000n) / 1000).toFixed(2) + 'ms');

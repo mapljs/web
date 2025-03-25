@@ -1,12 +1,15 @@
 import { jitc, router } from '@mapl/app';
 
-const app = router();
-for (let i = 0; i < 1000; i++)
-  app.get(`/${i}/*/${i}`, Math.random() < 0.5 ? () => "Hi" : async (_, c) => c.req.text());
+let t = process.hrtime.bigint();
 
-(async () => {
-  let t = process.hrtime.bigint();
-  await jitc(app);
-  t = process.hrtime.bigint() - t;
-  console.log("Build time:", (t / 1000n) + 'ps');
-})();
+const app = router();
+for (let i = 0; i < 100; i++)
+  app.apply((c) => {
+    c.headers.push(['cookie', 'a=b']);
+  });
+app.get('/a/*/a', Math.random() < 0.5 ? () => "Hi" : async (_, c) => c.req.text())
+await jitc(app);
+
+t = process.hrtime.bigint() - t;
+
+console.log("@mapl/app:", (Number(t / 1000n) / 1000).toFixed(2) + 'ms');
