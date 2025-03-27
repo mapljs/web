@@ -27,8 +27,6 @@ summary(async () => {
         }
       }
 
-      console.log(name, obj.fetch.toString());
-
       bench(name, function* () {
         yield {
           [0]() {

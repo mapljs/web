@@ -6,7 +6,7 @@ const schema: Record<
   string, Record<
     string,
     string | ParamFunc |
-    { body: string, result: string | ParamFunc }
+    { body: () => string, result: string | ParamFunc }
   >
 > = {
   GET: {
@@ -24,7 +24,7 @@ const schema: Record<
   }
 };
 
-const callHandler = (f: string | ParamFunc, params: string[]): string => typeof f === 'string' ? f : f(...params);
+const callHandler = (f: string | ParamFunc, params: string[], body?: string): string => typeof f === 'string' ? f : body == null ? f(...params) : f(...params, body);
 
 export const constructPath = (parts: string[], params: string[]) => {
   let str = 'http://127.0.0.1';
@@ -51,7 +51,7 @@ for (const method in schema) {
     let [params, parts] = transformRoute(path);
     params = params.map((a) => Math.random() + a);
 
-    const body = typeof handler === 'object' ? handler.body : undefined;
+    const body = typeof handler === 'object' ? handler.body() : undefined;
     const req = new Request(constructPath(parts, params), { method, body });
 
     builtSchema.push({
@@ -60,7 +60,8 @@ for (const method in schema) {
         typeof handler === 'object'
           ? handler.result
           : handler,
-        params
+        params,
+        body
       ),
       req, body
     });
