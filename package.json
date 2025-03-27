@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A compiled web standard framework",
   "keywords": [
     "fast",
@@ -22,7 +22,6 @@
     "lint:fix": "eslint ./src --fix"
   },
   "devDependencies": {
-    "@mitata/counters": "^0.0.8",
     "@stylistic/eslint-plugin": "latest",
     "@types/bun": "latest",
     "@types/uglify-js": "latest",
