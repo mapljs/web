@@ -6,8 +6,7 @@ const app = router();
 for (let i = 0; i < 50; i++)
   app.apply((c) => {
     c.headers.push(['cookie', 'a=b']);
-  });
-app.get(`/a/:param/a`, Math.random() < 0.5 ? () => "Hi" : async (_, c) => c.req.text())
+  }).get(`/${i}/:param/a`, Math.random() < 0.5 ? () => "Hi" : async (_, c) => c.req.text());
 compile(app);
 
 t = process.hrtime.bigint() - t;

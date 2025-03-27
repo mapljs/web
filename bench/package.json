@@ -1,6 +1,11 @@
 {
   "dependencies": {
-    "@mapl/app": "^0.5.14"
+    "@mapl/app": "^0.5.14",
+    "ciorent": "^0.0.17",
+    "elysia": "^1.2.25",
+    "hono": "^4.7.5",
+    "mapl-new-router": "npm:@mapl/router@latest",
+    "zesti": "^0.1.20"
   },
   "type": "module"
 }

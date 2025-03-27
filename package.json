@@ -22,6 +22,7 @@
     "lint:fix": "eslint ./src --fix"
   },
   "devDependencies": {
+    "@mitata/counters": "^0.0.8",
     "@stylistic/eslint-plugin": "latest",
     "@types/bun": "latest",
     "@types/uglify-js": "latest",
