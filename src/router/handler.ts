@@ -10,14 +10,12 @@ export type ErrorFunc<
 
 export type HandlerFunc<
   Params extends string[] = string[],
-  T extends {} = Record<string, any>,
-  Args extends any[] = any[]
-> = (...args: [...params: Params, c: Context & T, ...args: Args]) => any;
+  T extends {} = Record<string, any>
+> = (...args: [...params: Params, c: Context & T]) => any;
 
 export type MiddlewareFunc<
-  T extends {} = Record<string, any>,
-  Args extends any[] = any[]
-> = (c: Context & T, ...args: Args) => any;
+  T extends {} = Record<string, any>
+> = (c: Context & T) => any;
 
 /**
  * Basic information to compile

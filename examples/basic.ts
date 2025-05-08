@@ -4,7 +4,7 @@ import * as st from 'safe-throw';
 const app = router()
   .parse('token', (c) => {
     const header = c.req.headers.get('Authorization');
-    return typeof header === 'string' && /^Bearer ./.test(header) ? header.slice(7) : st.err('Invalid token!');
+    return typeof header === 'string' && header.startsWith('Bearer ') ? header.slice(7) : st.err('Invalid token!');
   })
   .err((e, c) => {
     c.status = 403;

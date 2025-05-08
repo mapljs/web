@@ -49,7 +49,7 @@ export default (router: AnyRouter): (req: Request) => any => {
   const dependencies: any[] = [];
 
   compileGroup(
-    router.group,
+    router._,
     [
       baseRouter,
       dependencies,
