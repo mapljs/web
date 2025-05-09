@@ -1,11 +1,17 @@
-import { compile, router } from '@mapl/web';
+import { compile, router } from "@mapl/web";
 
-export default {
-  fetch: compile(
-    router().get('/', (c) => {
-      c.status = 200;
-      c.statusText = 'Hi';
-      return 'Hi'
-    })
-  )
-}
+const app = router().post("/", async () => {
+  console.log('GI')
+    let meow = await fetch("https://jsonplaceholder.typicode.com/users");
+    let res = meow.json();
+    return "woo";
+});
+
+const fn = compile(app);
+console.log(fn.toString())
+
+export default { fetch: (req) =>
+  {
+  console.log(req);
+  return fn(req);
+  }, port: 5000 };

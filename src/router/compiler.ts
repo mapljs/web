@@ -41,7 +41,11 @@ const compileReturn = (
       typ === 'json' ? 'JSON.stringify(' + result + ')' : result
     ) + ',' + constants.CTX + ')';
 
-  return fnAsync && !scopeAsync ? constants.ASYNC_START + str + constants.ASYNC_END : str;
+  return fnAsync && !scopeAsync
+    ? constants.ASYNC_START + str + constants.ASYNC_END
+    : scopeAsync
+      ? str + constants.ASYNC_END
+      : str;
 };
 
 export default (router: AnyRouter): (req: Request) => any => {
