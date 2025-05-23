@@ -3,6 +3,7 @@
     "@mapl/app": "^0.5.14",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^11.10.0",
-    "hono": "^4.7.10"
+    "hono": "^4.7.10",
+    "rolldown": "^1.0.0-beta.9"
   }
 }
