@@ -2,15 +2,19 @@
 A compiled web framework for all runtimes.
 
 ```ts
-import { router, layer, compile } from '@mapl/web';
+import { router, handler, layer, compile } from '@mapl/web';
 
-const app = router.init([
-  layer.attach('id', () => performance.now())
-], [
-  router.on('GET', '/path', (c) => c.id)
+const api = router.init([], [
+  handler.get('/', () => 'Hi')
 ]);
 
+const app = router.init(
+  [ layer.attach('id', () => performance.now()) ],
+  [ handler.get('/path', (c) => c.id) ],
+  { '/api': api }
+);
+
 export default {
-  fetch: compile(app)
+  fetch: router.compile(app)
 };
 ```

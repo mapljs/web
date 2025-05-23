@@ -46,7 +46,7 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
             `${LIB}/${pathNoExt}.js`,
             minify(path, transformed.code.replace(/const /g, 'let '), {
               compress: false,
-              mangle: false
+              mangle: false,
             }).code,
           );
 

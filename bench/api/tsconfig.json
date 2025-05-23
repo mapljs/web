@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     // Paths
     "paths": {
-      "@mapl/web": ["../lib/index"]
+      "@mapl/web": ["../../lib/index"]
     }
   }
 }

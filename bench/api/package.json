@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "setup": "bun tsx ./setup/index.ts"
+  }
+}

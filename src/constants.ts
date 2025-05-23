@@ -7,6 +7,7 @@ import {
   URL,
   PATH_START,
   PATH_END,
+  TMP,
 } from '@mapl/framework/constants.js';
 export * from '@mapl/framework/constants.js';
 
@@ -59,14 +60,29 @@ export const PARSE_PATH: string =
 
 export const CHTML: string = WEB + 'h';
 export const CJSON: string = WEB + 'j';
+
+export const OHTML: string = WEB + 'oh';
+export const OJSON: string = WEB + 'oj';
+
 export const R404: string = WEB + 'n';
 export const R400: string = WEB + 'b';
+
 export const GLOBALS: string =
-  'let [' +
+  'let ' +
+  TMP +
+  '=["text/html","application/json"].map(c=>["Content-Type",c]),[' +
   CHTML +
   ',' +
   CJSON +
-  ']=["text/html","application/json"].map(c=>["content-type",c]),[' +
+  ']=' +
+  TMP +
+  ',[' +
+  OHTML +
+  ',' +
+  OJSON +
+  ']=' +
+  TMP +
+  '.map(c=>({headers:[c]})),[' +
   R404 +
   ',' +
   R400 +

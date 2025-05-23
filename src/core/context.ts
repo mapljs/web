@@ -18,9 +18,9 @@ const ctxProto = proto({
 });
 
 // Create a context
-export default (req: Request): Context => {
+export default (req: Request, headers: Headers): Context => {
   const obj: Context = Object.create(ctxProto);
-  obj.headers = [];
+  obj.headers = headers;
   obj.req = req;
   return obj;
 };

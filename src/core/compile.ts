@@ -29,7 +29,6 @@ const compileReturn = (
   result: string,
 ): string => {
   const typ = dat.type;
-
   if (typ === 'raw') return 'return ' + result;
 
   if (fnAsync) result = 'await ' + result;
@@ -39,20 +38,25 @@ const compileReturn = (
       ? 'return new Response(' +
         result +
         (contextCreated ? ',' + constants.CTX + ')' : ')')
-      : (contextCreated ? '' : state[2]) +
-        constants.HEADERS +
-        '.push(' +
-        (typ === 'json' ? constants.CJSON : constants.CHTML) +
-        ');return new Response(' +
-        (typ === 'json' ? 'JSON.stringify(' + result + ')' : result) +
-        ',' +
-        constants.CTX +
-        ')';
+      : contextCreated
+        ? constants.HEADERS +
+          '.push(' +
+          (typ === 'json' ? constants.CJSON : constants.CHTML) +
+          ');return new Response(' +
+          (typ === 'json' ? 'JSON.stringify(' + result + ')' : result) +
+          ',' +
+          constants.CTX +
+          ')'
+        : 'return new Response(' +
+          (typ === 'json'
+            ? 'JSON.stringify(' + result + '),' + constants.OJSON
+            : result + ',' + constants.OHTML) +
+          ')';
 
-  return fnAsync && !scopeAsync
-    ? constants.ASYNC_START + str + constants.ASYNC_END
-    : scopeAsync
-      ? str + constants.ASYNC_END
+  return scopeAsync
+    ? str + constants.ASYNC_END
+    : fnAsync
+      ? constants.ASYNC_START + str + constants.ASYNC_END
       : str;
 };
 
@@ -67,6 +71,7 @@ export default (router: AnyRouter): ((req: Request) => any) => {
       dependencies,
       constants.CTX_INIT,
 
+      // Compile a handler
       (fn, dat, path, state, scope) => {
         // String builders
         let call = constants.DEP + state[1].push(fn) + '(';
@@ -104,6 +109,7 @@ export default (router: AnyRouter): ((req: Request) => any) => {
         );
       },
 
+      // Compile an error handler
       (fn, dat, state, scope) => {
         // String builders
         let call = constants.DEP + state[1].push(fn) + '(' + constants.TMP;

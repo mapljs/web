@@ -1,24 +1,14 @@
 import type { Err } from 'safe-throw';
 import type {
-  MiddlewareTypes,
-  AnyMiddlewareTypes,
-  MergeMiddlewareTypes,
+  AnyTypeInfo,
   ErrorHandler,
-  Handler,
-  HandlerData,
-  InferPath,
-  RequestMethod
+  MergeTypeInfo,
+  Tag,
+  TypeInfo,
 } from './handler.js';
-import { proto } from './utils.js';
-import { ALL } from '@mapl/router/method/index.js';
 
-declare const tag: unique symbol;
-export interface RouteHandler<in out S> {
-  readonly [tag]: S;
-}
-
-export type RouterTag = RouteHandler<typeof tag>;
-export type AnyRouter = AnyMiddlewareTypes & RouterTag;
+export type RouterTag = Tag<{ readonly 0: unique symbol }>;
+export type AnyRouter = AnyTypeInfo & RouterTag;
 
 /**
  * Create a router
@@ -26,37 +16,12 @@ export type AnyRouter = AnyMiddlewareTypes & RouterTag;
  * @param handlers
  * @param children
  */
-export const init = <const T extends AnyMiddlewareTypes[]>(
+export const init = <const T extends AnyTypeInfo[]>(
   middlewares: T,
-  handlers: RouteHandler<MergeMiddlewareTypes<T>[1]>[],
-  children: Record<string, AnyRouter> = {}
-): MergeMiddlewareTypes<T> & RouterTag => [middlewares, handlers, null, Object.entries(children)] as any;
-
-/**
- * Handle requests to a path with a specific method
- * @param method
- * @param path
- * @param handler
- * @param dat
- */
-export const on = <S, P extends string>(
-  method: RequestMethod | (string & {}),
-  path: P,
-  handler: Handler<InferPath<P>, S & {}>,
-  ...dat: HandlerData[]
-): RouteHandler<S> => [method, path, handler, proto(...dat)] as any;
-
-/**
- * Handle any request method
- * @param path
- * @param handler
- * @param dat
- */
-export const any = <S, P extends string>(
-  path: P,
-  handler: Handler<InferPath<P>, S & {}>,
-  ...dat: HandlerData[]
-): RouteHandler<S> => [ALL, path, handler, proto(...dat)] as any;
+  handlers: Tag<Partial<MergeTypeInfo<T>[1]>>[],
+  children: Record<string, AnyRouter> = {},
+): MergeTypeInfo<T> & RouterTag =>
+  [middlewares, handlers, null, Object.entries(children)] as any;
 
 /**
  * Handle router error
@@ -64,9 +29,11 @@ export const any = <S, P extends string>(
  * @param f
  */
 export const onErr = <E extends Err, S extends {}>(
-  router: MiddlewareTypes<E, S> & RouterTag,
+  router: TypeInfo<E, S> & RouterTag,
   f: ErrorHandler<E, S>,
 ): void => {
   // @ts-ignore
   router[2] = f;
 };
+
+export { default as compile } from './compile.js';
