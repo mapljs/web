@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import { fileURLToPath } from 'node:url';
 
 const db = new Database(fileURLToPath(new URL('../.db', import.meta.url)));
+db.pragma('journal_mode = WAL');
 export default db;
 
 export const getAllBooks = db.prepare('SELECT * FROM books');

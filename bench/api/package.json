@@ -1,5 +1,7 @@
 {
+  "type": "module",
   "scripts": {
-    "setup": "bun tsx ./setup/index.ts"
+    "setup": "tsx ./setup/index.ts",
+    "start": "tsx ./index.ts"
   }
 }
