@@ -1,12 +1,9 @@
-import type { Err } from 'safe-throw';
-import type { Context } from './context.js';
-import { ALL } from '@mapl/router/method/index.js';
-import { proto } from './utils.js';
+import type { Err } from "safe-throw";
+import type { Context } from "./context.js";
+import { ALL } from "@mapl/router/method/index.js";
+import { proto, type Tag } from "./utils.js";
 
-export type ErrorHandler<
-  E extends Err = Err,
-  T extends {} = Record<string, any>,
-> = (err: E, c: Context & T) => any;
+export type ErrorHandler<E extends Err = Err> = (err: E, c: Context) => any;
 
 export type Handler<
   Params extends string[] = string[],
@@ -17,56 +14,51 @@ export type DefineHandler = <P extends string, S = {}>(
   path: P,
   handler: Handler<InferPath<P>, Required<S>>,
   ...dat: HandlerData[]
-) => Tag<S>;
+) => HandlerTag<S>;
 
 export interface HandlerData extends Record<symbol, any> {
-  type?: 'json' | 'html' | 'raw';
+  type?: "json" | "html" | "raw";
 }
 
 export type InferPath<T extends string> = T extends `${string}*${infer Next}`
-  ? Next extends '*'
+  ? Next extends "*"
     ? [string]
     : [string, ...InferPath<Next>]
   : [];
 
-export type MiddlewareHandler = (c: Context) => any;
-
-// Type info for middleware and router
-export type TypeInfo<E = never, S = {}> = [err: E, state: S];
-export type AnyTypeInfo = TypeInfo<any, any>;
-export type MergeTypeInfo<T extends AnyTypeInfo[]> = T extends [
-  infer First extends TypeInfo,
-  ...infer Rest extends TypeInfo[],
-]
-  ? [First[0] | MergeTypeInfo<Rest>[0], First[1] & MergeTypeInfo<Rest>[1]]
-  : [never, {}];
-
 // Unique tags
-declare const tag: unique symbol;
-export interface Tag<S> {
-  readonly [tag]: S;
-}
+declare const handlerTag: unique symbol;
+export type HandlerTag<T> = Tag<T, typeof handlerTag>;
 
 /**
  * Return JSON
  */
 export const json = {
-  type: 'json',
+  type: "json",
 } as const;
 
 /**
  * Return HTML
  */
 export const html = {
-  type: 'html',
+  type: "html",
 } as const;
 
 /**
  * Return raw Response
  */
 export const raw = {
-  type: 'raw',
+  type: "raw",
 } as const;
+
+/**
+ * Handle error
+ * @param f
+ */
+export const error = <E extends Err>(
+  f: ErrorHandler<E>,
+  ...dat: HandlerData[]
+): HandlerTag<E> => [f, proto(...dat)] as any;
 
 /**
  * Handle requests to a path with a specific method
@@ -75,18 +67,18 @@ export const raw = {
  * @param handler
  * @param dat
  */
-export const on = <P extends string, S = {}>(
+export const route = <P extends string, S = {}>(
   method: string,
   path: P,
   handler: Handler<InferPath<P>, Required<S>>,
   ...dat: HandlerData[]
-): Tag<S> => [method, path, handler, proto(...dat)] as any;
+): HandlerTag<S> => [method, path, handler, proto(...dat)] as any;
 
-export const any: DefineHandler = (...a) => on(ALL as any, ...a) as any;
-export const get: DefineHandler = (...a) => on('GET', ...a) as any;
-export const post: DefineHandler = (...a) => on('POST', ...a) as any;
-export const put: DefineHandler = (...a) => on('PUT', ...a) as any;
-export const del: DefineHandler = (...a) => on('DELETE', ...a) as any;
-export const patch: DefineHandler = (...a) => on('PATCH', ...a) as any;
-export const options: DefineHandler = (...a) => on('OPTIONS', ...a) as any;
-export const trace: DefineHandler = (...a) => on('TRACE', ...a) as any;
+export const any: DefineHandler = (...a) => route(ALL as any, ...a) as any;
+export const get: DefineHandler = (...a) => route("GET", ...a) as any;
+export const post: DefineHandler = (...a) => route("POST", ...a) as any;
+export const put: DefineHandler = (...a) => route("PUT", ...a) as any;
+export const del: DefineHandler = (...a) => route("DELETE", ...a) as any;
+export const patch: DefineHandler = (...a) => route("PATCH", ...a) as any;
+export const options: DefineHandler = (...a) => route("OPTIONS", ...a) as any;
+export const trace: DefineHandler = (...a) => route("TRACE", ...a) as any;

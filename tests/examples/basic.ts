@@ -1,27 +1,27 @@
-import { router, layer, handler } from '@mapl/web';
+import { router, layer, handle, compile } from "@mapl/web";
 
-const subrouter = router.init([], [handler.on('GET', '/', () => 'Hello')]);
-const app = router.init(
+const subrouter = router([], [handle.get("/", () => "Hello")]);
+const app = router(
   // Middlewares
   [
     layer.tap((c) => {
       console.log(c.req);
     }),
-    layer.attach('id', () => performance.now()),
+    layer.attach("id", () => performance.now()),
   ],
 
   // Route handlers
   [
-    handler.get('/path', (c) => c.id),
-    handler.post('/body', async (c) => c.req.text()),
+    handle.get("/path", (c) => c.id),
+    handle.post("/body", async (c) => c.req.text()),
   ],
 
   // Subrouters
   {
-    '/api': subrouter,
+    "/api": subrouter,
   },
 );
 
 export default {
-  fetch: router.compile(app),
+  fetch: compile(app),
 };
