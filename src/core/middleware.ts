@@ -1,6 +1,6 @@
-import type { InferErr } from "safe-throw";
-import type { AwaitedReturn } from "./utils.js";
-import type { Context } from "./context.js";
+import type { InferErr } from 'safe-throw';
+import type { AwaitedReturn } from './utils.js';
+import type { Context } from './context.js';
 
 export type MiddlewareHandler = (c: Context) => any;
 export type MiddlewareTypes<E, S> = [err: E, state: S];

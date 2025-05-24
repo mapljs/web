@@ -1,4 +1,4 @@
-import { router, layer, handle, compile } from "@mapl/web";
+import { router, layer, handle, compile, st } from "@mapl/web";
 
 const subrouter = router([], [handle.get("/", () => "Hello")]);
 const app = router(
@@ -8,6 +8,9 @@ const app = router(
       console.log(c.req);
     }),
     layer.attach("id", () => performance.now()),
+    layer.validate(() => {
+      if (Math.random() < 0.5) return st.err("Random");
+    }),
   ],
 
   // Route handlers
