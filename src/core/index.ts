@@ -1,6 +1,6 @@
-import type { HandlerTag } from "./handler.js";
-import type { AnyMiddlewareTypes } from "./middleware.js";
-import type { Tag, ToNever, UnionToIntersection } from "./utils.js";
+import type { HandlerTag } from './handler.js';
+import type { AnyMiddlewareTypes } from './middleware.js';
+import type { Tag, ToNever, UnionToIntersection } from './utils.js';
 
 declare const routerTag: unique symbol;
 export type RouterTag<E = any> = Tag<E, typeof routerTag>;

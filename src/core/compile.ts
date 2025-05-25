@@ -11,7 +11,7 @@ import compile from '@mapl/router/method/compiler.js';
 import { countParams } from '@mapl/router/path/index.js';
 import { isErr } from 'safe-throw';
 
-import type { AnyRouter } from './index.js';
+import type { RouterTag } from './index.js';
 import type { HandlerData } from './handler.js';
 import createContext from './context.js';
 
@@ -60,7 +60,7 @@ const compileReturn = (
       : str;
 };
 
-export default (router: AnyRouter): ((req: Request) => any) => {
+export default (router: RouterTag): ((req: Request) => any) => {
   const baseRouter: Router<string> = {};
   const dependencies: any[] = [];
 

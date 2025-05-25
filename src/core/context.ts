@@ -1,11 +1,10 @@
 import { proto } from './utils.js';
 
 export type Header = [string, string] | readonly [string, string];
-export type Headers = Header[];
 
 export interface Context {
   req: Request;
-  headers: Headers;
+  headers: Header[];
   status?: number;
   statusText?: string;
 }
@@ -18,7 +17,7 @@ const ctxProto = proto({
 });
 
 // Create a context
-export default (req: Request, headers: Headers): Context => {
+export default (req: Request, headers: Header[]): Context => {
   const obj: Context = Object.create(ctxProto);
   obj.headers = headers;
   obj.req = req;
