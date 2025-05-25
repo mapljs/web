@@ -3,13 +3,12 @@ import type { AnyMiddlewareTypes } from "./middleware.js";
 import type { Tag, ToNever, UnionToIntersection } from "./utils.js";
 
 declare const routerTag: unique symbol;
-// Store error
 export type RouterTag<E = any> = Tag<E, typeof routerTag>;
 
 export type InferError<
   T extends AnyMiddlewareTypes[],
   S extends Record<string, RouterTag>,
-> = ToNever<S[string][typeof routerTag] | T[number][0]>;
+> = ToNever<S[keyof S][typeof routerTag] | T[number][0]>;
 
 export type InferHandler<T extends AnyMiddlewareTypes[]> = HandlerTag<
   T extends [] ? {} : UnionToIntersection<T[number][1]>
@@ -21,6 +20,11 @@ export default <
 >(
   middlewares: T,
   handlers: InferHandler<T>[],
-  children: S = {} as any,
+  children?: S,
 ): RouterTag<InferError<T, S>> =>
-  [middlewares, handlers, null, children] as any;
+  [
+    middlewares,
+    handlers,
+    null,
+    children == null ? [] : Object.entries(children),
+  ] as any;

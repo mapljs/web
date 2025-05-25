@@ -1,4 +1,4 @@
-import { handle, layer, router, st } from '@mapl/web';
+import { compile, handle, layer, router, st } from '@mapl/web';
 
 const app = handle.error(
   router(
@@ -14,3 +14,7 @@ const app = handle.error(
     return st.payload(err);
   },
 );
+
+export default {
+  fetch: compile(app),
+};
