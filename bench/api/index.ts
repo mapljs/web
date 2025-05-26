@@ -1,37 +1,20 @@
-import { summary, run, bench, do_not_optimize } from 'mitata';
+import { summary, run, bench, do_not_optimize } from "mitata";
+import { basename } from "node:path";
 
-import { hrtime } from 'node:process';
-import { createRequire } from 'node:module';
-import { basename, relative } from 'node:path';
-
-import tests from './tests.js';
-import frameworks from './.out/index.js';
+import tests from "./tests.js";
+import frameworks from "./.out/index.js";
 
 // Log startup time
-const req = new Request('http://127.0.0.1');
+const req = new Request("http://127.0.0.1");
 
 const imported = await Promise.all(
   frameworks.map(async (path: string) => {
-    const require = createRequire(path);
-
-    let start = hrtime.bigint();
-    const res = require(path).default;
+    const res = (await import(path)).default;
     await res.fetch(req);
-    start = hrtime.bigint() - start;
-
-    console.log(
-      relative('.', path),
-      'took',
-      start / 1000n,
-      'us',
-      '-',
-      start / 1000000n,
-      'ms',
-    );
 
     return {
       handler: res as { fetch: (req: Request) => any },
-      name: basename(path, '.js'),
+      name: basename(path, ".js"),
     };
   }),
 );
@@ -39,7 +22,7 @@ const imported = await Promise.all(
 for (const test of tests) {
   const passed: typeof imported = [];
 
-  const name = test.method + ' ' + test.path;
+  const name = test.method + " " + test.path;
   const tester = test.fn();
 
   for (const framework of imported) {
@@ -50,18 +33,18 @@ for (const test of tests) {
       await tester.expect(await handler.fetch(tester.request));
     } catch (e) {
       console.error(e);
-      console.error(name, '-', framework.name, 'failed');
+      console.error(name, "-", framework.name, "failed");
       continue;
     }
 
-    console.log(name, '-', framework.name, 'passed');
+    console.log(name, "-", framework.name, "passed");
     passed.push(framework);
   }
 
   summary(() => {
     for (const framework of passed) {
       // Register bench
-      bench(name + ' - ' + framework.name, function* () {
+      bench(name + " - " + framework.name, function* () {
         const { handler } = framework;
 
         yield {
