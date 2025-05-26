@@ -2,6 +2,7 @@
   "type": "module",
   "scripts": {
     "setup": "tsx ./setup/index.ts",
-    "start": "tsx ./index.ts"
+    "perf": "tsx ./perf.ts",
+    "startup": "bun ./startup.ts"
   }
 }
