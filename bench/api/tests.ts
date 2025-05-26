@@ -1,5 +1,5 @@
-import * as assert from "node:assert/strict";
-import data from "./setup/data.json";
+import * as assert from 'node:assert/strict';
+import data from './setup/data.json';
 
 export interface Test {
   path: string;
@@ -14,44 +14,49 @@ export interface Test {
 export const selectRandom = <T>(list: T[]): T =>
   list[Math.round(Math.random() * (list.length - 1))];
 
+const basicCheck = (res: Response) => {
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('Access-Control-Allow-Origin'), '*');
+};
+
 export default [
   {
-    path: "/",
-    method: "GET",
+    path: '/',
+    method: 'GET',
 
     fn: () => ({
-      request: new Request("http://127.0.0.1"),
+      request: new Request('http://127.0.0.1'),
       expect: async (res) => {
-        assert.equal(res.status, 200);
-        assert.equal(await res.text(), "Hi");
+        basicCheck(res);
+        assert.equal(await res.text(), 'Hi');
       },
     }),
   },
 
   {
-    path: "/books",
-    method: "GET",
+    path: '/books',
+    method: 'GET',
 
     fn: () => ({
-      request: new Request("http://127.0.0.1/books"),
+      request: new Request('http://127.0.0.1/books'),
       expect: async (res) => {
-        assert.equal(res.status, 200);
+        basicCheck(res);
         assert.deepEqual(await res.json(), data.books);
       },
     }),
   },
 
   {
-    path: "/books/{id}",
-    method: "GET",
+    path: '/books/{id}',
+    method: 'GET',
 
     fn: () => {
       const book = selectRandom(data.books);
 
       return {
-        request: new Request("http://127.0.0.1/books/" + book.id),
+        request: new Request('http://127.0.0.1/books/' + book.id),
         expect: async (res) => {
-          assert.equal(res.status, 200);
+          basicCheck(res);
           assert.deepEqual(await res.json(), book);
         },
       };
@@ -59,17 +64,17 @@ export default [
   },
 
   {
-    path: "/books/{id}/reviews",
-    method: "GET",
+    path: '/books/{id}/reviews',
+    method: 'GET',
 
     fn: () => {
       const book = selectRandom(data.books);
       const reviews = data.reviews.filter((r) => r.book_id === book.id);
 
       return {
-        request: new Request("http://127.0.0.1/books/" + book.id + "/reviews"),
+        request: new Request('http://127.0.0.1/books/' + book.id + '/reviews'),
         expect: async (res) => {
-          assert.equal(res.status, 200);
+          basicCheck(res);
           assert.deepEqual(await res.json(), reviews);
         },
       };
@@ -77,28 +82,30 @@ export default [
   },
 
   {
-    path: "/authors",
-    method: "GET",
+    path: '/authors',
+    method: 'GET',
 
     fn: () => ({
-      request: new Request("http://127.0.0.1/authors"),
+      request: new Request('http://127.0.0.1/authors'),
       expect: async (res) => {
-        assert.deepEqual(await (await res).json(), data.authors);
+        basicCheck(res);
+        assert.deepEqual(await res.json(), data.authors);
       },
     }),
   },
 
   {
-    path: "/authors/{id}",
-    method: "GET",
+    path: '/authors/{id}',
+    method: 'GET',
 
     fn: () => {
       const author = selectRandom(data.authors);
 
       return {
-        request: new Request("http://127.0.0.1/authors/" + author.name),
+        request: new Request('http://127.0.0.1/authors/' + author.name),
         expect: async (res) => {
-          assert.deepEqual(await (await res).json(), author);
+          basicCheck(res);
+          assert.deepEqual(await res.json(), author);
         },
       };
     },

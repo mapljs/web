@@ -1,8 +1,8 @@
-import { compile, cors, handle, router } from "@mapl/web";
+import { compile, cors, handle, router } from '@mapl/web';
 
 const app = router(
-  [cors.init("*", [cors.maxAge(96000)])],
-  [handle.get("/", () => "Hi")],
+  [cors.init('*', [cors.maxAge(96000)])],
+  [handle.get('/', () => 'Hi')],
 );
 
 export default {
