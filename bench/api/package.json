@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "scripts": {
+    "perf": "tsx perf.ts",
+    "startup": "tsx startup.ts"
+  }
+}

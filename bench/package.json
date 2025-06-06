@@ -4,8 +4,8 @@
     "@mapl/app": "^0.5.14",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^11.10.0",
-    "elysia": "^1.3.3",
-    "hono": "^4.7.10",
-    "rolldown": "^1.0.0-beta.9"
+    "elysia": "^1.3.4",
+    "hono": "^4.7.11",
+    "rolldown": "^1.0.0-beta.9-commit.d91dfb5"
   }
 }
