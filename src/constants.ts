@@ -68,7 +68,7 @@ export const R404: string = WEB + 'n';
 export const R400: string = WEB + 'b';
 
 export const GLOBALS: string =
-  'let ' +
+  'var ' +
   TMP +
   '=["text/html","application/json"].map(c=>["Content-Type",c]),[' +
   CHTML +
@@ -86,4 +86,4 @@ export const GLOBALS: string =
   R404 +
   ',' +
   R400 +
-  ']=[404,400].map(s=>new Response(null,{status:s}));';
+  ']=[404,400].map(s=>new Response(null,{status:s}))';

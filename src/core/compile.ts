@@ -1,8 +1,7 @@
 import {
   compileGroup,
   createArgSet,
-  isFuncAsync,
-  type CompilerState,
+  isFuncAsync
 } from '@mapl/framework';
 
 import type { Router } from '@mapl/router/method/index.js';
@@ -20,7 +19,6 @@ const paramArgs: string[] = createArgSet(
 );
 
 const compileReturn = (
-  state: CompilerState,
   dat: HandlerData,
 
   fnAsync: boolean,
@@ -89,7 +87,6 @@ export default (router: RouterTag): ((req: Request) => any) => {
             return (
               state[2] +
               compileReturn(
-                state,
                 dat as HandlerData,
                 isFuncAsync(fn),
                 scope[0],
@@ -100,7 +97,6 @@ export default (router: RouterTag): ((req: Request) => any) => {
         }
 
         return compileReturn(
-          state,
           dat as HandlerData,
           isFuncAsync(fn),
           scope[0],
@@ -123,7 +119,6 @@ export default (router: RouterTag): ((req: Request) => any) => {
             return (
               state[2] +
               compileReturn(
-                state,
                 dat as HandlerData,
                 isFuncAsync(fn),
                 scope[0],
@@ -134,7 +129,6 @@ export default (router: RouterTag): ((req: Request) => any) => {
         }
 
         return compileReturn(
-          state,
           dat as HandlerData,
           isFuncAsync(fn),
           scope[0],
@@ -158,8 +152,9 @@ export default (router: RouterTag): ((req: Request) => any) => {
     constants.IS_ERR,
     constants.CTX_FN,
     ...dependencies.map((_, i) => constants.DEP + (i + 1)),
-    constants.GLOBALS +
-      'return(' +
+      '"use strict";' +
+      constants.GLOBALS +
+      ';return(' +
       constants.REQ +
       ')=>{' +
       compile(
