@@ -13,8 +13,8 @@ const authors = new Elysia({ prefix: '/authors' })
 
 const app = new Elysia()
   .use(cors())
-  .get('/', (c) => {
-    c.set.headers['content-type'] = 'text/html';
+  .get('/', ({ set }) => {
+    set.headers['content-type'] = 'text/html';
     return pages.home;
   })
   .use(books)

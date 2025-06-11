@@ -1,8 +1,8 @@
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 
-const db = new Database(fileURLToPath(new URL('../.db', import.meta.url)));
-db.pragma('journal_mode = WAL');
+const db = new DatabaseSync(fileURLToPath(new URL('../.db', import.meta.url)));
+db.exec('PRAGMA journal_mode = WAL');
 export default db;
 
 export const getAllBooks = db.prepare('SELECT * FROM books');
