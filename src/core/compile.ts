@@ -5,7 +5,6 @@ import {
 } from '@mapl/framework';
 
 import type { Router } from '@mapl/router/method/index.js';
-import { o2 } from '@mapl/router/tree/compiler.js';
 import compile from '@mapl/router/method/compiler.js';
 import { countParams } from '@mapl/router/path/index.js';
 import { isErr } from 'safe-throw';
@@ -159,7 +158,6 @@ export default (router: RouterTag): ((req: Request) => any) => {
       ')=>{' +
       compile(
         baseRouter,
-        o2,
         constants.REQ + '.method',
         constants.PARSE_PATH,
         1,
