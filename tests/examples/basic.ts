@@ -9,11 +9,13 @@ const app = router(
     layer.attach('id', () => performance.now()),
   ],
   [
-    handle.get('/path', (c) => c.id),
+    handle.any('/path', (c) => c.id),
     handle.post('/body', async (c) => c.req.text()),
   ],
   { '/api': subrouter },
 );
+
+console.log(compile(app).toString())
 
 export default {
   fetch: compile(app),

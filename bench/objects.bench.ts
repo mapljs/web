@@ -6,10 +6,10 @@ summary(() => {
     bench(label, function* () {
       yield {
         [0]: () => [],
-        bench: fn
-      }
+        bench: fn,
+      };
     });
-  }
+  };
 
   {
     class Context {
@@ -46,7 +46,7 @@ summary(() => {
   {
     const proto = Object.assign(Object.create(null), {
       status: 200,
-      headers: undefined
+      headers: undefined,
     });
 
     {

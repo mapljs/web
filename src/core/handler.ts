@@ -1,6 +1,5 @@
 import type { Err } from 'safe-throw';
 import type { Context } from './context.js';
-import { ALL } from '@mapl/router/method/index.js';
 import { proto, type Tag } from './utils.js';
 import type { RouterTag } from './index.js';
 
@@ -80,7 +79,7 @@ export const route = <P extends string, S = {}>(
   ...dat: HandlerData[]
 ): HandlerTag<S> => [method, path, handler, proto(...dat)] as any;
 
-export const any: DefineHandler = (...a) => route(ALL as any, ...a) as any;
+export const any: DefineHandler = (...a) => route('', ...a) as any;
 export const get: DefineHandler = (...a) => route('GET', ...a) as any;
 export const post: DefineHandler = (...a) => route('POST', ...a) as any;
 export const put: DefineHandler = (...a) => route('PUT', ...a) as any;

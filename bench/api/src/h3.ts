@@ -4,20 +4,18 @@ import { db, pages } from '../lib/index.js';
 const books = new H3()
   .get('/', () => db.getAllBooks.all())
   .get('/:id', (c) => db.getBook.get(c.context.params!.id))
-  .get('/:id/reviews', (c) =>
-    db.getAllReviews.all(c.context.params!.id),
-  );
+  .get('/:id/reviews', (c) => db.getAllReviews.all(c.context.params!.id));
 
 const authors = new H3()
   .get('/', () => db.getAllAuthors.all())
   .get('/:id', (c) => db.getAuthor.get(c.context.params!.id));
 
 const cors = {
-  origin: "*",
+  origin: '*',
   preflight: {
     statusCode: 204,
   },
-  methods: "*",
+  methods: '*',
 } as const;
 
 const app = new H3()

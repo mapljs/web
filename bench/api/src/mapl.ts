@@ -20,9 +20,7 @@ const authors = router(
 
 const app = router(
   [cors.init('*')],
-  [
-    handle.get('/', () => pages.home, handle.html)
-  ],
+  [handle.get('/', () => pages.home, handle.html)],
   {
     '/books': books,
     '/authors': authors,

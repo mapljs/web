@@ -1,8 +1,4 @@
-import {
-  compileGroup,
-  createArgSet,
-  isFuncAsync
-} from '@mapl/framework';
+import { compileGroup, createArgSet, isFuncAsync } from '@mapl/framework';
 
 import type { Router } from '@mapl/router/method/index.js';
 import compile from '@mapl/router/method/compiler.js';
@@ -151,17 +147,12 @@ export default (router: RouterTag): ((req: Request) => any) => {
     constants.IS_ERR,
     constants.CTX_FN,
     ...dependencies.map((_, i) => constants.DEP + (i + 1)),
-      '"use strict";' +
+    '"use strict";' +
       constants.GLOBALS +
       ';return(' +
       constants.REQ +
       ')=>{' +
-      compile(
-        baseRouter,
-        constants.REQ + '.method',
-        constants.PARSE_PATH,
-        1,
-      ) +
+      compile(baseRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
       'return ' +
       constants.R404 +
       '}',

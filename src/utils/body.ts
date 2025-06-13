@@ -1,9 +1,13 @@
 import { attach, type MiddlewareTypes } from '../core/middleware.js';
 
+interface TBody<T> {
+  body: T;
+}
+
 /**
  * Parse body to text
  */
-export const text: MiddlewareTypes<never, Record<'body', string>> = attach(
+export const text: MiddlewareTypes<never, TBody<string>> = attach(
   'body',
   async (c) => c.req.text(),
 );
@@ -11,7 +15,7 @@ export const text: MiddlewareTypes<never, Record<'body', string>> = attach(
 /**
  * Parse body to a blob
  */
-export const blob: MiddlewareTypes<never, Record<'body', Blob>> = attach(
+export const blob: MiddlewareTypes<never, TBody<Blob>> = attach(
   'body',
   async (c) => c.req.blob(),
 );
@@ -19,7 +23,7 @@ export const blob: MiddlewareTypes<never, Record<'body', Blob>> = attach(
 /**
  * Parse body to a byte array
  */
-export const bytes: MiddlewareTypes<never, Record<'body', Uint8Array>> = attach(
+export const bytes: MiddlewareTypes<never, TBody<Uint8Array>> = attach(
   'body',
   async (c) => c.req.bytes(),
 );

@@ -52,7 +52,7 @@ export const PARSE_PATH: string =
   PATH_START +
   '):' +
   URL +
-  '.substring(' +
+  '.slice(' +
   PATH_START +
   ',' +
   PATH_END +
