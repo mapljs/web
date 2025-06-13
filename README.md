@@ -1,4 +1,3 @@
-# `@mapl/web`
 A compiled web framework for all runtimes.
 
 ```ts

@@ -1,9 +1,12 @@
 {
   "name": "@mapl/web",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A compiled web framework for all runtimes",
   "keywords": [],
-  "repository": "github:mapljs/web",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mapljs/web.git"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./index.js",
