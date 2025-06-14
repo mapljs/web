@@ -18,7 +18,7 @@ const format = (n: number) => {
       i % 3 === 0
         ? handle.get(`/${i}`, () => '' + i)
         : i % 3 === 1
-          ? handle.any(`/${i}`, (c) => c.req.method + ' ' + i)
+          ? handle.any(`/${i}/*/${i}`, (p, c) => c.req.method + ' ' + p + i)
           : handle.post(`/${i}`, async (c) => c.req.text())
     )
   );
