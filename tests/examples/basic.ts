@@ -15,7 +15,7 @@ const app = router(
   { '/api': subrouter },
 );
 
-console.log(compile(app).toString())
+console.log(compile(app).toString());
 
 export default {
   fetch: compile(app),

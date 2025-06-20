@@ -6,21 +6,22 @@ const TIME = ['ns', 'us', 'ms', 's'];
 
 const format = (n: number) => {
   let i = 0;
-  for (; n >= 1000 && i < TIME.length; i++)
-    n /= 1000;
+  for (; n >= 1000 && i < TIME.length; i++) n /= 1000;
   return +n.toFixed(2) + TIME[i];
-}
+};
 
 {
   const app = router(
     [cors.init('*')],
-    new Array(ROUTES).fill(0).map((_, i) =>
-      i % 3 === 0
-        ? handle.get(`/${i}`, () => '' + i)
-        : i % 3 === 1
-          ? handle.any(`/${i}/*/${i}`, (p, c) => c.req.method + ' ' + p + i)
-          : handle.post(`/${i}`, async (c) => c.req.text())
-    )
+    new Array(ROUTES)
+      .fill(0)
+      .map((_, i) =>
+        i % 3 === 0
+          ? handle.get(`/${i}`, () => '' + i)
+          : i % 3 === 1
+            ? handle.any(`/${i}/*/${i}`, (p, c) => c.req.method + ' ' + p + i)
+            : handle.post(`/${i}`, async (c) => c.req.text()),
+      ),
   );
 
   let start = now();

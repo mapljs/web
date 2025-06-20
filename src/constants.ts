@@ -8,8 +8,8 @@ import {
   PATH_START,
   PATH_END,
   TMP,
-} from '@mapl/framework/constants.js';
-export * from '@mapl/framework/constants.js';
+} from '@mapl/framework/constants';
+export * from '@mapl/framework/constants';
 
 export const WEB: string = MAPL + 'w';
 
