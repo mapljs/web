@@ -1,7 +1,6 @@
 {
   "type": "module",
   "scripts": {
-    "perf": "tsx --expose-gc --allow-natives-syntax perf.ts",
-    "startup": "bun startup.ts"
+    "perf": "tsx --expose-gc --allow-natives-syntax perf.ts"
   }
 }

@@ -1,4 +1,4 @@
-import type { InferErr } from 'safe-throw';
+import type { InferErr } from '@safe-std/error';
 import type { AwaitedReturn } from './utils.js';
 import type { Context } from './context.js';
 

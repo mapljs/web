@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "A compiled web framework for all runtimes",
   "keywords": [],
   "repository": {
@@ -30,8 +30,8 @@
     "@biomejs/biome"
   ],
   "dependencies": {
-    "@mapl/framework": "^0.1.7",
-    "@mapl/router": "^0.5.7",
-    "safe-throw": "^0.5.2"
+    "@mapl/framework": "^0.2.4",
+    "@mapl/router": "^0.6.0",
+    "@safe-std/error": "^1.0.0"
   }
 }

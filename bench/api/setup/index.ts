@@ -13,7 +13,6 @@ await Promise.all(
     const bundle = await rolldown({
       platform: 'node',
       input,
-      external: ['better-sqlite3'],
     });
 
     await bundle.write({

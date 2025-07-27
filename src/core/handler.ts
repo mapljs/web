@@ -1,6 +1,6 @@
-import type { Err } from 'safe-throw';
+import type { Err } from '@safe-std/error';
 import type { Context } from './context.js';
-import { proto, type Tag } from './utils.js';
+import { proto } from './utils.js';
 import type { RouterTag } from './index.js';
 
 export type ErrorHandler<E extends Err = Err> = (err: E, c: Context) => any;
@@ -28,7 +28,9 @@ export type InferPath<T extends string> = T extends `${string}*${infer Next}`
 
 // Unique tags
 declare const handlerTag: unique symbol;
-export type HandlerTag<T> = Tag<T, typeof handlerTag>;
+export interface HandlerTag<out T> {
+  [handlerTag]: T;
+}
 
 /**
  * Return JSON
@@ -77,7 +79,13 @@ export const route = <P extends string, S = {}>(
   path: P,
   handler: Handler<InferPath<P>, Required<S>>,
   ...dat: HandlerData[]
-): HandlerTag<S> => [method, path, handler, proto(...dat)] as any;
+): HandlerTag<S> =>
+  [
+    method,
+    path,
+    handler,
+    dat.length === 0 ? {} : proto(...(dat as [any, ...any[]])),
+  ] as any;
 
 export const any: DefineHandler = (...a) => route('', ...a) as any;
 export const get: DefineHandler = (...a) => route('GET', ...a) as any;

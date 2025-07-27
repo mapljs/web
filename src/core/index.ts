@@ -1,14 +1,16 @@
 import type { HandlerTag } from './handler.js';
 import type { AnyMiddlewareTypes } from './middleware.js';
-import type { Tag, ToNever, UnionToIntersection } from './utils.js';
+import type { UnionToIntersection } from './utils.js';
 
 declare const routerTag: unique symbol;
-export type RouterTag<E = any> = Tag<E, typeof routerTag>;
+export interface RouterTag<out E = any> {
+  [routerTag]: E;
+}
 
 export type InferError<
   T extends AnyMiddlewareTypes[],
   S extends Record<string, RouterTag>,
-> = ToNever<S[keyof S][typeof routerTag] | T[number][0]>;
+> = S[keyof S][typeof routerTag] | T[number][0];
 
 export type InferHandler<T extends AnyMiddlewareTypes[]> = HandlerTag<
   T extends [] ? {} : UnionToIntersection<T[number][1]>

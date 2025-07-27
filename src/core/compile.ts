@@ -7,7 +7,7 @@ import {
 
 import compile from '@mapl/router/method/compiler';
 import { countParams } from '@mapl/router/path';
-import { isErr } from 'safe-throw';
+import { isErr } from '@safe-std/error';
 
 import type { RouterTag } from './index.js';
 import type { HandlerData } from './handler.js';
@@ -27,7 +27,6 @@ const compileReturn = (
 ): string => {
   const typ = dat.type;
   if (typ === 'raw') return 'return ' + result;
-
   if (fnAsync) result = 'await ' + result;
 
   const str =
@@ -50,11 +49,10 @@ const compileReturn = (
             : result + ',' + constants.OHTML) +
           ')';
 
-  return scopeAsync
-    ? str + constants.ASYNC_END
-    : fnAsync
-      ? constants.ASYNC_START + str + constants.ASYNC_END
-      : str;
+  // Must manually wrap if scope was not async yet
+  return fnAsync && !scopeAsync
+    ? constants.ASYNC_START + str + constants.ASYNC_END
+    : str;
 };
 
 const compileHandler: (typeof state)[3] = (fn, dat, path, scope) => {
@@ -123,7 +121,7 @@ const compileErrorHandler: (typeof state)[4] = (fn, dat, scope) => {
   );
 };
 
-export default (router: RouterTag): ((req: Request) => any) => {
+export const compileToString = (router: RouterTag): string => {
   state[0] = {}; // Create base router
   state[1] = []; // Assign dependencies
   state[2] = constants.CTX_INIT;
@@ -138,23 +136,30 @@ export default (router: RouterTag): ((req: Request) => any) => {
       null,
       // Fallback error handler
       'return ' + constants.R400,
+      false
     ],
     '',
     '',
   );
 
+  return '"use strict";' +
+    constants.GLOBALS +
+    ';return(' +
+    constants.REQ +
+    ')=>{' +
+    compile(state[0], constants.REQ + '.method', constants.PARSE_PATH, 1) +
+    'return ' +
+    constants.R404 +
+    '}';
+}
+
+export default (router: RouterTag): ((req: Request) => any) => {
+  const debug = compileToString(router);
+
   return Function(
     constants.IS_ERR,
     constants.CTX_FN,
     ...state[1].map((_, i) => constants.DEP + (i + 1)),
-    '"use strict";' +
-      constants.GLOBALS +
-      ';return(' +
-      constants.REQ +
-      ')=>{' +
-      compile(state[0], constants.REQ + '.method', constants.PARSE_PATH, 1) +
-      'return ' +
-      constants.R404 +
-      '}',
+    debug,
   )(isErr, createContext, ...state[1]);
 };
