@@ -8,8 +8,8 @@ export interface Context {
 }
 
 // Create a context
-export default (r: Request, h: Header[]): Context => ({
+export default (r: Request): Context => ({
   status: 200,
   req: r,
-  headers: h,
+  headers: [],
 });

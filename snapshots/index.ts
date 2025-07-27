@@ -6,6 +6,13 @@ import {
   cors,
   type RouterTag,
 } from '@mapl/web';
+
+import {
+  compileToState,
+  stateToString,
+  stateToArgs,
+} from '@mapl/web/core/compile';
+
 import * as st from '@safe-std/error';
 
 const OUTDIR = import.meta.dir + '/out/';
@@ -14,9 +21,10 @@ const write = async (
   app: () => RouterTag | Promise<RouterTag>,
 ): Promise<void> => {
   try {
+    compileToState(await app());
     await Bun.write(
       OUTDIR + name.toLowerCase().replaceAll(' ', '-') + '.js',
-      compile(await app()).toString(),
+      `(${stateToArgs()})=>{${stateToString()}}`,
     );
   } catch (e) {
     console.error(e);

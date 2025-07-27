@@ -1,6 +1,5 @@
 import {
   MAPL,
-  HEADERS,
   CTX,
   PATH,
   REQ,
@@ -16,15 +15,11 @@ export const WEB: string = MAPL + 'w';
 export const CTX_FN: string = WEB + 'c';
 export const CTX_INIT: string =
   'let ' +
-  HEADERS +
-  '=[],' +
   CTX +
   '=' +
   CTX_FN +
   '(' +
   REQ +
-  ',' +
-  HEADERS +
   ');';
 
 export const PARSE_PATH: string =

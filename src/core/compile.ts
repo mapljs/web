@@ -121,7 +121,7 @@ const compileErrorHandler: (typeof state)[4] = (fn, dat, scope) => {
   );
 };
 
-export const compileToString = (router: RouterTag): string => {
+export const compileToState = (router: RouterTag): void => {
   state[0] = {}; // Create base router
   state[1] = []; // Assign dependencies
   state[2] = constants.CTX_INIT;
@@ -136,30 +136,38 @@ export const compileToString = (router: RouterTag): string => {
       null,
       // Fallback error handler
       'return ' + constants.R400,
-      false
+      false,
     ],
     '',
     '',
   );
+};
 
-  return '"use strict";' +
-    constants.GLOBALS +
-    ';return(' +
-    constants.REQ +
-    ')=>{' +
-    compile(state[0], constants.REQ + '.method', constants.PARSE_PATH, 1) +
-    'return ' +
-    constants.R404 +
-    '}';
+export const stateToString = (): string =>
+  '"use strict";' +
+  constants.GLOBALS +
+  ';return(' +
+  constants.REQ +
+  ')=>{' +
+  compile(state[0], constants.REQ + '.method', constants.PARSE_PATH, 1) +
+  'return ' +
+  constants.R404 +
+  '}';
+
+export const stateToArgs = (): string => {
+  let depsString = constants.IS_ERR + ',' + constants.CTX_FN;
+  const deps = state[1];
+  for (let i = 0; i < deps.length; i++)
+    depsString += ',' + constants.DEP + (i + 1);
+  return depsString;
 }
 
 export default (router: RouterTag): ((req: Request) => any) => {
-  const debug = compileToString(router);
+  compileToState(router);
 
-  return Function(
-    constants.IS_ERR,
-    constants.CTX_FN,
-    ...state[1].map((_, i) => constants.DEP + (i + 1)),
-    debug,
-  )(isErr, createContext, ...state[1]);
+  return Function(stateToArgs(), stateToString())(
+    isErr,
+    createContext,
+    ...state[1],
+  );
 };

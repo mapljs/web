@@ -1,13 +1,16 @@
 import { tap, type MiddlewareTypes } from '../core/middleware.js';
-import type { Tag } from '../core/utils.js';
 
 type HeaderValue = '*' | (string & {}) | [string, string, ...string[]];
 
 declare const header: unique symbol;
-type Header = Tag<{}, typeof header>;
+interface Header {
+  [header]: 0;
+}
 
 declare const preflight: unique symbol;
-type PreflightHeader = Tag<{}, typeof preflight>;
+interface PreflightHeader {
+  [preflight]: 0;
+}
 
 export const allowMethods = (v: HeaderValue): PreflightHeader =>
   ['Access-Control-Allow-Methods', '' + v] as any;
