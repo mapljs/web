@@ -130,14 +130,7 @@ export const compileToState = (router: RouterTag): void => {
 
   compileGroup(
     router as any,
-    [
-      false,
-      false,
-      null,
-      // Fallback error handler
-      'return ' + constants.R400,
-      false,
-    ],
+    [false, false, , 'return ' + constants.R400, false],
     '',
     '',
   );
@@ -156,11 +149,13 @@ export const stateToString = (): string =>
 
 export const stateToArgs = (): string => {
   let depsString = constants.IS_ERR + ',' + constants.CTX_FN;
+
   const deps = state[1];
   for (let i = 0; i < deps.length; i++)
     depsString += ',' + constants.DEP + (i + 1);
+
   return depsString;
-}
+};
 
 export default (router: RouterTag): ((req: Request) => any) => {
   compileToState(router);

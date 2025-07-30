@@ -13,14 +13,7 @@ export * from '@mapl/framework/constants';
 export const WEB: string = MAPL + 'w';
 
 export const CTX_FN: string = WEB + 'c';
-export const CTX_INIT: string =
-  'let ' +
-  CTX +
-  '=' +
-  CTX_FN +
-  '(' +
-  REQ +
-  ');';
+export const CTX_INIT: string = 'let ' + CTX + '=' + CTX_FN + '(' + REQ + ');';
 
 export const PARSE_PATH: string =
   'let ' +

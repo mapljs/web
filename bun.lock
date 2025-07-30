@@ -4,7 +4,7 @@
     "": {
       "name": "@mapl/web",
       "dependencies": {
-        "@mapl/framework": "^0.2.4",
+        "@mapl/framework": "^0.2.6",
         "@mapl/router": "^0.6.0",
         "@safe-std/error": "^1.0.0",
       },
@@ -97,7 +97,7 @@
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.5", "", { "os": "win32", "cpu": "x64" }, "sha512-TXv6YnJ8ZMVdX+SXWVBo/0p8LTcrUYngpWjvm91TMjjBQii7Oz11Lw5lbDV5Y0TzuhSJHwiH4hEtC1I42mMS0g=="],
 
-    "@mapl/framework": ["@mapl/framework@0.2.4", "", {}, "sha512-4zK05a0OfiqDIm4jGihpkwYdxlP3Yo9FWiygwUjKcv+yvOWtXuDhUCQFlALYBFWfiyj3skMSFl6MKn6nmgtwIA=="],
+    "@mapl/framework": ["@mapl/framework@0.2.6", "", {}, "sha512-GVEV5yBvpvyAXFDZuJvuq3upi4W+nVKq6F0goNt20uJpOMlUFqIuownASqxAno4PebDveZVxPQXDVys81Ro3wA=="],
 
     "@mapl/router": ["@mapl/router@0.6.0", "", {}, "sha512-NVcoV15nEtXwzJL/GvKX7Xysd/WRdDg1n5t9oUWZ4kZPT/Q1NdryK9SFT6IsobD23HtWlwnsjavUfMftwGjebw=="],
 

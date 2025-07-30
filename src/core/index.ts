@@ -23,10 +23,4 @@ export default <
   middlewares: T,
   handlers: InferHandler<T>[],
   children?: S,
-): RouterTag<InferError<T, S>> =>
-  [
-    middlewares,
-    handlers,
-    null,
-    children == null ? [] : Object.entries(children),
-  ] as any;
+): RouterTag<InferError<T, S>> => [middlewares, handlers, , children] as any;

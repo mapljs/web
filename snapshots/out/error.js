@@ -11,7 +11,8 @@
         e = u.indexOf('?', s),
         p = e === -1 ? u.slice(s) : u.slice(s, e);
       if (p === '') {
-        if (me(f1())) {
+        let t = f1();
+        if (me(t)) {
           let c = mwc(r);
           return new Response(f2(t, c), c);
         }
