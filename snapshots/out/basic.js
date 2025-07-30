@@ -15,7 +15,7 @@
         f1(c);
         c.id = f2();
         return (async () => {
-          t = await f4(c);
+          let t = await f4(c);
           if (me(t)) {
             return mwb;
           }
