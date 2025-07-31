@@ -8,7 +8,3 @@ export type UnionToIntersection<U> = (
 export type AwaitedReturn<U extends (...a: any[]) => any> = Awaited<
   ReturnType<U>
 >;
-export const proto = <A extends {}, T extends any[]>(
-  a: A,
-  ...f: T
-): A & UnionToIntersection<T[number]> => Object.assign({ ...a }, ...f);

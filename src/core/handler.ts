@@ -1,6 +1,5 @@
 import type { Err } from '@safe-std/error';
 import type { Context } from './context.js';
-import { proto } from './utils.js';
 import type { RouterTag } from './index.js';
 
 export type ErrorHandler<E extends Err = Err> = (err: E, c: Context) => any;
@@ -17,7 +16,7 @@ export type DefineHandler = <P extends string, S = {}>(
 ) => HandlerTag<S>;
 
 export interface HandlerData extends Record<symbol, any> {
-  type?: 'json' | 'html' | 'raw';
+  type?: 'json' | 'html' | 'raw' | null;
 }
 
 export type InferPath<T extends string> = T extends `${string}*${infer Next}`
@@ -53,6 +52,8 @@ export const raw = {
   type: 'raw',
 } as const;
 
+const noType = { type: null };
+
 /**
  * Handle errors of a router
  * @param f
@@ -63,7 +64,7 @@ export const error = <const E extends Err>(
   ...dat: HandlerData[]
 ): RouterTag<never> => {
   // @ts-ignore
-  r[2] = [f, proto(...dat)];
+  r[2] = [f, dat.length === 0 ? noType : Object.assign({ type: null }, ...dat)];
   return r as any;
 };
 
@@ -84,7 +85,7 @@ export const route = <P extends string, S = {}>(
     method,
     path,
     handler,
-    dat.length === 0 ? {} : proto(...(dat as [any, ...any[]])),
+    dat.length === 0 ? noType : Object.assign({ type: null }, ...dat),
   ] as any;
 
 export const any: DefineHandler = (...a) => route('', ...a) as any;
