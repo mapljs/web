@@ -1,11 +1,4 @@
-import {
-  compile,
-  handle,
-  layer,
-  router,
-  cors,
-  type RouterTag,
-} from '@mapl/web';
+import { handle, layer, router, cors, type RouterTag } from '@mapl/web';
 
 import {
   compileToState,

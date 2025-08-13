@@ -40,20 +40,12 @@
         "useNumericLiterals": "error",
         "useNodejsImportProtocol": "error",
         "useImportType": "error",
-        "useExponentiationOperator": "info",
-        "useTemplate": "off",
-        "noNonNullAssertion": "off",
-        "noParameterAssign": "off"
+        "useExponentiationOperator": "info"
       },
       "complexity": {
         "noForEach": "info",
-        "noBannedTypes": "off",
-        "noVoid": "off",
         "noUselessCatch": "info",
         "useArrowFunction": "warn"
-      },
-      "performance": {
-        "noDelete": "off"
       },
       "nursery": {
         "noCommonJs": "warn"
@@ -63,11 +55,7 @@
         "noUnusedImports": "warn",
         "useImportExtensions": "error"
       },
-      "suspicious": {
-        "noAssignInExpressions": "off",
-        "noExplicitAny": "off",
-        "noImplicitAnyLet": "off"
-      }
+      "recommended": false
     }
   }
 }

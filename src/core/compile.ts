@@ -35,8 +35,8 @@ const compileReturn = (
         result +
         (contextCreated ? ',' + constants.CTX + ')' : ')')
       : contextCreated
-        ? constants.HEADERS +
-          '.push(' +
+        ? constants.CTX +
+          '.headers.push(' +
           (typ === 'json' ? constants.CJSON : constants.CHTML) +
           ');return new Response(' +
           (typ === 'json' ? 'JSON.stringify(' + result + ')' : result) +
