@@ -27,7 +27,7 @@ const compileReturn = (
 ): string => {
   const typ = dat.type;
   if (typ === 'raw') return 'return ' + result;
-  if (fnAsync) result = 'await ' + result;
+  fnAsync && (result = 'await ' + result);
 
   const str =
     typ == null
@@ -61,7 +61,7 @@ const compileHandler: (typeof state)[3] = (fn, dat, path, scope) => {
 
   // Load parameter args
   const paramCount = countParams(path);
-  if (paramCount > 0) call += paramArgs[paramCount];
+  paramCount > 0 && (call += paramArgs[paramCount]);
 
   // Load other args
   if (fn.length > paramCount) {

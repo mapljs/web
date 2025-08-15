@@ -38,23 +38,22 @@ export const init = (
       return tap((c) => {
         const origin = c.req.headers.get('Origin');
 
-        c.headers.push([
+        const headers = c.headers;
+        headers.push([
           'Access-Control-Allow-Origin',
           typeof origin === 'string' && origins.includes(origin)
             ? origin
             : origins[0],
         ]);
 
-        c.headers.push(...(headers as any[]));
-        if (c.req.method === 'OPTIONS')
-          c.headers.push(...(preflightHeaders as any[]));
+        headers.push(...(headers as any[]));
+        c.req.method === 'OPTIONS' && headers.push(...(preflightHeaders as any[]));
       });
   }
 
   headers.push(['Access-Control-Allow-Origin', origins] as any);
   return tap((c) => {
     c.headers.push(...(headers as any[]));
-    if (c.req.method === 'OPTIONS')
-      c.headers.push(...(preflightHeaders as any[]));
+    c.req.method === 'OPTIONS' && c.headers.push(...(preflightHeaders as any[]));
   });
 };
