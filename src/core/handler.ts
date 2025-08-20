@@ -1,6 +1,7 @@
 import type { Err } from '@safe-std/error';
 import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
+import type { RequestMethod } from './utils.js';
 
 export type ErrorHandler<E extends Err = Err> = (err: E, c: Context) => any;
 
@@ -76,7 +77,7 @@ export const error = <const E extends Err>(
  * @param dat
  */
 export const route = <P extends string, S = {}>(
-  method: string,
+  method: RequestMethod,
   path: P,
   handler: Handler<InferPath<P>, Required<S>>,
   ...dat: HandlerData[]

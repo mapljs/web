@@ -8,3 +8,5 @@ export type UnionToIntersection<U> = (
 export type AwaitedReturn<U extends (...a: any[]) => any> = Awaited<
   ReturnType<U>
 >;
+
+export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'TRACE' | (string & {});
