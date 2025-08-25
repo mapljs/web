@@ -12,8 +12,7 @@ export default <
   const S extends Record<string, RouterTag> = {},
 >(
   middlewares: T,
-  handlers: HandlerTag<
-    T extends [] ? {} : UnionToIntersection<T[number][1]>
-  >[],
+  handlers: HandlerTag<T extends [] ? {} : UnionToIntersection<T[number][1]>>[],
   children?: S,
-): RouterTag<S[keyof S][typeof _] | T[number][0]> => [middlewares, handlers, , children] as any;
+): RouterTag<S[keyof S][typeof _] | T[number][0]> =>
+  [middlewares, handlers, , children] as any;

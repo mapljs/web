@@ -7,13 +7,14 @@ export type HeaderValue = '*' | (string & {}) | [string, string, ...string[]];
 declare const _: unique symbol;
 export type Header = [string, string] & {
   [_]: 0;
-}
+};
 export type PreflightHeader = Header & {
   [_]: 1;
-}
+};
 
-export const allowMethods = (v: RequestMethod[] | RequestMethod): PreflightHeader =>
-  ['Access-Control-Allow-Methods', v] as any;
+export const allowMethods = (
+  v: RequestMethod[] | RequestMethod,
+): PreflightHeader => ['Access-Control-Allow-Methods', v] as any;
 export const allowHeaders = (v: string[] | string): PreflightHeader =>
   ['Access-Control-Allow-Headers', '' + v] as any;
 export const maxAge = (v: number): PreflightHeader =>
@@ -38,12 +39,15 @@ export const init = (
       return tap((c) => {
         const origin = c.req.headers.get('Origin');
 
-        c.headers.push([
-          'Access-Control-Allow-Origin',
-          typeof origin === 'string' && origins.includes(origin)
-            ? origin
-            : origins[0],
-        ], ...headers);
+        c.headers.push(
+          [
+            'Access-Control-Allow-Origin',
+            typeof origin === 'string' && origins.includes(origin)
+              ? origin
+              : origins[0],
+          ],
+          ...headers,
+        );
 
         c.req.method === 'OPTIONS' && c.headers.push(...preflightHeaders);
       });
