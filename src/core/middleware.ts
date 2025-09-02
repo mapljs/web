@@ -1,4 +1,4 @@
-import type { InferErr } from '@safe-std/error';
+import type { InferErr, InferResult } from '@safe-std/error';
 import type { AwaitedReturn } from './utils.js';
 import type { Context } from './context.js';
 
@@ -24,5 +24,5 @@ export const parse = <Prop extends string, const T extends MiddlewareHandler>(
   f: T,
 ): MiddlewareTypes<
   InferErr<AwaitedReturn<T>>,
-  Record<Prop, AwaitedReturn<T>>
+  Record<Prop, InferResult<AwaitedReturn<T>>>
 > => [3, f, prop] as any;

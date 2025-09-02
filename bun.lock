@@ -6,7 +6,7 @@
       "dependencies": {
         "@mapl/framework": "^0.2.8",
         "@mapl/router": "^0.6.2",
-        "@safe-std/error": "^1.0.0",
+        "@safe-std/error": "^1.0.1",
       },
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
@@ -146,7 +146,7 @@
 
     "@oxc-transform/binding-win32-x64-msvc": ["@oxc-transform/binding-win32-x64-msvc@0.65.0", "", { "os": "win32", "cpu": "x64" }, "sha512-qvLEPowed0OcSEgztGXw1QF53KhLYYYWGxOK2H+9PSXpkNcYaeUQ1XOngR9kO8yIhpBt1/EOrVFeNK8biy0c7g=="],
 
-    "@safe-std/error": ["@safe-std/error@1.0.0", "", {}, "sha512-DHTT+o61S2ryus0U07KUVnxW47lw53LyQEgpaUb2IguJRXz6WrVHFyQbv+/Dd06v6WTuR5aA+FQ7e0Ug3RXEaw=="],
+    "@safe-std/error": ["@safe-std/error@1.0.1", "", {}, "sha512-zEqlQHnETbvZcFNpmtBHbbCTW66qcDcnq4ow56rFlRvBtS4DxoAsfg72rtebZolMV9LCE+CJTCk2BVXXz7miwg=="],
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.9.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw=="],
 
