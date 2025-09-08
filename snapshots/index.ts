@@ -1,23 +1,15 @@
-import { handle, layer, router, cors, type RouterTag } from '@mapl/web';
+import { handle, layer, router, cors } from '@mapl/web';
 
-import {
-  compileToState,
-  stateToString,
-  stateToArgs,
-} from '@mapl/web/core/compile';
+import { compileToString } from '@mapl/web/compiler/jit';
 
 import * as st from '@safe-std/error';
 
 const OUTDIR = import.meta.dir + '/out/';
-const write = async (
-  name: string,
-  app: () => RouterTag | Promise<RouterTag>,
-): Promise<void> => {
+const write = async (name: string, app: () => any): Promise<void> => {
   try {
-    compileToState(await app());
     await Bun.write(
       OUTDIR + name.toLowerCase().replaceAll(' ', '-') + '.js',
-      `(${stateToArgs()})=>{${stateToString()}}`,
+      compileToString(await app()),
     );
   } catch (e) {
     console.error(e);
