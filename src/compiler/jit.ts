@@ -9,9 +9,13 @@ import compile from '@mapl/router/method/compiler';
 import { countParams } from '@mapl/router/path';
 import { isErr } from '@safe-std/error';
 
-import type { RouterTag } from './index.js';
-import type { HandlerData } from './handler.js';
-import createContext from './context.js';
+import type { RouterTag } from '../core/index.js';
+import type { HandlerData } from '../core/handler.js';
+import createContext from '../core/context.js';
+
+import config from '@mapl/framework/config';
+// @ts-expect-error No hydration for JIT
+config.hydrateDependency = false;
 
 const paramArgs: string[] = createArgSet(
   new Array(16).fill(0).map((_1, i) => constants.PARAMS + i),
@@ -121,7 +125,7 @@ const compileErrorHandler: (typeof state)[4] = (fn, dat, scope) => {
   );
 };
 
-export const compileToState = (router: RouterTag): void => {
+const compileToState = (router: RouterTag): void => {
   state[0] = {}; // Create base router
   state[1] = []; // Assign dependencies
   state[2] = constants.CTX_INIT;
@@ -136,7 +140,7 @@ export const compileToState = (router: RouterTag): void => {
   );
 };
 
-export const stateToString = (): string =>
+const stateToString = (): string =>
   '"use strict";' +
   constants.GLOBALS +
   ';return(' +
@@ -147,7 +151,7 @@ export const stateToString = (): string =>
   constants.R404 +
   '}';
 
-export const stateToArgs = (): string => {
+const stateToArgs = (): string => {
   let depsString = constants.IS_ERR + ',' + constants.CTX_FN;
 
   const deps = state[1];
@@ -157,7 +161,12 @@ export const stateToArgs = (): string => {
   return depsString;
 };
 
-export default (router: RouterTag): ((req: Request) => any) => {
+export const compileToString = (router: RouterTag): string => {
+  compileToState(router);
+  return '(' + stateToArgs() + ')=>{' + stateToString() + '}';
+};
+
+export const compileToHandler = (router: RouterTag): ((req: Request) => any) => {
   compileToState(router);
 
   return Function(stateToArgs(), stateToString())(

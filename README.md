@@ -1,7 +1,8 @@
 A compiled web framework for all runtimes.
 
 ```ts
-import { router, handle, layer, compile } from '@mapl/web';
+import { router, handle, layer } from '@mapl/web';
+import { compileToHandler } from '@mapl/web/compiler/jit';
 
 const api = router.init([], [
   handle.get('/', () => 'Hi')
@@ -19,6 +20,6 @@ const app = router.init(
 );
 
 export default {
-  fetch: compile(app)
+  fetch: compileToHandler(app)
 };
 ```
