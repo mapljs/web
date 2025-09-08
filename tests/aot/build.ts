@@ -35,4 +35,4 @@ const output = await input.generate({
 const code = output.output[0].code;
 await Bun.write(ENTRY, code);
 
-console.log('minified size:', code.length);
+console.log('minified size:', Buffer.from(code).byteLength);
