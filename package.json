@@ -1,0 +1,53 @@
+{
+  "name": "@mapl/web",
+  "version": "0.2.0-alpha.1",
+  "description": "A compiled web framework for all runtimes",
+  "keywords": [
+    "fast",
+    "lightweight",
+    "cross-runtime",
+    "framework",
+    "web",
+    "backend"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mapljs/web.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "task": "bun scripts/task.ts",
+    "fmt": "biome format .",
+    "build:test": "bun task build && bun test",
+    "build:publish": "bun task build && bun task report-size && bun task publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@swc/core": "^1.13.5",
+    "@types/bun": "^1.2.10",
+    "esbuild": "^0.25.9",
+    "mitata": "^1.0.34",
+    "oxc-minify": "^0.87.0",
+    "oxc-transform": "^0.65.0",
+    "rolldown": "^1.0.0-beta.36",
+    "terser": "^5.44.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  },
+  "trustedDependencies": [
+    "@biomejs/biome",
+    "@swc/core",
+    "esbuild"
+  ],
+  "dependencies": {
+    "@mapl/framework": "^0.3.3",
+    "@mapl/router": "^0.6.2",
+    "@safe-std/error": "^1.0.1"
+  },
+  "optionalDependencies": {
+    "secure-headers": "^0.0.6"
+  }
+}
