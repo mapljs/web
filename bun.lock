@@ -4,7 +4,7 @@
     "": {
       "name": "@mapl/web",
       "dependencies": {
-        "@mapl/framework": "^0.3.3",
+        "@mapl/framework": "^0.3.4",
         "@mapl/router": "^0.6.2",
         "@safe-std/error": "^1.0.1",
       },
@@ -118,7 +118,7 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.30", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q=="],
 
-    "@mapl/framework": ["@mapl/framework@0.3.3", "", {}, "sha512-USbMD6Pcs6MDcqUSMJiB1Z/JSrUBtWeadEhQ0IqwhlUWqSOZD3hxiwoAomOTxpDdTrd47tq6efXVMyF5DZ5Fgg=="],
+    "@mapl/framework": ["@mapl/framework@0.3.4", "", {}, "sha512-8j8AYcxnenAM9+AM0EBlrP8idunFeYOHkQ2DkV7111DiES+BL2X4OAdbN8C/5/hGarg23hwOkFMcPPdMiG2/9Q=="],
 
     "@mapl/router": ["@mapl/router@0.6.2", "", {}, "sha512-qzGQnuVeapwNZxRcAH9zB4+cr3Q1AOLHjyhqeMVBfeJB6lYly2LHf7UsNEnT4KX4/KcxdNK7Te3ka/s327tmow=="],
 

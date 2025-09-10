@@ -13,6 +13,9 @@ writeFileSync(
     import app from '${import.meta.resolve("./main.js")}';
     import hydrate from '../../lib/compiler/aot.js';
 
+    import { isHydrating } from "../../lib/compiler/config.js";
+    if (!isHydrating) throw new Error('Invalid state!');
+
     export default {
       fetch: (${compileToString(app)})(...hydrate(app))
     };
@@ -20,12 +23,19 @@ writeFileSync(
 );
 const input = await rolldown({
   input: ENTRY,
+  treeshake: {
+    propertyReadSideEffects: false,
+    moduleSideEffects: false,
+  },
   transform: {
     typescript: {
       rewriteImportExtensions: true,
     },
   },
 });
-const output = await input.generate();
-const code = minifySync(output.output[0].code, { module: true }).code;
-writeFileSync(ENTRY, code);
+const output = await input.generate({
+  minify: {
+    mangle: false,
+  },
+});
+writeFileSync(ENTRY, output.output[0].code);

@@ -8,8 +8,10 @@
     // Bundler mode
     "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
+    "allowJs": true,
     // Best practices
     "strict": true,
+    "noEmit": true,
     "skipLibCheck": true,
     // Paths
     "paths": {

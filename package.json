@@ -33,7 +33,6 @@
     "oxc-minify": "^0.87.0",
     "oxc-transform": "^0.65.0",
     "rolldown": "^1.0.0-beta.36",
-    "terser": "^5.44.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   },
@@ -43,7 +42,7 @@
     "esbuild"
   ],
   "dependencies": {
-    "@mapl/framework": "^0.3.3",
+    "@mapl/framework": "^0.3.4",
     "@mapl/router": "^0.6.2",
     "@safe-std/error": "^1.0.1"
   },

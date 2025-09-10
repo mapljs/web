@@ -1,3 +1,6 @@
+import { notHydrating } from './config.js';
+notHydrating();
+
 import {
   compileGroup,
   createArgSet,
@@ -12,9 +15,6 @@ import { isErr } from '@safe-std/error';
 import type { RouterTag } from '../core/index.js';
 import type { HandlerData } from '../core/handler.js';
 import createContext from '../core/context.js';
-
-import { notHydrating } from './config.js';
-notHydrating();
 
 const paramArgs: string[] = createArgSet(
   new Array(16).fill(0).map((_1, i) => constants.PARAMS + i),
