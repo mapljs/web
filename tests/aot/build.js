@@ -14,7 +14,7 @@ writeFileSync(
     import hydrate from '../../lib/compiler/aot.js';
 
     import { isHydrating } from "../../lib/compiler/config.js";
-    if (!isHydrating) throw new Error('Invalid state!');
+    if (!isHydrating()) throw new Error('Invalid state!');
 
     export default {
       fetch: (${compileToString(app)})(...hydrate(app))

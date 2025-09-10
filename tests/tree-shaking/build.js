@@ -1,4 +1,3 @@
-import * as terser from "terser";
 import * as swc from "@swc/core";
 import * as esbuild from "esbuild";
 import { rolldown } from "rolldown";
