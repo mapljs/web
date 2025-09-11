@@ -54,24 +54,31 @@ import { compileToString } from '@mapl/web/compiler/jit';
 
 import { rolldown } from 'rolldown';
 import { minifySync } from '@swc/core';
-import { writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 
-const ENTRY = '/path/to/output.js';
+// Output file
+const ENTRY = ...;
 
 writeFileSync(
   ENTRY,
   `
-    import app from '${import.meta.resolve('./main.ts')}';
+    import { hydrating } from "@mapl/web/compiler/config";
+    hydrating();
+
+    import app from '${import.meta.resolve('./main.js')}';
     import hydrate from '@mapl/web/compiler/aot';
 
-    // Compatible with Bun, Deno, Cloudflare, ...
     export default {
       fetch: (${compileToString(app)})(...hydrate(app))
     };
-  `
+  `,
 );
 const input = await rolldown({
   input: ENTRY,
+  treeshake: {
+    propertyReadSideEffects: false,
+    moduleSideEffects: false,
+  },
   transform: {
     typescript: {
       rewriteImportExtensions: true,
@@ -79,128 +86,148 @@ const input = await rolldown({
   },
 });
 const output = await input.generate();
-const code = minifySync(output.output[0].code, { module: true }).code;
+const code = minifySync(output.output[0].code, {
+  module: true,
+  mangle: false,
+}).code;
+
 writeFileSync(ENTRY, code);
 ```
 
-Example output (formatted):
+Example output:
 ```js
-// router()
-var e = (e, t, l) => [e, t, , l];
-// handle.route()
-let t = (e, t) => [1, t, e],
-  l = { type: null },
-  n = (e, t, n, ...r) => [
-    e,
-    t,
-    n,
-    0 === r.length ? l : Object.assign({ type: null }, ...r),
-  ];
-var r = e(
+var core_default = (middlewares, handlers, children) => [
+  middlewares,
+  handlers,
+  ,
+  children,
+];
+let attach = (prop, f) => [1, f, prop],
+  noType = { type: null },
+  mergeData = (...dat) =>
+    0 === dat.length ? noType : Object.assign({ type: null }, ...dat);
+var main_default = core_default(
   [
-    // inlined layer.tap()
     [
       0,
-      (e) => {
-        console.log(e.req);
+      (c) => {
+        console.log(c.req);
       },
     ],
-    // layer.attach()
-    t("id", () => performance.now()),
+    attach('id', () => performance.now()),
   ],
-  // handle.any()
-  [((...e) => n("", ...e))("/path", (e) => e.id)],
+  [
+    ((path, handler, ...dat) => ['', path, handler, mergeData(...dat)])(
+      '/path',
+      (c) => c.id,
+    ),
+  ],
   {
-    "/api": e(
-      // layer.attach()
-      [t("body", async (e) => e.req.text())],
-      // handle.post()
-      [((...e) => n("POST", ...e))("/body", (e) => e.body)],
+    '/api': core_default(
+      [attach('body', async (c) => c.req.text())],
+      [
+        ((path, handler, ...dat) => ['POST', path, handler, mergeData(...dat)])(
+          '/body',
+          (c) => c.body,
+        ),
+      ],
     ),
   },
 );
-// hydration code
-let a = (e, t) => {
-    let l = e + t;
-    return /.\/$/.test(l) ? e : l;
+let AsyncFunction = (async () => {}).constructor,
+  compilerState = [, , , , ,],
+  compileErrorHandler$1 = (scope) =>
+    (scope[3] ??= compilerState[4](scope[2][0], scope[2][1], scope)),
+  clearErrorHandler = (scope) => {
+    null != scope[2] && (scope[3] = null);
   },
-  s = (async () => {}).constructor,
-  o = [, , , , ,],
-  u = (e) => (e[3] ??= o[4](e[2][0], e[2][1], e)),
-  i = (e) => {
-    null != e[2] && (e[3] = null);
-  },
-  p = (e) => (e[1] ? "" : ((e[1] = !0), i(e), o[2])),
-  c = (e) => (e[0] ? "" : ((e[0] = !0), i(e), "return (async()=>{")),
-  d = (e) => (e[4] ? "t" : ((e[4] = !0), "let t")),
-  f = (e, t, l) => {
-    null != e[2] && ((t[2] = e[2]), (t[3] = null));
-    for (let l = 0, n = e[0]; l < n.length; l++) {
-      let e = n[l],
-        r = e[1],
-        a = e[0];
-      -1 === a
-        ? r(t)
-        : (o[1].push(r),
-          r.length > 0 && p(t),
-          r instanceof s && c(t),
-          1 === a
-            ? p(t)
-            : 2 === a
-              ? (d(t), u(t))
-              : 3 === a && (d(t), u(t), p(t)));
+  createContext = (scope) =>
+    scope[1]
+      ? ''
+      : ((scope[1] = !0), clearErrorHandler(scope), compilerState[2]),
+  createAsyncScope = (scope) =>
+    scope[0]
+      ? ''
+      : ((scope[0] = !0), clearErrorHandler(scope), 'return (async()=>{'),
+  setTmp = (scope) => (scope[4] ? 't' : ((scope[4] = !0), 'let t')),
+  hydrateDependency = (group, scope, prefix) => {
+    null != group[2] && ((scope[2] = group[2]), (scope[3] = null));
+    for (let i = 0, middlewares = group[0]; i < middlewares.length; i++) {
+      let middleware = middlewares[i],
+        fn = middleware[1],
+        id = middleware[0];
+      -1 === id
+        ? fn(scope)
+        : (compilerState[1].push(fn),
+          fn.length > 0 && createContext(scope),
+          fn instanceof AsyncFunction && createAsyncScope(scope),
+          1 === id
+            ? createContext(scope)
+            : 2 === id
+              ? (setTmp(scope), compileErrorHandler$1(scope))
+              : 3 === id &&
+                (setTmp(scope),
+                compileErrorHandler$1(scope),
+                createContext(scope)));
     }
-    for (let n = 0, r = e[1]; n < r.length; n++) {
-      let e = r[n],
-        s = a(l, e[1]);
-      o[3](e[2], e[3], s, t);
+    for (let i = 0, handlers = group[1]; i < handlers.length; i++) {
+      let handler = handlers[i];
+      compilerState[3](
+        handler[2],
+        handler[3],
+        prefix + ('/' === handler[1] || '' !== prefix ? '' : handler[1]),
+        scope,
+      );
     }
-    let n = e[3];
-    if (null != n) for (let e in n) f(n[e], t.slice(), "/" === e ? l : l + e);
+    let childGroups = group[3];
+    if (null != childGroups)
+      for (let childPrefix in childGroups)
+        hydrateDependency(
+          childGroups[childPrefix],
+          scope.slice(),
+          '/' === childPrefix ? prefix : prefix + childPrefix,
+        );
   },
-  y = Symbol.for("@safe-std/error");
-var h = {
-  // built content
-  fetch: ((e, t, l, n, r, a, s) => {
-    var o = ["text/html", "application/json"].map((e) => ["Content-Type", e]),
-      [u, i] = o,
-      [p, c] = o.map((e) => ({ headers: [e] })),
-      [d, f] = [404, 400].map((e) => new Response(null, { status: e }));
-    return (e) => {
-      let o = e.url,
-        u = o.indexOf("/", 12) + 1,
-        i = o.indexOf("?", u),
-        p = -1 === i ? o.slice(u) : o.slice(u, i);
-      if ("POST" === e.method && "api/body" === p) {
-        let r = t(e);
+  _ = Symbol.for('@safe-std/error');
+var aot_default = {
+  fetch: ((me, mwc, f1, f2, f3, f4, f5) => {
+    var t = ['text/html', 'application/json'].map((c) => ['Content-Type', c]),
+      [mwh, mwj] = t,
+      [mwoh, mwoj] = t.map((c) => ({ headers: [c] })),
+      [mwn, mwb] = [404, 400].map((s) => new Response(null, { status: s }));
+    return (r) => {
+      let u = r.url,
+        s = u.indexOf('/', 12) + 1,
+        e = u.indexOf('?', s),
+        p = -1 === e ? u.slice(s) : u.slice(s, e);
+      if ('POST' === r.method && 'api' === p) {
+        let c = mwc(r);
         return (
-          l(r),
-          (r.id = n()),
-          (async () => ((r.body = await a(r)), new Response(s(r), r)))()
+          f1(c),
+          (c.id = f2()),
+          (async () => ((c.body = await f4(c)), new Response(f5(c), c)))()
         );
       }
-      if ("path" === p) {
-        let a = t(e);
-        return (l(a), (a.id = n()), new Response(r(a), a));
+      if ('path' === p) {
+        let c = mwc(r);
+        return f1(c), (c.id = f2()), new Response(f3(c), c);
       }
-      return d;
+      return mwn;
     };
   })(
-    ...((o[0] = {}),
-    (o[1] = []),
-    (o[2] = "let c=mwc(r);"),
-    (o[3] = (e) => (o[1].push(e), "")),
-    (o[4] = (e) => (o[1].push(e), "")),
-    f(r, [!1, !1, , "return mwb", !1], ""),
-
-    // inject dependencies
+    ...((compilerState[0] = {}),
+    (compilerState[1] = []),
+    (compilerState[2] = ''),
+    (compilerState[3] = (fn) => (compilerState[1].push(fn), '')),
+    (compilerState[4] = (fn) => (compilerState[1].push(fn), '')),
+    hydrateDependency(main_default, [!1, !1, , '', !1], ''),
     [
-      (e) => Array.isArray(e) && e[0] === y,
-      (e) => ({ status: 200, req: e, headers: [] }),
-    ].concat(o[1])),
+      (u) => Array.isArray(u) && u[0] === _,
+      (r) => ({ status: 200, req: r, headers: [] }),
+    ].concat(compilerState[1])),
   ),
 };
-export { h as default };
+export { aot_default as default };
 ```
 
 ### Hydration

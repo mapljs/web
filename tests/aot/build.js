@@ -3,7 +3,7 @@ import { compileToString } from '@mapl/web/compiler/jit';
 
 import { rolldown } from 'rolldown';
 import { minifySync } from '@swc/core';
-import { writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 
 const ENTRY = import.meta.dir + '/index.js';
 

@@ -2,16 +2,23 @@ import {
   compileGroup,
   createArgSet,
   AsyncFunction,
-  compilerState as state,
+  setHooks,
+  externalDependencies,
+  contextInit,
+  setContextInit,
 } from '@mapl/framework';
 
 import compile from '@mapl/router/method/compiler';
 import { countParams } from '@mapl/router/path';
+import { insertItem, type Router } from '@mapl/router/method';
 import { isErr } from '@safe-std/error';
 
 import type { RouterTag } from '../core/index.js';
 import type { HandlerData } from '../core/handler.js';
 import createContext from '../core/context.js';
+import { localDependencies, stateToArgs } from './index.js';
+
+let urlRouter: Router<string>;
 
 const paramArgs: string[] = createArgSet(
   new Array(16).fill(0).map((_1, i) => constants.PARAMS + i),
@@ -55,78 +62,82 @@ const compileReturn = (
     : str;
 };
 
-const compileHandler: (typeof state)[3] = (fn, dat, path, scope) => {
-  // String builders
-  let call = constants.DEP + state[1].push(fn) + '(';
-
-  // Load parameter args
-  const paramCount = countParams(path);
-  paramCount > 0 && (call += paramArgs[paramCount]);
-
-  // Load other args
-  if (fn.length > paramCount) {
-    call += paramCount === 0 ? constants.CTX : ',' + constants.CTX;
-
-    // Create context to pass in the function
-    if (!scope[1])
-      return (
-        state[2] +
-        compileReturn(
-          dat as HandlerData,
-          fn instanceof AsyncFunction,
-          scope[0],
-          true,
-          call + ')',
-        )
-      );
-  }
-
-  return compileReturn(
-    dat as HandlerData,
-    fn instanceof AsyncFunction,
-    scope[0],
-    scope[1],
-    call + ')',
-  );
-};
-
-const compileErrorHandler: (typeof state)[4] = (fn, dat, scope) => {
-  // String builders
-  let call = constants.DEP + state[1].push(fn) + '(' + constants.TMP;
-
-  // Load other args
-  if (fn.length > 1) {
-    call += ',' + constants.CTX;
-
-    // Create context to pass in the function
-    if (!scope[1])
-      return (
-        state[2] +
-        compileReturn(
-          dat as HandlerData,
-          fn instanceof AsyncFunction,
-          scope[0],
-          true,
-          call + ')',
-        )
-      );
-  }
-
-  return compileReturn(
-    dat as HandlerData,
-    fn instanceof AsyncFunction,
-    scope[0],
-    scope[1],
-    call + ')',
-  );
-};
-
 const compileToState = (router: RouterTag): void => {
-  state[0] = {}; // Create base router
-  state[1] = []; // Assign dependencies
-  state[2] = constants.CTX_INIT;
-  state[3] = compileHandler;
-  state[4] = compileErrorHandler;
+  urlRouter = {}; // Create base router
+  externalDependencies.length = 0;
+
+  setHooks({
+    compileHandler: (fn, dat, path, scope) => {
+      // String builders
+      let call = constants.DEP + externalDependencies.push(fn) + '(';
+
+      // Load parameter args
+      const paramCount = countParams(path);
+      paramCount > 0 && (call += paramArgs[paramCount]);
+
+      // Load other args
+      if (fn.length > paramCount) {
+        call += paramCount === 0 ? constants.CTX : ',' + constants.CTX;
+
+        // Create context to pass in the function
+        if (!scope[1])
+          return (
+            contextInit() +
+            compileReturn(
+              dat as HandlerData,
+              fn instanceof AsyncFunction,
+              scope[0],
+              true,
+              call + ')',
+            )
+          );
+      }
+
+      return compileReturn(
+        dat as HandlerData,
+        fn instanceof AsyncFunction,
+        scope[0],
+        scope[1],
+        call + ')',
+      );
+    },
+    compileErrorHandler: (fn, dat, scope) => {
+      // String builders
+      let call =
+        constants.DEP + externalDependencies.push(fn) + '(' + constants.TMP;
+
+      // Load other args
+      if (fn.length > 1) {
+        call += ',' + constants.CTX;
+
+        // Create context to pass in the function
+        if (!scope[1])
+          return (
+            contextInit() +
+            compileReturn(
+              dat as HandlerData,
+              fn instanceof AsyncFunction,
+              scope[0],
+              true,
+              call + ')',
+            )
+          );
+      }
+
+      return compileReturn(
+        dat as HandlerData,
+        fn instanceof AsyncFunction,
+        scope[0],
+        scope[1],
+        call + ')',
+      );
+    },
+    registerCompiled: (method, path, content) =>
+      insertItem(urlRouter, method, path, content),
+  });
+
+  // Set context initial statement
+  setContextInit(constants.CTX_INIT);
 
   compileGroup(
     router as any,
@@ -136,26 +147,17 @@ const compileToState = (router: RouterTag): void => {
   );
 };
 
-const stateToString = (): string =>
+export const stateToString = (): string =>
   '"use strict";' +
   constants.GLOBALS +
+  localDependencies() +
   ';return(' +
   constants.REQ +
   ')=>{' +
-  compile(state[0], constants.REQ + '.method', constants.PARSE_PATH, 1) +
+  compile(urlRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
   'return ' +
   constants.R404 +
   '}';
-
-const stateToArgs = (): string => {
-  let depsString = constants.IS_ERR + ',' + constants.CTX_FN;
-
-  const deps = state[1];
-  for (let i = 0; i < deps.length; i++)
-    depsString += ',' + constants.DEP + (i + 1);
-
-  return depsString;
-};
 
 export const compileToString = (router: RouterTag): string => {
   compileToState(router);
@@ -166,10 +168,9 @@ export const compileToHandler = (
   router: RouterTag,
 ): ((req: Request) => any) => {
   compileToState(router);
-
   return Function(stateToArgs(), stateToString())(
     isErr,
     createContext,
-    ...state[1],
+    ...externalDependencies,
   );
 };

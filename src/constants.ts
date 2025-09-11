@@ -11,6 +11,7 @@ import {
 export * from '@mapl/framework/constants';
 
 export const WEB: string = MAPL + 'w';
+export const LOCAL_DEP: string = 'l';
 
 export const CTX_FN: string = WEB + 'c';
 export const CTX_INIT: string = 'let ' + CTX + '=' + CTX_FN + '(' + REQ + ');';
