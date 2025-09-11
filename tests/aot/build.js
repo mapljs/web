@@ -1,20 +1,20 @@
-import app from "./main.js";
-import { compileToString } from "@mapl/web/compiler/jit";
+import app from './main.js';
+import { compileToString } from '@mapl/web/compiler/jit';
 
-import { rolldown } from "rolldown";
-import { minifySync } from "@swc/core";
-import { writeFileSync, readFileSync } from "node:fs";
+import { rolldown } from 'rolldown';
+import { minifySync } from '@swc/core';
+import { writeFileSync, readFileSync } from 'node:fs';
 
-const ENTRY = import.meta.dir + "/index.js";
+const ENTRY = import.meta.dir + '/index.js';
 
 writeFileSync(
   ENTRY,
   `
-    import app from '${import.meta.resolve("./main.js")}';
-    import hydrate from '../../lib/compiler/aot.js';
+    import { hydrating } from "../../lib/compiler/config.js";
+    hydrating();
 
-    import { isHydrating } from "../../lib/compiler/config.js";
-    if (!isHydrating()) throw new Error('Invalid state!');
+    import app from '${import.meta.resolve('./main.js')}';
+    import hydrate from '../../lib/compiler/aot.js';
 
     export default {
       fetch: (${compileToString(app)})(...hydrate(app))
@@ -33,9 +33,12 @@ const input = await rolldown({
     },
   },
 });
-const output = await input.generate({
-  minify: {
-    mangle: false,
-  },
-});
-writeFileSync(ENTRY, output.output[0].code);
+const output = await input.generate();
+const code = minifySync(output.output[0].code, {
+  module: true,
+  mangle: false,
+}).code;
+
+writeFileSync(ENTRY, code);
+
+await Bun.$`bun fmt --write ./tests/aot`;

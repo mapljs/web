@@ -7,7 +7,7 @@
   //   AOT = false;
   // };
   // setAOT();
-  const fn = getAOT() ? () => console.log("Hi") : () => {};
+  const fn = getAOT() ? () => console.log('Hi') : () => {};
   fn();
 }
 
@@ -20,12 +20,12 @@
     AOT = false;
   };
   setAOT();
-  const fn = getAOT() ? () => console.log("Hi") : () => {};
+  const fn = getAOT() ? () => console.log('Hi') : () => {};
   fn();
 }
 
 {
   const __MAPL_AOT__ = true;
-  const fn = __MAPL_AOT__ ? () => console.log("Hi") : () => {};
+  const fn = __MAPL_AOT__ ? () => console.log('Hi') : () => {};
   fn();
 }

@@ -1,8 +1,8 @@
-import * as swc from "@swc/core";
-import * as esbuild from "esbuild";
-import { rolldown } from "rolldown";
+import * as swc from '@swc/core';
+import * as esbuild from 'esbuild';
+import { rolldown } from 'rolldown';
 
-const ENTRY = import.meta.dir + "/index.js";
+const ENTRY = import.meta.dir + '/index.js';
 const CONTENT = await Bun.file(ENTRY).text();
 
 {
@@ -10,7 +10,7 @@ const CONTENT = await Bun.file(ENTRY).text();
     module: true,
   });
 
-  console.log("swc:", res.code);
+  console.log('swc:', res.code);
 }
 
 {
@@ -33,17 +33,17 @@ const CONTENT = await Bun.file(ENTRY).text();
     },
   });
 
-  console.log("rolldown:", res.output[0].code);
+  console.log('rolldown:', res.output[0].code);
 }
 
 {
   const res = esbuild.buildSync({
     entryPoints: [ENTRY],
     write: false,
-    format: "esm",
+    format: 'esm',
     treeShaking: true,
     minify: true,
   });
 
-  console.log("esbuild:", res.outputFiles[0].text);
+  console.log('esbuild:', res.outputFiles[0].text);
 }

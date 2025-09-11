@@ -1,6 +1,3 @@
-import { notHydrating } from './config.js';
-notHydrating();
-
 import {
   compileGroup,
   createArgSet,
@@ -165,7 +162,9 @@ export const compileToString = (router: RouterTag): string => {
   return '(' + stateToArgs() + ')=>{' + stateToString() + '}';
 };
 
-export const compileToHandler = (router: RouterTag): ((req: Request) => any) => {
+export const compileToHandler = (
+  router: RouterTag,
+): ((req: Request) => any) => {
   compileToState(router);
 
   return Function(stateToArgs(), stateToString())(

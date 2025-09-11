@@ -1,7 +1,4 @@
-import {
-  hydrateDependency,
-  compilerState as state,
-} from '@mapl/framework';
+import { hydrateDependency, compilerState as state } from '@mapl/framework';
 
 import { isErr } from '@safe-std/error';
 
@@ -27,7 +24,7 @@ export default (router: RouterTag): any[] => {
 
   hydrateDependency(
     router as any,
-    [false, false, , 'return ' + constants.R400, false],
+    [false, false, , '', false],
     '',
   );
 
