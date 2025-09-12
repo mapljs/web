@@ -5,7 +5,7 @@ export type LocalDependency<T = unknown> = number & [T];
 
 // Compile dependencies
 /**
- * @private
+ * @internal
  */
 export const compiledDeps: readonly any[] = [];
 
@@ -23,7 +23,7 @@ export const injectLocalDependency: <T>(val: string) => LocalDependency<T> = (
 };
 
 /**
- * @private
+ * @internal
  */
 export const localDependencies = (): string => localDeps;
 
@@ -33,7 +33,9 @@ export const localDependencies = (): string => localDeps;
  */
 export const localDependency = <T>(i: LocalDependency<T>): T => compiledDeps[i];
 
-// Args to inject
+/**
+ * @internal
+ */
 export const stateToArgs = (): string => {
   let depsString =
     constants.IS_ERR + ',' + constants.CTX_FN + ',' + constants.LOCAL_DEPS;

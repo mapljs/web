@@ -62,8 +62,7 @@ const ENTRY = ...;
 writeFileSync(
   ENTRY,
   `
-    import { hydrating } from "@mapl/web/compiler/config";
-    hydrating();
+    import "@mapl/web/compiler/aot-loader";
 
     import app from '${import.meta.resolve('./main.js')}';
     import hydrate from '@mapl/web/compiler/aot';

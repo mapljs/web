@@ -1,18 +1,18 @@
-import app from './main.js';
-import { compileToString } from '@mapl/web/compiler/jit';
+import app from "./main.js";
+import { compileToString } from "@mapl/web/compiler/jit";
 
-import { rolldown } from 'rolldown';
-import { minifySync } from '@swc/core';
-import { writeFileSync } from 'node:fs';
+import { rolldown } from "rolldown";
+import { minifySync } from "@swc/core";
+import { writeFileSync } from "node:fs";
 
-const ENTRY = import.meta.dir + '/index.js';
+const ENTRY = import.meta.dir + "/index.js";
 
 writeFileSync(
   ENTRY,
   `
-    import "../../lib/compiler/aot-config.js";
+    import "../../lib/compiler/aot-loader.js";
 
-    import app from '${import.meta.resolve('./main.js')}';
+    import app from '${import.meta.resolve("./main.js")}';
     import hydrate from '../../lib/compiler/aot.js';
 
     export default {
