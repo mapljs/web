@@ -238,3 +238,12 @@ import { isHydrating } from '@mapl/web/compiler/config';
 // Use this to for minifiedrs to eliminate unused code path in final output
 isHydrating();
 ```
+
+### Compiling external dependencies
+```ts
+import { injectLocalDependency, localDependency } from '@mapl/web/compiler';
+
+const hello = injectLocalDependency<() => void>(`() => console.log('hello')`);
+// After compiler is executed
+localDependency(hello)();
+```
