@@ -16,7 +16,7 @@ import { isErr } from '@safe-std/error';
 import type { RouterTag } from '../core/index.js';
 import type { HandlerData } from '../core/handler.js';
 import createContext from '../core/context.js';
-import { localDependencies, stateToArgs } from './index.js';
+import { compiledDeps, localDependencies, stateToArgs } from './index.js';
 
 let urlRouter: Router<string>;
 
@@ -151,7 +151,7 @@ export const stateToString = (): string =>
   '"use strict";' +
   constants.GLOBALS +
   localDependencies() +
-  ';return(' +
+  'return(' +
   constants.REQ +
   ')=>{' +
   compile(urlRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
@@ -171,6 +171,7 @@ export const compileToHandler = (
   return Function(stateToArgs(), stateToString())(
     isErr,
     createContext,
+    compiledDeps,
     ...externalDependencies,
   );
 };

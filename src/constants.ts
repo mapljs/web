@@ -11,7 +11,7 @@ import {
 export * from '@mapl/framework/constants';
 
 export const WEB: string = MAPL + 'w';
-export const LOCAL_DEP: string = 'l';
+export const LOCAL_DEPS: string = WEB + 'l';
 
 export const CTX_FN: string = WEB + 'c';
 export const CTX_INIT: string = 'let ' + CTX + '=' + CTX_FN + '(' + REQ + ');';
@@ -75,4 +75,4 @@ export const GLOBALS: string =
   R404 +
   ',' +
   R400 +
-  ']=[404,400].map(s=>new Response(null,{status:s}))';
+  ']=[404,400].map(s=>new Response(null,{status:s}));';

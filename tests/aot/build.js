@@ -10,8 +10,7 @@ const ENTRY = import.meta.dir + '/index.js';
 writeFileSync(
   ENTRY,
   `
-    import { hydrating } from "../../lib/compiler/config.js";
-    hydrating();
+    import "../../lib/compiler/aot-config.js";
 
     import app from '${import.meta.resolve('./main.js')}';
     import hydrate from '../../lib/compiler/aot.js';
@@ -23,10 +22,6 @@ writeFileSync(
 );
 const input = await rolldown({
   input: ENTRY,
-  treeshake: {
-    propertyReadSideEffects: false,
-    moduleSideEffects: false,
-  },
   transform: {
     typescript: {
       rewriteImportExtensions: true,
