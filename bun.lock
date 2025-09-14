@@ -4,9 +4,10 @@
     "": {
       "name": "@mapl/web",
       "dependencies": {
-        "@mapl/framework": "^0.3.7",
+        "@mapl/framework": "^0.4.2",
         "@mapl/router": "^0.6.2",
         "@safe-std/error": "^1.0.1",
+        "runtime-compiler": "^1.0.4",
       },
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
@@ -107,7 +108,7 @@
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.9", "", { "os": "win32", "cpu": "x64" }, "sha512-PPOl1mi6lpLNQxnGoyAfschAodRFYXJ+9fs6WHXz7CSWKbOqiMZsubC+BQsVKuul+3vKLuwTHsS2c2y9EoKwxQ=="],
 
-    "@mapl/framework": ["@mapl/framework@0.3.8", "", {}, "sha512-CcDKZoate7hTMs1G/8fgNCXClUhKfU8MJ33rq69ppsbXYXK54wnSqC3cCqfawtlQgGsrzbw5/IFk5yaBo25zgw=="],
+    "@mapl/framework": ["@mapl/framework@0.4.2", "", { "peerDependencies": { "runtime-compiler": "^1.0.3" } }, "sha512-SUCeRYaw9dLstd+5ncs8tWqC7xLhlOWCmsWRonMNmmdB5Xu4N8rjFqmuRckagyd2VuIvAXO4mxtvOBF/BlqjZw=="],
 
     "@mapl/router": ["@mapl/router@0.6.2", "", {}, "sha512-qzGQnuVeapwNZxRcAH9zB4+cr3Q1AOLHjyhqeMVBfeJB6lYly2LHf7UsNEnT4KX4/KcxdNK7Te3ka/s327tmow=="],
 
@@ -254,6 +255,8 @@
     "resolve-pkg-maps": ["resolve-pkg-maps@1.0.0", "", {}, "sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw=="],
 
     "rolldown": ["rolldown@1.0.0-beta.36", "", { "dependencies": { "@oxc-project/runtime": "=0.87.0", "@oxc-project/types": "=0.87.0", "@rolldown/pluginutils": "1.0.0-beta.36", "ansis": "^4.0.0" }, "optionalDependencies": { "@rolldown/binding-android-arm64": "1.0.0-beta.36", "@rolldown/binding-darwin-arm64": "1.0.0-beta.36", "@rolldown/binding-darwin-x64": "1.0.0-beta.36", "@rolldown/binding-freebsd-x64": "1.0.0-beta.36", "@rolldown/binding-linux-arm-gnueabihf": "1.0.0-beta.36", "@rolldown/binding-linux-arm64-gnu": "1.0.0-beta.36", "@rolldown/binding-linux-arm64-musl": "1.0.0-beta.36", "@rolldown/binding-linux-x64-gnu": "1.0.0-beta.36", "@rolldown/binding-linux-x64-musl": "1.0.0-beta.36", "@rolldown/binding-openharmony-arm64": "1.0.0-beta.36", "@rolldown/binding-wasm32-wasi": "1.0.0-beta.36", "@rolldown/binding-win32-arm64-msvc": "1.0.0-beta.36", "@rolldown/binding-win32-ia32-msvc": "1.0.0-beta.36", "@rolldown/binding-win32-x64-msvc": "1.0.0-beta.36" }, "bin": { "rolldown": "bin/cli.mjs" } }, "sha512-eethnJ/UfQWg2VWBDDMEu7IDvEh4WPbPb1azPWDCHcuOwoPT9C2NT4Y/ecZztCl9OBzXoA+CXXb5MS+qbukAig=="],
+
+    "runtime-compiler": ["runtime-compiler@1.0.4", "", {}, "sha512-JisNl6+y3wfiNr82yj8sFEKmaSrklK7q17WZJ8n44hnxJqAxyHbRFn2AjiEwi5e/UK++mVmmtQ0hgwzqfnVPRw=="],
 
     "secure-headers": ["secure-headers@0.0.6", "", {}, "sha512-veqhRYclrmi4T0HpCA8xZRF9tMuIdTlQ4IwZNh9S26nYfHOaNPD3ouw4qbsABZr/lNV8LRBQidRRq3MKqszBUw=="],
 

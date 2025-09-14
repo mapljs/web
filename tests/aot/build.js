@@ -1,39 +1,55 @@
-import app from "./main.js";
-import { compileToString } from "@mapl/web/compiler/jit";
+import app from './main.js';
+import { injectCompiledHandler } from '@mapl/web/compiler/jit';
 
-import { rolldown } from "rolldown";
-import { minifySync } from "@swc/core";
-import { writeFileSync } from "node:fs";
+import { rolldown } from 'rolldown';
+import { minifySync } from '@swc/core';
+import { writeFileSync } from 'node:fs';
+import { evaluateToString } from 'runtime-compiler/jit';
 
-const ENTRY = import.meta.dir + "/index.js";
+const RAW = import.meta.dir + '/1.js';
+const BUNDLED = import.meta.dir + '/2.js';
+const ENTRY = import.meta.dir + '/3.js';
+const HANDLER = injectCompiledHandler(app);
 
 writeFileSync(
-  ENTRY,
-  `
-    import "../../lib/compiler/aot-loader.js";
+  RAW,
+  `import "runtime-compiler/hydrate-loader";
 
-    import app from '${import.meta.resolve("./main.js")}';
-    import hydrate from '../../lib/compiler/aot.js';
+import app from './main.js';
+import hydrateRouter from '../../lib/compiler/aot.js';
+hydrateRouter(app);
 
-    export default {
-      fetch: (${compileToString(app)})(...hydrate(app))
-    };
-  `,
+import { getDependency } from "runtime-compiler";
+import { hydrate } from "runtime-compiler/hydrate";
+(${evaluateToString()})(...hydrate());
+
+export default {
+  fetch: getDependency(${HANDLER})
+};`,
 );
 const input = await rolldown({
-  input: ENTRY,
+  input: RAW,
   transform: {
     typescript: {
       rewriteImportExtensions: true,
     },
   },
 });
-const output = await input.generate();
+const output = await input.write({
+  file: BUNDLED,
+  inlineDynamicImports: true,
+  minify: 'dce-only',
+});
+
 const code = minifySync(output.output[0].code, {
   module: true,
   mangle: false,
+  compress: {
+    passes: 6,
+  },
 }).code;
 
 writeFileSync(ENTRY, code);
+console.log('minified size:', code.length);
 
 await Bun.$`bun fmt --write ./tests/aot`;

@@ -1,17 +1,48 @@
-let hooks, hook;
-var router,
-  core_default = (middlewares, handlers, children) => [
-    middlewares,
-    handlers,
-    ,
-    children,
-  ];
+let hooks, n;
+var core_default = (middlewares, handlers, children) => [
+  middlewares,
+  handlers,
+  ,
+  children,
+];
 let attach = (prop, f) => [1, f, prop],
   noType = { type: null },
   mergeData = (...dat) =>
-    0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
-  AsyncFunction = (async () => {}).constructor,
+    0 === dat.length ? noType : Object.assign({ type: null }, ...dat);
+var main_default = core_default(
+  [
+    [
+      0,
+      (c) => {
+        console.log(c.req);
+      },
+    ],
+    attach('id', () => performance.now()),
+  ],
+  [
+    ((path, handler, ...dat) => ['', path, handler, mergeData(...dat)])(
+      '/path',
+      (c) => c.id,
+    ),
+  ],
+  {
+    '/api': core_default(
+      [attach('body', async (c) => c.req.text())],
+      [
+        ((path, handler, ...dat) => ['POST', path, handler, mergeData(...dat)])(
+          '/body',
+          (c) => c.body,
+        ),
+      ],
+    ),
+  },
+);
+let _ = Symbol.for('@safe-std/error'),
+  compiledDependencies = [],
   externalDependencies = [],
+  injectExternalDependency = (e) => '_' + externalDependencies.push(e);
+injectExternalDependency((u) => Array.isArray(u) && u[0] === _);
+let AsyncFunction = (async () => {}).constructor,
   compileErrorHandler = (scope) =>
     (scope[3] ??= hooks.compileErrorHandler(scope[2][0], scope[2][1], scope)),
   clearErrorHandler = (scope) => {
@@ -33,7 +64,7 @@ let attach = (prop, f) => [1, f, prop],
         id = middleware[0];
       -1 === id
         ? fn(scope)
-        : (externalDependencies.push(fn),
+        : (injectExternalDependency(fn),
           fn.length > 0 && createContext(scope),
           fn instanceof AsyncFunction && createAsyncScope(scope),
           1 === id
@@ -63,50 +94,21 @@ let attach = (prop, f) => [1, f, prop],
           '/' === childPrefix ? prefix : prefix + childPrefix,
         );
   },
-  compiledDeps = [],
-  localDeps = '',
-  localDepsCnt = 0,
-  logID = localDepsCnt++;
-var main_default = core_default(
-  [
-    [
-      0,
-      (c) => {
-        console.log(c.req), (0, compiledDeps[logID])();
-      },
-    ],
-    attach('id', () => performance.now()),
-  ],
-  [
-    ((path, handler, ...dat) => ['', path, handler, mergeData(...dat)])(
-      '/path',
-      (c) => c.id,
-    ),
-  ],
-  {
-    '/api': core_default(
-      [attach('body', async (c) => c.req.text())],
-      [
-        ((path, handler, ...dat) => ['POST', path, handler, mergeData(...dat)])(
-          '/body',
-          (c) => c.body,
-        ),
-      ],
-    ),
-  },
-);
-let _ = Symbol.for('@safe-std/error'),
-  isErr = (u) => Array.isArray(u) && u[0] === _;
-var context_default = (r) => ({ status: 200, req: r, headers: [] }),
-  aot_default = {
-    fetch: ((me, mwc, mwl, f1, f2, f3, f4, f5) => {
-      var t = ['text/html', 'application/json'].map((c) => ['Content-Type', c]),
-        [mwh, mwj] = t,
-        [mwoh, mwoj] = t.map((c) => ({ headers: [c] })),
-        [mwn, mwb] = [404, 400].map((s) => new Response(null, { status: s }));
-      return (
-        mwl.push(() => console.log('ID:', +Math.random().toFixed(2))),
-        (r) => {
+  hook = (fn) => (injectExternalDependency(fn), '');
+(hooks = { compileHandler: hook, compileErrorHandler: hook }),
+  hydrateDependency(main_default, [!1, !1, , '', !1], ''),
+  ((_$1, _1, _2, _3, _4, _5, _6) =>
+    _$1.push(
+      (() => {
+        var t = ['text/html', 'application/json'].map((c) => [
+            'Content-Type',
+            c,
+          ]),
+          [mwh, mwj] = t,
+          [mwoh, mwoj] = t.map((c) => ({ headers: [c] })),
+          [mwn, mwb] = [404, 400].map((s) => new Response(null, { status: s })),
+          mwc = (r) => ({ status: 200, req: r, headers: [] });
+        return (r) => {
           let u = r.url,
             s = u.indexOf('/', 12) + 1,
             e = u.indexOf('?', s),
@@ -114,27 +116,22 @@ var context_default = (r) => ({ status: 200, req: r, headers: [] }),
           if ('POST' === r.method && 'api' === p) {
             let c = mwc(r);
             return (
-              f1(c),
-              (c.id = f2()),
-              (async () => ((c.body = await f4(c)), new Response(f5(c), c)))()
+              _2(c),
+              (c.id = _3()),
+              (async () => ((c.body = await _5(c)), new Response(_6(c), c)))()
             );
           }
           if ('path' === p) {
             let c = mwc(r);
-            return f1(c), (c.id = f2()), new Response(f3(c), c);
+            return _2(c), (c.id = _3()), new Response(_4(c), c);
           }
           return mwn;
-        }
-      );
-    })(
-      ...((router = main_default),
-      (externalDependencies.length = 0),
-      (hooks = {
-        compileHandler: (hook = (fn) => (externalDependencies.push(fn), '')),
-        compileErrorHandler: hook,
-      }),
-      hydrateDependency(router, [!1, !1, , '', !1], ''),
-      [isErr, context_default, compiledDeps].concat(externalDependencies)),
-    ),
-  };
-export { aot_default as default };
+        };
+      })(),
+    ))(
+    ...((n = [compiledDependencies].concat(externalDependencies)),
+    (externalDependencies.length = 0),
+    n),
+  );
+var _1_default = { fetch: compiledDependencies[0] };
+export { _1_default as default };

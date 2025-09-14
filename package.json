@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.2.0-alpha.3",
+  "version": "0.2.0-alpha.4",
   "description": "A compiled web framework for all runtimes",
   "keywords": [
     "fast",
@@ -42,9 +42,10 @@
     "esbuild"
   ],
   "dependencies": {
-    "@mapl/framework": "^0.3.7",
+    "@mapl/framework": "^0.4.2",
     "@mapl/router": "^0.6.2",
-    "@safe-std/error": "^1.0.1"
+    "@safe-std/error": "^1.0.1",
+    "runtime-compiler": "^1.0.4"
   },
   "optionalDependencies": {
     "secure-headers": "^0.0.6"

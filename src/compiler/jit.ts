@@ -3,7 +3,6 @@ import {
   createArgSet,
   AsyncFunction,
   setHooks,
-  externalDependencies,
   contextInit,
   setContextInit,
 } from '@mapl/framework';
@@ -11,13 +10,19 @@ import {
 import compile from '@mapl/router/method/compiler';
 import { countParams } from '@mapl/router/path';
 import { insertItem, type Router } from '@mapl/router/method';
-import { isErr } from '@safe-std/error';
 
 import type { RouterTag } from '../core/index.js';
 import type { HandlerData } from '../core/handler.js';
-import createContext from '../core/context.js';
-import { compiledDeps, localDependencies, stateToArgs } from './index.js';
 
+import {
+  getDependency,
+  injectDependency,
+  injectExternalDependency,
+  type CompiledDependency,
+} from 'runtime-compiler';
+import { evaluate, evaluateSync } from 'runtime-compiler/jit';
+
+// Compiled values are loaded to the URL router
 let urlRouter: Router<string>;
 
 const paramArgs: string[] = createArgSet(
@@ -64,12 +69,11 @@ const compileReturn = (
 
 const compileToState = (router: RouterTag): void => {
   urlRouter = {}; // Create base router
-  externalDependencies.length = 0;
 
   setHooks({
     compileHandler: (fn, dat, path, scope) => {
       // String builders
-      let call = constants.DEP + externalDependencies.push(fn) + '(';
+      let call = injectExternalDependency(fn) + '(';
 
       // Load parameter args
       const paramCount = countParams(path);
@@ -82,7 +86,7 @@ const compileToState = (router: RouterTag): void => {
         // Create context to pass in the function
         if (!scope[1])
           return (
-            contextInit() +
+            contextInit +
             compileReturn(
               dat as HandlerData,
               fn instanceof AsyncFunction,
@@ -103,8 +107,7 @@ const compileToState = (router: RouterTag): void => {
     },
     compileErrorHandler: (fn, dat, scope) => {
       // String builders
-      let call =
-        constants.DEP + externalDependencies.push(fn) + '(' + constants.TMP;
+      let call = injectExternalDependency(fn) + '(' + constants.TMP;
 
       // Load other args
       if (fn.length > 1) {
@@ -113,7 +116,7 @@ const compileToState = (router: RouterTag): void => {
         // Create context to pass in the function
         if (!scope[1])
           return (
-            contextInit() +
+            contextInit +
             compileReturn(
               dat as HandlerData,
               fn instanceof AsyncFunction,
@@ -147,31 +150,35 @@ const compileToState = (router: RouterTag): void => {
   );
 };
 
-export const stateToString = (): string =>
-  '"use strict";' +
-  constants.GLOBALS +
-  localDependencies() +
-  'return(' +
-  constants.REQ +
-  ')=>{' +
-  compile(urlRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
-  'return ' +
-  constants.R404 +
-  '}';
-
-export const compileToString = (router: RouterTag): string => {
+export const injectCompiledHandler = (
+  router: RouterTag,
+): CompiledDependency<(req: Request) => any> => {
   compileToState(router);
-  return '(' + stateToArgs() + ')=>{' + stateToString() + '}';
+  return injectDependency(
+    '(()=>{' +
+      constants.GLOBALS +
+      'return(' +
+      constants.REQ +
+      ')=>{' +
+      compile(urlRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
+      'return ' +
+      constants.R404 +
+      '}})()',
+  );
 };
 
-export const compileToHandler = (
+export const compileToHandler = async (
+  router: RouterTag,
+): Promise<(req: Request) => any> => {
+  const id = injectCompiledHandler(router);
+  await evaluate();
+  return getDependency(id);
+};
+
+export const compileToHandlerSync = (
   router: RouterTag,
 ): ((req: Request) => any) => {
-  compileToState(router);
-  return Function(stateToArgs(), stateToString())(
-    isErr,
-    createContext,
-    compiledDeps,
-    ...externalDependencies,
-  );
+  const id = injectCompiledHandler(router);
+  evaluateSync();
+  return getDependency(id);
 };

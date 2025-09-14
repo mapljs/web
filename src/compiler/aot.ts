@@ -1,27 +1,18 @@
-import {
-  hydrateDependency,
-  externalDependencies,
-  setHooks,
-} from '@mapl/framework';
-import { isErr } from '@safe-std/error';
+import { hydrateDependency, setHooks } from '@mapl/framework';
+
+import { injectExternalDependency } from 'runtime-compiler';
 
 import type { RouterTag } from '../core/index.js';
-import createContext from '../core/context.js';
-import { compiledDeps } from './index.js';
+import '../core/context.js';
 
-export default (router: RouterTag): any[] => {
-  externalDependencies.length = 0;
-
+export default (router: RouterTag): void => {
   const hook = (fn: any) => {
-    externalDependencies.push(fn);
+    injectExternalDependency(fn);
     return '';
   };
   setHooks({
     compileHandler: hook,
     compileErrorHandler: hook,
   });
-
   hydrateDependency(router as any, [false, false, , '', false], '');
-
-  return [isErr, createContext, compiledDeps].concat(externalDependencies);
 };
