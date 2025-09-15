@@ -1,15 +1,14 @@
 // @ts-check
-// Currently works with rollup & terser
+// Currently works with terser
 import app from './main.js';
 import { injectCompiledHandler } from '@mapl/web/compiler/jit';
 
-import { rollup } from 'rollup';
 import terser from '@rollup/plugin-terser';
-import nodeResolve from '@rollup/plugin-node-resolve';
 
 import { writeFileSync } from 'node:fs';
 import { evaluateToString } from 'runtime-compiler/jit';
 import { minifySync } from '@swc/core';
+import { rolldown } from 'rolldown';
 
 const RAW = import.meta.dir + '/1.js';
 const ENTRY = import.meta.dir + '/2.js';
@@ -31,17 +30,16 @@ export default {
   fetch: getDependency(${HANDLER})
 };`,
 );
-const input = await rollup({
+const input = await rolldown({
   input: RAW,
   plugins: [
     terser({
       module: true,
       mangle: false,
       compress: {
-        passes: 5,
+        passes: 3,
       },
     }),
-    nodeResolve(),
   ],
 });
 const output = await input.write({

@@ -1,6 +1,6 @@
 let isHydrating = !1;
 isHydrating = !0;
-var router = (middlewares, handlers, children) => [
+var core_default = (middlewares, handlers, children) => [
   middlewares,
   handlers,
   ,
@@ -12,15 +12,11 @@ let attach = (prop, f) => [1, f, prop],
     0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
   compiledDependencies = [],
   externalDependencies = [],
-  localDepsCnt = 0,
-  injectDependency = (e) => localDepsCnt++,
   getDependency = (c) => compiledDependencies[c],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e);
-const logID = injectDependency(),
-  logID2 = injectDependency();
 var f,
   handler,
-  app = router(
+  main_default = core_default(
     [
       ((f = (c) => {
         console.log(c.req), getDependency(logID)(), getDependency(logID2)();
@@ -30,16 +26,17 @@ var f,
     ],
     [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
     {
-      '/api': router(
+      '/api': core_default(
         [attach('body', async (c) => c.req.text())],
         [['POST', '/body', (c) => c.body, mergeData()]],
       ),
     },
   );
-let _ = Symbol.for('@safe-std/error');
-injectExternalDependency((u) => Array.isArray(u) && u[0] === _);
 let hooks,
-  AsyncFunction = (async () => {}).constructor,
+  _ = Symbol.for('@safe-std/error'),
+  AsyncFunction =
+    (injectExternalDependency((u) => Array.isArray(u) && u[0] === _),
+    (async () => {}).constructor),
   compileErrorHandler = (scope) =>
     (scope[3] ??= hooks.compileErrorHandler(scope[2][0], scope[2][1], scope)),
   clearErrorHandler = (scope) => {
@@ -93,16 +90,18 @@ let hooks,
 (() => {
   let hook = (fn) => (injectExternalDependency(fn), '');
   (hooks = { compileHandler: hook, compileErrorHandler: hook }),
-    hydrateDependency(app, [!1, !1, , '', !1], '');
+    hydrateDependency(main_default, [!1, !1, , '', !1], '');
 })(),
-  ((_, _1, _2, _3, _4, _5, _6) => {
-    _.push(
-      () => console.log('ID:', +Math.random().toFixed(2)),
-      () => console.log('ID:', +Math.random().toFixed(2)),
+  ((_$1, _1, _2, _3, _4, _5, _6) => {
+    _$1.push(
       (() => {
-        var [mwn, mwb] = [404, 400].map(
-            (s) => new Response(null, { status: s }),
-          ),
+        var t = ['text/html', 'application/json'].map((c) => [
+            'Content-Type',
+            c,
+          ]),
+          [mwh, mwj] = t,
+          [mwoh, mwoj] = t.map((c) => ({ headers: [c] })),
+          [mwn, mwb] = [404, 400].map((s) => new Response(null, { status: s })),
           mwc = (r) => ({ status: 200, req: r, headers: [] });
         return (r) => {
           let u = r.url,
@@ -131,5 +130,5 @@ let hooks,
       return (externalDependencies.length = 0), n;
     })(),
   );
-var _1 = { fetch: getDependency(2) };
-export { _1 as default };
+var _1_default = { fetch: getDependency(0) };
+export { _1_default as default };
