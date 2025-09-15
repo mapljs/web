@@ -67,13 +67,13 @@ writeFileSync(
   `import 'runtime-compiler/hydrate-loader';
 
 import app from './main.js';
-import hydrateRouter from '../../lib/compiler/aot.js';
+import hydrateRouter from '@mapl/web/compiler/aot';
 hydrateRouter(app);
 
-import { getDependency } from 'runtime-compiler';
 import { hydrate } from 'runtime-compiler/hydrate';
 (${evaluateToString()})(...hydrate());
 
+import { getDependency } from 'runtime-compiler';
 export default {
   fetch: getDependency(${HANDLER})
 };`,

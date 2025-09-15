@@ -1,17 +1,17 @@
 // @ts-check
 // Currently works with terser
-import app from './main.js';
-import { injectCompiledHandler } from '@mapl/web/compiler/jit';
+import app from "./main.js";
+import { injectCompiledHandler } from "@mapl/web/compiler/jit";
 
-import terser from '@rollup/plugin-terser';
+import terser from "@rollup/plugin-terser";
 
-import { writeFileSync } from 'node:fs';
-import { evaluateToString } from 'runtime-compiler/jit';
-import { minifySync } from '@swc/core';
-import { rolldown } from 'rolldown';
+import { writeFileSync } from "node:fs";
+import { evaluateToString } from "runtime-compiler/jit";
+import { minifySync } from "@swc/core";
+import { rolldown } from "rolldown";
 
-const RAW = import.meta.dir + '/1.js';
-const ENTRY = import.meta.dir + '/2.js';
+const RAW = import.meta.dir + "/1.js";
+const ENTRY = import.meta.dir + "/2.js";
 const HANDLER = injectCompiledHandler(app);
 
 writeFileSync(
@@ -22,10 +22,10 @@ import app from './main.js';
 import hydrateRouter from '../../lib/compiler/aot.js';
 hydrateRouter(app);
 
-import { getDependency } from 'runtime-compiler';
 import { hydrate } from 'runtime-compiler/hydrate';
 (${evaluateToString()})(...hydrate());
 
+import { getDependency } from 'runtime-compiler';
 export default {
   fetch: getDependency(${HANDLER})
 };`,
@@ -49,7 +49,7 @@ const output = await input.write({
 
 const code = output.output[0].code;
 console.log(
-  'minified size:',
+  "minified size:",
   minifySync(code, {
     module: true,
   }).code.length,
