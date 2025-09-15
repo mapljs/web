@@ -1,8 +1,5 @@
-import { isHydrating } from 'runtime-compiler/config';
 import { handle, layer, router } from '../../lib/index.js';
 import { injectDependency, getDependency } from 'runtime-compiler';
-
-console.log(isHydrating);
 
 const logID = injectDependency(
   '() => console.log("ID:", +Math.random().toFixed(2))',

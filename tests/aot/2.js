@@ -1,5 +1,3 @@
-let isHydrating = !1;
-isHydrating = !0;
 var router = (middlewares, handlers, children) => [
   middlewares,
   handlers,
@@ -16,7 +14,6 @@ let attach = (prop, f) => [1, f, prop],
   injectDependency = (c) => localDepsCnt++,
   getDependency = (e) => compiledDependencies[e],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e);
-console.log(!0);
 const logID = injectDependency(),
   logID2 = injectDependency();
 var f,
