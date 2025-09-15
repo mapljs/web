@@ -1,5 +1,6 @@
-let hooks, n;
-var core_default = (middlewares, handlers, children) => [
+let isHydrating = !1;
+isHydrating = !0;
+var router = (middlewares, handlers, children) => [
   middlewares,
   handlers,
   ,
@@ -8,41 +9,38 @@ var core_default = (middlewares, handlers, children) => [
 let attach = (prop, f) => [1, f, prop],
   noType = { type: null },
   mergeData = (...dat) =>
-    0 === dat.length ? noType : Object.assign({ type: null }, ...dat);
-var main_default = core_default(
-  [
-    [
-      0,
-      (c) => {
-        console.log(c.req);
-      },
-    ],
-    attach('id', () => performance.now()),
-  ],
-  [
-    ((path, handler, ...dat) => ['', path, handler, mergeData(...dat)])(
-      '/path',
-      (c) => c.id,
-    ),
-  ],
-  {
-    '/api': core_default(
-      [attach('body', async (c) => c.req.text())],
-      [
-        ((path, handler, ...dat) => ['POST', path, handler, mergeData(...dat)])(
-          '/body',
-          (c) => c.body,
-        ),
-      ],
-    ),
-  },
-);
-let _ = Symbol.for('@safe-std/error'),
+    0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
   compiledDependencies = [],
   externalDependencies = [],
+  localDepsCnt = 0,
+  injectDependency = (c) => localDepsCnt++,
+  getDependency = (e) => compiledDependencies[e],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e);
+console.log(!0);
+const logID = injectDependency(),
+  logID2 = injectDependency();
+var f,
+  handler,
+  app = router(
+    [
+      ((f = (c) => {
+        console.log(c.req), getDependency(logID)(), getDependency(logID2)();
+      }),
+      [0, f]),
+      attach('id', () => performance.now()),
+    ],
+    [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
+    {
+      '/api': router(
+        [attach('body', async (c) => c.req.text())],
+        [['POST', '/body', (c) => c.body, mergeData()]],
+      ),
+    },
+  );
+let _ = Symbol.for('@safe-std/error');
 injectExternalDependency((u) => Array.isArray(u) && u[0] === _);
-let AsyncFunction = (async () => {}).constructor,
+let hooks,
+  AsyncFunction = (async () => {}).constructor,
   compileErrorHandler = (scope) =>
     (scope[3] ??= hooks.compileErrorHandler(scope[2][0], scope[2][1], scope)),
   clearErrorHandler = (scope) => {
@@ -93,20 +91,20 @@ let AsyncFunction = (async () => {}).constructor,
           scope.slice(),
           '/' === childPrefix ? prefix : prefix + childPrefix,
         );
-  },
-  hook = (fn) => (injectExternalDependency(fn), '');
-(hooks = { compileHandler: hook, compileErrorHandler: hook }),
-  hydrateDependency(main_default, [!1, !1, , '', !1], ''),
-  ((_$1, _1, _2, _3, _4, _5, _6) =>
-    _$1.push(
+  };
+(() => {
+  let hook = (fn) => (injectExternalDependency(fn), '');
+  (hooks = { compileHandler: hook, compileErrorHandler: hook }),
+    hydrateDependency(app, [!1, !1, , '', !1], '');
+})(),
+  ((_, _1, _2, _3, _4, _5, _6) => {
+    _.push(
+      () => console.log('ID:', +Math.random().toFixed(2)),
+      () => console.log('ID:', +Math.random().toFixed(2)),
       (() => {
-        var t = ['text/html', 'application/json'].map((c) => [
-            'Content-Type',
-            c,
-          ]),
-          [mwh, mwj] = t,
-          [mwoh, mwoj] = t.map((c) => ({ headers: [c] })),
-          [mwn, mwb] = [404, 400].map((s) => new Response(null, { status: s })),
+        var [mwn, mwb] = [404, 400].map(
+            (s) => new Response(null, { status: s }),
+          ),
           mwc = (r) => ({ status: 200, req: r, headers: [] });
         return (r) => {
           let u = r.url,
@@ -128,10 +126,12 @@ let AsyncFunction = (async () => {}).constructor,
           return mwn;
         };
       })(),
-    ))(
-    ...((n = [compiledDependencies].concat(externalDependencies)),
-    (externalDependencies.length = 0),
-    n),
+    );
+  })(
+    ...(() => {
+      let n = [compiledDependencies].concat(externalDependencies);
+      return (externalDependencies.length = 0), n;
+    })(),
   );
-var _1_default = { fetch: compiledDependencies[0] };
-export { _1_default as default };
+var _1 = { fetch: getDependency(2) };
+export { _1 as default };

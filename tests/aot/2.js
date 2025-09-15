@@ -1,171 +1,137 @@
-let hydrating = () => {};
-hydrating();
-var core_default = (middlewares, handlers, children) => [
+let isHydrating = !1;
+isHydrating = !0;
+var router = (middlewares, handlers, children) => [
   middlewares,
   handlers,
   ,
   children,
 ];
-let tap = (f) => [0, f];
-let attach = (prop, f) => [1, f, prop];
-let noType = { type: null };
-let mergeData = (...dat) =>
-  dat.length === 0 ? noType : Object.assign({ type: null }, ...dat);
-let any = (path, handler, ...dat) => [``, path, handler, mergeData(...dat)];
-let post = (path, handler, ...dat) => [
-  `POST`,
-  path,
+let attach = (prop, f) => [1, f, prop],
+  noType = { type: null },
+  mergeData = (...dat) =>
+    0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
+  compiledDependencies = [],
+  externalDependencies = [],
+  localDepsCnt = 0,
+  injectDependency = (c) => localDepsCnt++,
+  getDependency = (e) => compiledDependencies[e],
+  injectExternalDependency = (e) => '_' + externalDependencies.push(e);
+console.log(!0);
+const logID = injectDependency(),
+  logID2 = injectDependency();
+var f,
   handler,
-  mergeData(...dat),
-];
-var main_default = core_default(
-  [
-    tap((c) => {
-      console.log(c.req);
-    }),
-    attach('id', () => performance.now()),
-  ],
-  [any('/path', (c) => c.id)],
-  {
-    '/api': core_default(
-      [attach('body', async (c) => c.req.text())],
-      [post('/body', (c) => c.body)],
-    ),
+  app = router(
+    [
+      ((f = (c) => {
+        console.log(c.req), getDependency(logID)(), getDependency(logID2)();
+      }),
+      [0, f]),
+      attach('id', () => performance.now()),
+    ],
+    [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
+    {
+      '/api': router(
+        [attach('body', async (c) => c.req.text())],
+        [['POST', '/body', (c) => c.body, mergeData()]],
+      ),
+    },
+  );
+let _ = Symbol.for('@safe-std/error');
+injectExternalDependency((u) => Array.isArray(u) && u[0] === _);
+let hooks,
+  AsyncFunction = (async () => {}).constructor,
+  compileErrorHandler = (scope) =>
+    (scope[3] ??= hooks.compileErrorHandler(scope[2][0], scope[2][1], scope)),
+  clearErrorHandler = (scope) => {
+    null != scope[2] && (scope[3] = null);
   },
-);
-let _ = Symbol.for(`@safe-std/error`);
-let isErr = (u) => Array.isArray(u) && u[0] === _;
-let compiledDependencies = [];
-let externalDependencies = [];
-let getDependency = (e) => compiledDependencies[e];
-let injectExternalDependency = (e) => `_` + externalDependencies.push(e);
-(async () => {}).constructor;
-injectExternalDependency(isErr);
-let AsyncFunction = (async () => {}).constructor;
-let hooks;
-let setHooks = (allHooks) => {
-  hooks = allHooks;
-};
-let contextInit = ``;
-let compileErrorHandler = (scope) =>
-  (scope[3] ??= hooks.compileErrorHandler(scope[2][0], scope[2][1], scope));
-let clearErrorHandler = (scope) => {
-  scope[2] != null && (scope[3] = null);
-};
-let createContext = (scope) => {
-  if (scope[1]) return ``;
-  scope[1] = true;
-  clearErrorHandler(scope);
-  return contextInit;
-};
-let createAsyncScope = (scope) => {
-  if (scope[0]) return ``;
-  scope[0] = true;
-  clearErrorHandler(scope);
-  return `return (async()=>{`;
-};
-let setTmp = (scope) => {
-  if (scope[4]) return `t`;
-  scope[4] = true;
-  return `let t`;
-};
-let hydrateDependency = (group, scope, prefix) => {
-  if (group[2] != null) {
-    scope[2] = group[2];
-    scope[3] = null;
-  }
-  for (let i = 0, middlewares = group[0]; i < middlewares.length; i++) {
-    let middleware = middlewares[i];
-    let fn = middleware[1];
-    let id = middleware[0];
-    if (id === -1) fn(scope);
-    else {
-      injectExternalDependency(fn);
-      if (fn.length > 0) createContext(scope);
-      if (fn instanceof AsyncFunction) createAsyncScope(scope);
-      if (id === 1) createContext(scope);
-      else if (id === 2) {
-        setTmp(scope);
-        compileErrorHandler(scope);
-      } else if (id === 3) {
-        setTmp(scope);
-        compileErrorHandler(scope);
-        createContext(scope);
-      }
+  createContext = (scope) => (
+    scope[1] || ((scope[1] = !0), clearErrorHandler(scope)), ''
+  ),
+  createAsyncScope = (scope) =>
+    scope[0]
+      ? ''
+      : ((scope[0] = !0), clearErrorHandler(scope), 'return (async()=>{'),
+  setTmp = (scope) => (scope[4] ? 't' : ((scope[4] = !0), 'let t')),
+  hydrateDependency = (group, scope, prefix) => {
+    null != group[2] && ((scope[2] = group[2]), (scope[3] = null));
+    for (let i = 0, middlewares = group[0]; i < middlewares.length; i++) {
+      let middleware = middlewares[i],
+        fn = middleware[1],
+        id = middleware[0];
+      -1 === id
+        ? fn(scope)
+        : (injectExternalDependency(fn),
+          fn.length > 0 && createContext(scope),
+          fn instanceof AsyncFunction && createAsyncScope(scope),
+          1 === id
+            ? createContext(scope)
+            : 2 === id
+              ? (setTmp(scope), compileErrorHandler(scope))
+              : 3 === id &&
+                (setTmp(scope),
+                compileErrorHandler(scope),
+                createContext(scope)));
     }
-  }
-  for (let i = 0, handlers = group[1]; i < handlers.length; i++) {
-    let handler = handlers[i];
-    hooks.compileHandler(
-      handler[2],
-      handler[3],
-      prefix + (handler[1] === `/` || prefix !== `` ? `` : handler[1]),
-      scope,
-    );
-  }
-  let childGroups = group[3];
-  if (childGroups != null)
-    for (let childPrefix in childGroups)
-      hydrateDependency(
-        childGroups[childPrefix],
-        scope.slice(),
-        childPrefix === `/` ? prefix : prefix + childPrefix,
+    for (let i = 0, handlers = group[1]; i < handlers.length; i++) {
+      let handler = handlers[i];
+      hooks.compileHandler(
+        handler[2],
+        handler[3],
+        prefix + ('/' === handler[1] || '' !== prefix ? '' : handler[1]),
+        scope,
       );
-};
-var aot_default = (router) => {
-  let hook = (fn) => {
-    injectExternalDependency(fn);
-    return ``;
+    }
+    let childGroups = group[3];
+    if (null != childGroups)
+      for (let childPrefix in childGroups)
+        hydrateDependency(
+          childGroups[childPrefix],
+          scope.slice(),
+          '/' === childPrefix ? prefix : prefix + childPrefix,
+        );
   };
-  setHooks({
-    compileHandler: hook,
-    compileErrorHandler: hook,
-  });
-  hydrateDependency(router, [false, false, , ``, false], ``);
-};
-let hydrate = () => {
-  let n = [compiledDependencies].concat(externalDependencies);
-  externalDependencies.length = 0;
-  return n;
-};
-aot_default(main_default);
-((_$1, _1, _2, _3, _4, _5, _6) =>
-  _$1.push(
-    (() => {
-      var t = ['text/html', 'application/json'].map((c) => ['Content-Type', c]),
-        [mwh, mwj] = t,
-        [mwoh, mwoj] = t.map((c) => ({ headers: [c] })),
-        [mwn, mwb] = [404, 400].map((s) => new Response(null, { status: s })),
-        mwc = (r) => ({
-          status: 200,
-          req: r,
-          headers: [],
-        });
-      return (r) => {
-        let u = r.url,
-          s = u.indexOf('/', 12) + 1,
-          e = u.indexOf('?', s),
-          p = e === -1 ? u.slice(s) : u.slice(s, e);
-        if (r.method === 'POST') {
-          if (p === 'api') {
+(() => {
+  let hook = (fn) => (injectExternalDependency(fn), '');
+  (hooks = { compileHandler: hook, compileErrorHandler: hook }),
+    hydrateDependency(app, [!1, !1, , '', !1], '');
+})(),
+  ((_, _1, _2, _3, _4, _5, _6) => {
+    _.push(
+      () => console.log('ID:', +Math.random().toFixed(2)),
+      () => console.log('ID:', +Math.random().toFixed(2)),
+      (() => {
+        var [mwn, mwb] = [404, 400].map(
+            (s) => new Response(null, { status: s }),
+          ),
+          mwc = (r) => ({ status: 200, req: r, headers: [] });
+        return (r) => {
+          let u = r.url,
+            s = u.indexOf('/', 12) + 1,
+            e = u.indexOf('?', s),
+            p = -1 === e ? u.slice(s) : u.slice(s, e);
+          if ('POST' === r.method && 'api' === p) {
             let c = mwc(r);
-            _2(c);
-            c.id = _3();
-            return (async () => {
-              c.body = await _5(c);
-              return new Response(_6(c), c);
-            })();
+            return (
+              _2(c),
+              (c.id = _3()),
+              (async () => ((c.body = await _5(c)), new Response(_6(c), c)))()
+            );
           }
-        }
-        if (p === 'path') {
-          let c = mwc(r);
-          _2(c);
-          c.id = _3();
-          return new Response(_4(c), c);
-        }
-        return mwn;
-      };
+          if ('path' === p) {
+            let c = mwc(r);
+            return _2(c), (c.id = _3()), new Response(_4(c), c);
+          }
+          return mwn;
+        };
+      })(),
+    );
+  })(
+    ...(() => {
+      let n = [compiledDependencies].concat(externalDependencies);
+      return (externalDependencies.length = 0), n;
     })(),
-  ))(...hydrate());
-var _1_default = { fetch: getDependency(0) };
-export { _1_default as default };
+  );
+var _1 = { fetch: getDependency(2) };
+export { _1 as default };

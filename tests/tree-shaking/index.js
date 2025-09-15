@@ -6,7 +6,7 @@
   //   AOT = false;
   // };
   // setAOT();
-  const fn = AOT() ? () => console.log("Hi") : () => {};
+  const fn = AOT ? () => console.log('Hi') : () => {};
   fn();
 }
 
@@ -18,6 +18,6 @@
     AOT = false;
   };
   setAOT();
-  const fn = AOT() ? () => console.log("Hi") : () => {};
+  const fn = AOT ? () => console.log('Hi') : () => {};
   fn();
 }

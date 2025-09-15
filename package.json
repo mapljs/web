@@ -26,6 +26,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.4",
     "@swc/core": "^1.13.5",
     "@types/bun": "^1.2.10",
     "esbuild": "^0.25.9",
@@ -33,6 +36,8 @@
     "oxc-minify": "^0.87.0",
     "oxc-transform": "^0.65.0",
     "rolldown": "^1.0.0-beta.36",
+    "rollup": "^4.50.1",
+    "tslib": "^2.8.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   },
@@ -45,7 +50,7 @@
     "@mapl/framework": "^0.4.2",
     "@mapl/router": "^0.6.2",
     "@safe-std/error": "^1.0.1",
-    "runtime-compiler": "^1.0.4"
+    "runtime-compiler": "^1.0.5"
   },
   "optionalDependencies": {
     "secure-headers": "^0.0.6"
