@@ -9,6 +9,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 
 import { writeFileSync } from 'node:fs';
 import { evaluateToString } from 'runtime-compiler/jit';
+import { minifySync } from '@swc/core';
 
 const RAW = import.meta.dir + '/1.js';
 const ENTRY = import.meta.dir + '/2.js';
@@ -49,6 +50,11 @@ const output = await input.write({
 });
 
 const code = output.output[0].code;
-console.log('minified size:', code.length);
+console.log(
+  'minified size:',
+  minifySync(code, {
+    module: true,
+  }).code.length,
+);
 
 await Bun.$`bun fmt --write ./tests/aot`;
