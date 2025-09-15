@@ -1,3 +1,5 @@
+let isHydrating = !1;
+isHydrating = !0;
 var router = (middlewares, handlers, children) => [
   middlewares,
   handlers,
@@ -11,8 +13,8 @@ let attach = (prop, f) => [1, f, prop],
   compiledDependencies = [],
   externalDependencies = [],
   localDepsCnt = 0,
-  injectDependency = (c) => localDepsCnt++,
-  getDependency = (e) => compiledDependencies[e],
+  injectDependency = (e) => localDepsCnt++,
+  getDependency = (c) => compiledDependencies[c],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e);
 const logID = injectDependency(),
   logID2 = injectDependency();
@@ -46,11 +48,10 @@ let hooks,
   createContext = (scope) => (
     scope[1] || ((scope[1] = !0), clearErrorHandler(scope)), ''
   ),
-  createAsyncScope = (scope) =>
-    scope[0]
-      ? ''
-      : ((scope[0] = !0), clearErrorHandler(scope), 'return (async()=>{'),
-  setTmp = (scope) => (scope[4] ? 't' : ((scope[4] = !0), 'let t')),
+  createAsyncScope = (scope) => (
+    scope[0] || ((scope[0] = !0), clearErrorHandler(scope)), ''
+  ),
+  setTmp = (scope) => ((scope[4] = !0), ''),
   hydrateDependency = (group, scope, prefix) => {
     null != group[2] && ((scope[2] = group[2]), (scope[3] = null));
     for (let i = 0, middlewares = group[0]; i < middlewares.length; i++) {

@@ -28,7 +28,6 @@
     "@biomejs/biome": "^1.9.4",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.4",
     "@swc/core": "^1.13.5",
     "@types/bun": "^1.2.10",
     "esbuild": "^0.25.9",
@@ -47,10 +46,10 @@
     "esbuild"
   ],
   "dependencies": {
-    "@mapl/framework": "^0.4.2",
+    "@mapl/framework": "^0.4.3",
     "@mapl/router": "^0.6.2",
     "@safe-std/error": "^1.0.1",
-    "runtime-compiler": "^1.0.5"
+    "runtime-compiler": "^1.0.6"
   },
   "optionalDependencies": {
     "secure-headers": "^0.0.6"
