@@ -12,8 +12,12 @@ let attach = (prop, f) => [1, f, prop],
     0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
   compiledDependencies = [],
   externalDependencies = [],
+  localDepsCnt = 0,
+  markDependency = () => localDepsCnt++,
   getDependency = (c) => compiledDependencies[c],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e);
+const logID = markDependency(),
+  logID2 = markDependency();
 var f,
   handler,
   main_default = core_default(
@@ -94,6 +98,8 @@ let hooks,
 })(),
   ((_$1, _1, _2, _3, _4, _5, _6) => {
     _$1.push(
+      () => console.log('ID:', +Math.random().toFixed(2)),
+      () => console.log('ID:', +Math.random().toFixed(2)),
       (() => {
         var t = ['text/html', 'application/json'].map((c) => [
             'Content-Type',
@@ -130,5 +136,5 @@ let hooks,
       return (externalDependencies.length = 0), n;
     })(),
   );
-var _1_default = { fetch: getDependency(0) };
+var _1_default = { fetch: getDependency(2) };
 export { _1_default as default };

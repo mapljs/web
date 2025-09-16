@@ -6,12 +6,12 @@ import {
   markDependency,
 } from 'runtime-compiler';
 
-// const logID = isHydrating
-//   ? markDependency()
-//   : injectDependency('() => console.log("ID:", +Math.random().toFixed(2))');
-// const logID2 = isHydrating
-//   ? markDependency()
-//   : injectDependency('() => console.log("ID:", +Math.random().toFixed(2))');
+const logID = isHydrating
+  ? markDependency()
+  : injectDependency('() => console.log("ID:", +Math.random().toFixed(2))');
+const logID2 = isHydrating
+  ? markDependency()
+  : injectDependency('() => console.log("ID:", +Math.random().toFixed(2))');
 
 export default router(
   [

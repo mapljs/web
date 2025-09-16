@@ -4,10 +4,11 @@ import app from './main.js';
 import hydrateRouter from '../../lib/compiler/aot.js';
 hydrateRouter(app);
 
-import { getDependency } from 'runtime-compiler';
 import { hydrate } from 'runtime-compiler/hydrate';
 ((_, _1, _2, _3, _4, _5, _6) =>
   _.push(
+    () => console.log('ID:', +Math.random().toFixed(2)),
+    () => console.log('ID:', +Math.random().toFixed(2)),
     (() => {
       var t = ['text/html', 'application/json'].map((c) => ['Content-Type', c]),
         [mwh, mwj] = t,
@@ -41,6 +42,7 @@ import { hydrate } from 'runtime-compiler/hydrate';
     })(),
   ))(...hydrate());
 
+import { getDependency } from 'runtime-compiler';
 export default {
-  fetch: getDependency(0),
+  fetch: getDependency(2),
 };
