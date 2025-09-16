@@ -1,25 +1,28 @@
+// @ts-check
 import { isHydrating } from 'runtime-compiler/config';
 import { handle, layer, router, headers } from '../../lib/index.js';
 import {
   injectDependency,
   getDependency,
-  markDependency,
+  exportDependency,
+  markExported,
 } from 'runtime-compiler';
 
-const logID = isHydrating
-  ? markDependency()
-  : injectDependency('() => console.log("ID:", +Math.random().toFixed(2))');
-const logID2 = isHydrating
-  ? markDependency()
-  : injectDependency('() => console.log("ID:", +Math.random().toFixed(2))');
+const logRequest = isHydrating
+  ? markExported()
+  : exportDependency(injectDependency('(r) => console.log(r.method, r.url)'));
 
 export default router(
   [
-    layer.tap((c) => {
-      console.log(c.req);
-      getDependency(logID)();
-      getDependency(logID2)();
-    }),
+    isHydrating
+      ? layer.noOpMacro
+      : layer.macro(() => {
+          const fn = injectDependency(
+            '() => console.log("ID:", +Math.random().toFixed(2))',
+          );
+          return fn + '();';
+        }),
+    layer.tap((c) => getDependency(logRequest)(c.req)),
     layer.attach('id', () => performance.now()),
     headers({
       'x-powered-by': '@mapl/web',

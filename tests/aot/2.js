@@ -6,38 +6,35 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let noOpMacro = ((f) => [-1, f])(() => ''),
+let noOpMacro = [-1, () => ''],
+  tap = (f) => [0, f],
   attach = (prop, f) => [1, f, prop],
   noType = { type: null },
   mergeData = (...dat) =>
     0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
   compiledDependencies = [],
   externalDependencies = [],
-  localDepsCnt = 0,
-  markDependency = () => localDepsCnt++,
-  getDependency = (c) => compiledDependencies[c],
+  exportedDepsCnt = 0,
+  markExported = () => exportedDepsCnt++,
+  getDependency = (d) => compiledDependencies[d],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e);
-const logID = markDependency(),
-  logID2 = markDependency();
-var f,
+const logRequest = markExported();
+var headers,
   handler,
-  headers,
   main_default = core_default(
     [
-      ((f = (c) => {
-        console.log(c.req), getDependency(logID)(), getDependency(logID2)();
-      }),
-      [0, f]),
+      noOpMacro,
+      tap((c) => getDependency(logRequest)(c.req)),
       attach('id', () => performance.now()),
       ((headers = { 'x-powered-by': '@mapl/web' }),
-      injectExternalDependency(
-        Array.isArray(headers)
-          ? headers
-          : headers instanceof Headers
-            ? headers.entries().toArray()
-            : Object.entries(headers),
-      ),
-      noOpMacro),
+      (headers = Array.isArray(headers)
+        ? headers
+        : headers instanceof Headers
+          ? headers.entries().toArray()
+          : Object.entries(headers)),
+      tap((c) => {
+        c.headers.push(...headers);
+      })),
     ],
     [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
     {
@@ -68,13 +65,13 @@ let hooks,
     null != group[2] && ((scope[2] = group[2]), (scope[3] = null));
     for (let i = 0, middlewares = group[0]; i < middlewares.length; i++) {
       let middleware = middlewares[i],
-        fn$1 = middleware[1],
+        fn = middleware[1],
         id = middleware[0];
       -1 === id
-        ? fn$1(scope)
-        : (injectExternalDependency(fn$1),
-          fn$1.length > 0 && createContext(scope),
-          fn$1 instanceof AsyncFunction && createAsyncScope(scope),
+        ? fn(scope)
+        : (injectExternalDependency(fn),
+          fn.length > 0 && createContext(scope),
+          fn instanceof AsyncFunction && createAsyncScope(scope),
           1 === id
             ? createContext(scope)
             : 2 === id
@@ -103,15 +100,14 @@ let hooks,
         );
   };
 (() => {
-  let hook = (fn$1) => (injectExternalDependency(fn$1), '');
+  let hook = (fn) => (injectExternalDependency(fn), '');
   (hooks = { compileHandler: hook, compileErrorHandler: hook }),
-    hydrateDependency(main_default, [!1, !1, , '', !1], '');
+    hydrateDependency(main_default, [!1, !1, , '', !1], ''),
+    markExported();
 })(),
   ((_$1, _1, _2, _3, _4, _5, _6, _7) => {
-    _$1.push(
-      () => console.log('ID:', +Math.random().toFixed(2)),
-      () => console.log('ID:', +Math.random().toFixed(2)),
-      (() => {
+    let __1 = () => console.log('ID:', +Math.random().toFixed(2)),
+      __2 = (() => {
         var t = ['text/html', 'application/json'].map((c) => [
             'Content-Type',
             c,
@@ -125,29 +121,29 @@ let hooks,
             e = u.indexOf('?', s),
             p = -1 === e ? u.slice(s) : u.slice(s, e);
           if ('POST' === r.method && 'api' === p) {
-            let hd = [],
-              c = { status: 200, req: r, headers: hd };
+            __1();
+            let c = { status: 200, req: r, headers: [] };
             return (
               _2(c),
               (c.id = _3()),
-              hd.push(..._4),
+              _4(c),
               (async () => ((c.body = await _6(c)), new Response(_7(c), c)))()
             );
           }
           if ('path' === p) {
-            let hd = [],
-              c = { status: 200, req: r, headers: hd };
-            return _2(c), (c.id = _3()), hd.push(..._4), new Response(_5(c), c);
+            __1();
+            let c = { status: 200, req: r, headers: [] };
+            return _2(c), (c.id = _3()), _4(c), new Response(_5(c), c);
           }
           return n;
         };
-      })(),
-    );
+      })();
+    _$1.push((r) => console.log(r.method, r.url), __2);
   })(
     ...(() => {
       let n = [compiledDependencies].concat(externalDependencies);
       return (externalDependencies.length = 0), n;
     })(),
   );
-var _1_default = { fetch: getDependency(2) };
+var _1_default = { fetch: getDependency(1) };
 export { _1_default as default };

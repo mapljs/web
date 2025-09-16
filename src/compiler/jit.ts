@@ -15,6 +15,7 @@ import type { RouterTag } from '../core/index.js';
 import type { HandlerData } from '../core/handler.js';
 
 import {
+  exportDependency,
   getDependency,
   injectDependency,
   injectExternalDependency,
@@ -168,7 +169,7 @@ export const compileToString = (router: RouterTag): string => {
 export const compileToDependency = (
   router: RouterTag,
 ): CompiledDependency<(req: Request) => any> =>
-  injectDependency('(' + compileToString(router) + ')()');
+  exportDependency(injectDependency('(' + compileToString(router) + ')()'));
 
 export const compileToHandler = async (
   router: RouterTag,
