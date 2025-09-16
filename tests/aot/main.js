@@ -1,5 +1,5 @@
 import { isHydrating } from 'runtime-compiler/config';
-import { handle, layer, router } from '../../lib/index.js';
+import { handle, layer, router, headers } from '../../lib/index.js';
 import {
   injectDependency,
   getDependency,
@@ -21,6 +21,9 @@ export default router(
       getDependency(logID2)();
     }),
     layer.attach('id', () => performance.now()),
+    headers({
+      'x-powered-by': '@mapl/web',
+    }),
   ],
   [handle.any('/path', (c) => c.id)],
   {

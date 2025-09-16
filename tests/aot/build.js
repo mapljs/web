@@ -1,7 +1,7 @@
 // @ts-check
 // Currently works with terser
 import app from './main.js';
-import { injectCompiledHandler } from '@mapl/web/compiler/jit';
+import { compileToDependency } from '@mapl/web/compiler/jit';
 
 import terser from '@rollup/plugin-terser';
 
@@ -12,7 +12,7 @@ import { rolldown } from 'rolldown';
 
 const RAW = import.meta.dir + '/1.js';
 const ENTRY = import.meta.dir + '/2.js';
-const HANDLER = injectCompiledHandler(app);
+const HANDLER = compileToDependency(app);
 
 writeFileSync(
   RAW,

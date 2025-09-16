@@ -1,10 +1,18 @@
+import type { ScopeState } from '@mapl/framework';
 import type { InferErr, InferResult } from '@safe-std/error';
+
 import type { AwaitedReturn } from './utils.js';
 import type { Context } from './context.js';
 
 export type MiddlewareHandler = (c: Context) => any;
 export type MiddlewareTypes<E, S> = [err: E, state: S];
 export type AnyMiddlewareTypes = MiddlewareTypes<any, any>;
+
+export const macro = <E = never, S = {}>(
+  f: (scope: ScopeState) => string,
+): MiddlewareTypes<E, S> => [-1, f] as any;
+
+export const noOpMacro: MiddlewareTypes<never, {}> = macro(() => '');
 
 export const tap = (f: MiddlewareHandler): MiddlewareTypes<never, {}> =>
   [0, f] as any;

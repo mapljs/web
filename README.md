@@ -50,7 +50,7 @@ export default router(
 
 // build.ts
 import app from './main.ts';
-import { injectCompiledHandler } from '@mapl/web/compiler/jit';
+import { compileToDependency } from '@mapl/web/compiler/jit';
 import { evaluateToString } from "runtime-compiler/jit";
 
 import { rolldown } from "rolldown";
@@ -60,7 +60,7 @@ import { writeFileSync } from "node:fs";
 
 // Output file
 const OUTPUT = "./index.js";
-const HANDLER = injectCompiledHandler(app);
+const HANDLER = compileToDependency(app);
 
 writeFileSync(
   OUTPUT,

@@ -150,27 +150,30 @@ const compileToState = (router: RouterTag): void => {
   );
 };
 
-export const injectCompiledHandler = (
-  router: RouterTag,
-): CompiledDependency<(req: Request) => any> => {
+export const compileToString = (router: RouterTag): string => {
   compileToState(router);
-  return injectDependency(
-    '(()=>{' +
-      constants.GLOBALS +
-      'return(' +
-      constants.REQ +
-      ')=>{' +
-      compile(urlRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
-      'return ' +
-      constants.R404 +
-      '}})()',
+  return (
+    '()=>{' +
+    constants.GLOBALS +
+    'return(' +
+    constants.REQ +
+    ')=>{' +
+    compile(urlRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
+    'return ' +
+    constants.R404 +
+    '}}'
   );
 };
+
+export const compileToDependency = (
+  router: RouterTag,
+): CompiledDependency<(req: Request) => any> =>
+  injectDependency('(' + compileToString(router) + ')()');
 
 export const compileToHandler = async (
   router: RouterTag,
 ): Promise<(req: Request) => any> => {
-  const id = injectCompiledHandler(router);
+  const id = compileToDependency(router);
   await evaluate();
   return getDependency(id);
 };
@@ -178,7 +181,7 @@ export const compileToHandler = async (
 export const compileToHandlerSync = (
   router: RouterTag,
 ): ((req: Request) => any) => {
-  const id = injectCompiledHandler(router);
+  const id = compileToDependency(router);
   evaluateSync();
   return getDependency(id);
 };

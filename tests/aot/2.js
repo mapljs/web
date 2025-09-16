@@ -6,7 +6,8 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let attach = (prop, f) => [1, f, prop],
+let noOpMacro = ((f) => [-1, f])(() => ''),
+  attach = (prop, f) => [1, f, prop],
   noType = { type: null },
   mergeData = (...dat) =>
     0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
@@ -20,6 +21,7 @@ const logID = markDependency(),
   logID2 = markDependency();
 var f,
   handler,
+  headers,
   main_default = core_default(
     [
       ((f = (c) => {
@@ -27,6 +29,15 @@ var f,
       }),
       [0, f]),
       attach('id', () => performance.now()),
+      ((headers = { 'x-powered-by': '@mapl/web' }),
+      injectExternalDependency(
+        Array.isArray(headers)
+          ? headers
+          : headers instanceof Headers
+            ? headers.entries().toArray()
+            : Object.entries(headers),
+      ),
+      noOpMacro),
     ],
     [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
     {
@@ -57,13 +68,13 @@ let hooks,
     null != group[2] && ((scope[2] = group[2]), (scope[3] = null));
     for (let i = 0, middlewares = group[0]; i < middlewares.length; i++) {
       let middleware = middlewares[i],
-        fn = middleware[1],
+        fn$1 = middleware[1],
         id = middleware[0];
       -1 === id
-        ? fn(scope)
-        : (injectExternalDependency(fn),
-          fn.length > 0 && createContext(scope),
-          fn instanceof AsyncFunction && createAsyncScope(scope),
+        ? fn$1(scope)
+        : (injectExternalDependency(fn$1),
+          fn$1.length > 0 && createContext(scope),
+          fn$1 instanceof AsyncFunction && createAsyncScope(scope),
           1 === id
             ? createContext(scope)
             : 2 === id
@@ -92,11 +103,11 @@ let hooks,
         );
   };
 (() => {
-  let hook = (fn) => (injectExternalDependency(fn), '');
+  let hook = (fn$1) => (injectExternalDependency(fn$1), '');
   (hooks = { compileHandler: hook, compileErrorHandler: hook }),
     hydrateDependency(main_default, [!1, !1, , '', !1], '');
 })(),
-  ((_$1, _1, _2, _3, _4, _5, _6) => {
+  ((_$1, _1, _2, _3, _4, _5, _6, _7) => {
     _$1.push(
       () => console.log('ID:', +Math.random().toFixed(2)),
       () => console.log('ID:', +Math.random().toFixed(2)),
@@ -105,28 +116,30 @@ let hooks,
             'Content-Type',
             c,
           ]),
-          [mwh, mwj] = t,
-          [mwoh, mwoj] = t.map((c) => ({ headers: [c] })),
-          [mwn, mwb] = [404, 400].map((s) => new Response(null, { status: s })),
-          mwc = (r) => ({ status: 200, req: r, headers: [] });
+          [h, j] = t,
+          [oh, oj] = t.map((c) => ({ headers: [c] })),
+          [n, b] = [404, 400].map((s) => new Response(null, { status: s }));
         return (r) => {
           let u = r.url,
             s = u.indexOf('/', 12) + 1,
             e = u.indexOf('?', s),
             p = -1 === e ? u.slice(s) : u.slice(s, e);
           if ('POST' === r.method && 'api' === p) {
-            let c = mwc(r);
+            let hd = [],
+              c = { status: 200, req: r, headers: hd };
             return (
               _2(c),
               (c.id = _3()),
-              (async () => ((c.body = await _5(c)), new Response(_6(c), c)))()
+              hd.push(..._4),
+              (async () => ((c.body = await _6(c)), new Response(_7(c), c)))()
             );
           }
           if ('path' === p) {
-            let c = mwc(r);
-            return _2(c), (c.id = _3()), new Response(_4(c), c);
+            let hd = [],
+              c = { status: 200, req: r, headers: hd };
+            return _2(c), (c.id = _3()), hd.push(..._4), new Response(_5(c), c);
           }
-          return mwn;
+          return n;
         };
       })(),
     );

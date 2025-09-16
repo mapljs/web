@@ -9,11 +9,17 @@ import {
 } from '@mapl/framework/constants';
 export * from '@mapl/framework/constants';
 
-export const WEB: string = 'mw';
-export const LOCAL_DEPS: string = WEB + 'l';
-
-export const CTX_FN: string = WEB + 'c';
-export const CTX_INIT: string = 'let ' + CTX + '=' + CTX_FN + '(' + REQ + ');';
+export const HEADERS: string = 'hd';
+export const CTX_INIT: string =
+  'let ' +
+  HEADERS +
+  '=[],' +
+  CTX +
+  '={status:200,req:' +
+  REQ +
+  ',headers:' +
+  HEADERS +
+  '};';
 
 export const PARSE_PATH: string =
   'let ' +
@@ -46,14 +52,14 @@ export const PARSE_PATH: string =
   PATH_END +
   ');';
 
-export const CHTML: string = WEB + 'h';
-export const CJSON: string = WEB + 'j';
+export const CHTML: string = 'h';
+export const CJSON: string = 'j';
 
-export const OHTML: string = WEB + 'oh';
-export const OJSON: string = WEB + 'oj';
+export const OHTML: string = 'oh';
+export const OJSON: string = 'oj';
 
-export const R404: string = WEB + 'n';
-export const R400: string = WEB + 'b';
+export const R404: string = 'n';
+export const R400: string = 'b';
 
 export const GLOBALS: string =
   'var ' +
@@ -74,6 +80,4 @@ export const GLOBALS: string =
   R404 +
   ',' +
   R400 +
-  ']=[404,400].map(s=>new Response(null,{status:s})),' +
-  CTX_FN +
-  '=(r)=>({status:200,req:r,headers:[]});';
+  ']=[404,400].map(s=>new Response(null,{status:s}));';
