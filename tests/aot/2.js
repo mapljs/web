@@ -102,7 +102,7 @@ var f, handler;
   ),
 ),
   ((_$1, _1, _2, _3, _4, _5, _6) => {
-    var __1 = ['Aaccess-control-max-age', '60000'],
+    var __1 = ['access-control-max-age', '60000'],
       __2 = ['access-control-allow-origin', '*'],
       __3 = (r, hd) => {
         hd.push(__2), 'OPTIONS' === r.method && hd.push(__1);

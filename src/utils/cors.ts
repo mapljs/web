@@ -22,7 +22,7 @@ export const allowMethods = (
 export const allowHeaders = (v: string[] | string): PreflightHeader =>
   ['access-control-allow-headers', '' + v] as any;
 export const maxAge = (v: number): PreflightHeader =>
-  ['Aaccess-control-max-age', '' + v] as any;
+  ['access-control-max-age', '' + v] as any;
 
 export const allowCredentials: Header = [
   'access-control-allow-credentials',
