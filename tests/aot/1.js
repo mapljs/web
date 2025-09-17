@@ -7,8 +7,8 @@ hydrateRouter(app);
 import { hydrate } from 'runtime-compiler/hydrate';
 ((_, _1, _2, _3, _4, _5, _6) => {
   var __0 = (r) => console.log(r.method, r.url),
-    __1 = ['Access-Control-Max-Age', '60000'],
-    __2 = ['Access-Control-Allow-Origin', '*'],
+    __1 = ['Aaccess-control-max-age', '60000'],
+    __2 = ['access-control-allow-origin', '*'],
     __3 = (r, hd) => {
       hd.push(__2);
       r.method === 'OPTIONS' && hd.push(__1);

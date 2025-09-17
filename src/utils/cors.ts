@@ -1,8 +1,5 @@
 import { injectDependency } from 'runtime-compiler';
-import {
-  macro,
-  type MiddlewareTypes,
-} from '../core/middleware.js';
+import { macro, type MiddlewareTypes } from '../core/middleware.js';
 import type { RequestMethod } from '../core/utils.js';
 import { pushHeaders } from './static-headers.js';
 import { isHydrating } from 'runtime-compiler/config';

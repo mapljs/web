@@ -6,7 +6,8 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let noOpMacro = ((f) => [-1, f])(() => ''),
+let macro = (f) => [-1, f],
+  noOpMacro = macro(() => ''),
   attach = (prop, f) => [1, f, prop],
   noType = { type: null },
   mergeData = (...dat) =>
@@ -74,7 +75,8 @@ let hooks,
           scope.slice(),
           '/' === childPrefix ? prefix : prefix + childPrefix,
         );
-  };
+  },
+  createContextMacro = macro(createContext);
 const logRequest = markExported();
 var f, handler;
 ((router) => {
@@ -85,7 +87,7 @@ var f, handler;
 })(
   core_default(
     [
-      noOpMacro,
+      createContextMacro,
       ((f = (c) => getDependency(logRequest)(c.req)), [0, f]),
       attach('id', () => performance.now()),
       noOpMacro,
@@ -100,8 +102,8 @@ var f, handler;
   ),
 ),
   ((_$1, _1, _2, _3, _4, _5, _6) => {
-    var __1 = ['Access-Control-Max-Age', '60000'],
-      __2 = ['Access-Control-Allow-Origin', '*'],
+    var __1 = ['Aaccess-control-max-age', '60000'],
+      __2 = ['access-control-allow-origin', '*'],
       __3 = (r, hd) => {
         hd.push(__2), 'OPTIONS' === r.method && hd.push(__1);
       },
