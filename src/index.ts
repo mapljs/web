@@ -3,5 +3,5 @@ export * as layer from './core/middleware.js';
 export * as handle from './core/handler.js';
 
 export * as cors from './utils/cors.js';
-export { default as headers } from './utils/headers.js';
+export { default as staticHeaders } from './utils/static-headers.js';
 export { default as secureHeaders } from './utils/secure-headers.js';

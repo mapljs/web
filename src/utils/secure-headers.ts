@@ -1,9 +1,6 @@
 import secureHeaders, { type Options } from 'secure-headers';
-import { tap, type MiddlewareTypes } from '../core/middleware.js';
+import type { MiddlewareTypes } from '../core/middleware.js';
+import staticHeaders from './static-headers.js';
 
-export default (headers: Options): MiddlewareTypes<never, {}> => (
-  (headers = Object.entries(secureHeaders(headers)) as any),
-  tap((c) => {
-    c.headers.push(...(headers as any[]));
-  })
-);
+export default (headers: Options): MiddlewareTypes<never, {}> =>
+  staticHeaders(secureHeaders(headers));

@@ -7,7 +7,7 @@
         "@mapl/framework": "^0.4.3",
         "@mapl/router": "^0.6.2",
         "@safe-std/error": "^1.0.1",
-        "runtime-compiler": "^1.0.7",
+        "runtime-compiler": "^1.0.8",
       },
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
@@ -350,7 +350,7 @@
 
     "rollup": ["rollup@4.50.1", "", { "dependencies": { "@types/estree": "1.0.8" }, "optionalDependencies": { "@rollup/rollup-android-arm-eabi": "4.50.1", "@rollup/rollup-android-arm64": "4.50.1", "@rollup/rollup-darwin-arm64": "4.50.1", "@rollup/rollup-darwin-x64": "4.50.1", "@rollup/rollup-freebsd-arm64": "4.50.1", "@rollup/rollup-freebsd-x64": "4.50.1", "@rollup/rollup-linux-arm-gnueabihf": "4.50.1", "@rollup/rollup-linux-arm-musleabihf": "4.50.1", "@rollup/rollup-linux-arm64-gnu": "4.50.1", "@rollup/rollup-linux-arm64-musl": "4.50.1", "@rollup/rollup-linux-loongarch64-gnu": "4.50.1", "@rollup/rollup-linux-ppc64-gnu": "4.50.1", "@rollup/rollup-linux-riscv64-gnu": "4.50.1", "@rollup/rollup-linux-riscv64-musl": "4.50.1", "@rollup/rollup-linux-s390x-gnu": "4.50.1", "@rollup/rollup-linux-x64-gnu": "4.50.1", "@rollup/rollup-linux-x64-musl": "4.50.1", "@rollup/rollup-openharmony-arm64": "4.50.1", "@rollup/rollup-win32-arm64-msvc": "4.50.1", "@rollup/rollup-win32-ia32-msvc": "4.50.1", "@rollup/rollup-win32-x64-msvc": "4.50.1", "fsevents": "~2.3.2" }, "bin": { "rollup": "dist/bin/rollup" } }, "sha512-78E9voJHwnXQMiQdiqswVLZwJIzdBKJ1GdI5Zx6XwoFKUIk09/sSrr+05QFzvYb8q6Y9pPV45zzDuYa3907TZA=="],
 
-    "runtime-compiler": ["runtime-compiler@1.0.7", "", {}, "sha512-BXUXPVqQ7MN9yZhKAxze8UxSic85L4vHANh2DOwxB9bSNBNaItKOy0ByH0C1ROuYE3cqhi458KdM1lCUBoSoOA=="],
+    "runtime-compiler": ["runtime-compiler@1.0.8", "", {}, "sha512-jL3L+C72fda0Sy3Wwd54PFC5EP9FhEghVX0JInUBVyinOqa0tYPsxmbRGCfdSEAGPadhrw6z960YNkOLA5777g=="],
 
     "safe-buffer": ["safe-buffer@5.2.1", "", {}, "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ=="],
 

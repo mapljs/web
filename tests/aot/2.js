@@ -6,44 +6,20 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let noOpMacro = [-1, () => ''],
-  tap = (f) => [0, f],
+let noOpMacro = ((f) => [-1, f])(() => ''),
   attach = (prop, f) => [1, f, prop],
   noType = { type: null },
   mergeData = (...dat) =>
     0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
   compiledDependencies = [],
   externalDependencies = [],
+  localDeps = '',
+  localDepsCnt = 0,
+  exportedDeps = '',
   exportedDepsCnt = 0,
   markExported = () => exportedDepsCnt++,
-  getDependency = (d) => compiledDependencies[d],
+  getDependency = (h) => compiledDependencies[h],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e);
-const logRequest = markExported();
-var headers,
-  handler,
-  main_default = core_default(
-    [
-      noOpMacro,
-      tap((c) => getDependency(logRequest)(c.req)),
-      attach('id', () => performance.now()),
-      ((headers = { 'x-powered-by': '@mapl/web' }),
-      (headers = Array.isArray(headers)
-        ? headers
-        : headers instanceof Headers
-          ? headers.entries().toArray()
-          : Object.entries(headers)),
-      tap((c) => {
-        c.headers.push(...headers);
-      })),
-    ],
-    [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
-    {
-      '/api': core_default(
-        [attach('body', async (c) => c.req.text())],
-        [['POST', '/body', (c) => c.body, mergeData()]],
-      ),
-    },
-  );
 let hooks,
   _ = Symbol.for('@safe-std/error'),
   AsyncFunction =
@@ -99,15 +75,38 @@ let hooks,
           '/' === childPrefix ? prefix : prefix + childPrefix,
         );
   };
-(() => {
+const logRequest = markExported();
+var f, handler;
+((router) => {
   let hook = (fn) => (injectExternalDependency(fn), '');
   (hooks = { compileHandler: hook, compileErrorHandler: hook }),
-    hydrateDependency(main_default, [!1, !1, , '', !1], ''),
+    hydrateDependency(router, [!1, !1, , '', !1], ''),
     markExported();
-})(),
-  ((_$1, _1, _2, _3, _4, _5, _6, _7) => {
-    let __1 = () => console.log('ID:', +Math.random().toFixed(2)),
-      __2 = (() => {
+})(
+  core_default(
+    [
+      noOpMacro,
+      ((f = (c) => getDependency(logRequest)(c.req)), [0, f]),
+      attach('id', () => performance.now()),
+      noOpMacro,
+    ],
+    [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
+    {
+      '/api': core_default(
+        [attach('body', async (c) => c.req.text())],
+        [['POST', '/body', (c) => c.body, mergeData()]],
+      ),
+    },
+  ),
+),
+  ((_$1, _1, _2, _3, _4, _5, _6) => {
+    var __1 = ['Access-Control-Max-Age', '60000'],
+      __2 = ['Access-Control-Allow-Origin', '*'],
+      __3 = (r, hd) => {
+        hd.push(__2), 'OPTIONS' === r.method && hd.push(__1);
+      },
+      __4 = ['x-powered-by', '@mapl/web'],
+      __5 = (() => {
         var t = ['text/html', 'application/json'].map((c) => [
             'Content-Type',
             c,
@@ -121,28 +120,42 @@ let hooks,
             e = u.indexOf('?', s),
             p = -1 === e ? u.slice(s) : u.slice(s, e);
           if ('POST' === r.method && 'api' === p) {
-            __1();
-            let c = { status: 200, req: r, headers: [] };
+            let hd = [],
+              c = { status: 200, req: r, headers: hd };
             return (
+              __3(r, hd),
               _2(c),
               (c.id = _3()),
-              _4(c),
-              (async () => ((c.body = await _6(c)), new Response(_7(c), c)))()
+              hd.push(__4),
+              (async () => ((c.body = await _5(c)), new Response(_6(c), c)))()
             );
           }
           if ('path' === p) {
-            __1();
-            let c = { status: 200, req: r, headers: [] };
-            return _2(c), (c.id = _3()), _4(c), new Response(_5(c), c);
+            let hd = [],
+              c = { status: 200, req: r, headers: hd };
+            return (
+              __3(r, hd),
+              _2(c),
+              (c.id = _3()),
+              hd.push(__4),
+              new Response(_4(c), c)
+            );
           }
           return n;
         };
       })();
-    _$1.push((r) => console.log(r.method, r.url), __2);
+    _$1.push((r) => console.log(r.method, r.url), __5);
   })(
     ...(() => {
-      let n = [compiledDependencies].concat(externalDependencies);
-      return (externalDependencies.length = 0), n;
+      let r = [compiledDependencies].concat(externalDependencies);
+      return (
+        (externalDependencies.length = 0),
+        (localDeps = ''),
+        (localDepsCnt = 0),
+        (exportedDeps = ''),
+        (exportedDepsCnt = 0),
+        r
+      );
     })(),
   );
 var _1_default = { fetch: getDependency(1) };

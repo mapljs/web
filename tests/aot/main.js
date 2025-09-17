@@ -1,6 +1,6 @@
 // @ts-check
 import { isHydrating } from 'runtime-compiler/config';
-import { handle, layer, router, headers } from '../../lib/index.js';
+import { cors, handle, layer, router, staticHeaders } from '../../lib/index.js';
 import {
   injectDependency,
   getDependency,
@@ -14,17 +14,10 @@ const logRequest = isHydrating
 
 export default router(
   [
-    isHydrating
-      ? layer.noOpMacro
-      : layer.macro(() => {
-          const fn = injectDependency(
-            '() => console.log("ID:", +Math.random().toFixed(2))',
-          );
-          return fn + '();';
-        }),
+    cors.init('*', [cors.maxAge(60000)]),
     layer.tap((c) => getDependency(logRequest)(c.req)),
     layer.attach('id', () => performance.now()),
-    headers({
+    staticHeaders({
       'x-powered-by': '@mapl/web',
     }),
   ],

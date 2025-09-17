@@ -49,7 +49,7 @@
     "@mapl/framework": "^0.4.3",
     "@mapl/router": "^0.6.2",
     "@safe-std/error": "^1.0.1",
-    "runtime-compiler": "^1.0.7"
+    "runtime-compiler": "^1.0.8"
   },
   "optionalDependencies": {
     "secure-headers": "^0.0.6"

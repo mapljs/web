@@ -5,10 +5,16 @@ import hydrateRouter from '../../lib/compiler/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
-((_, _1, _2, _3, _4, _5, _6, _7) => {
-  let __0 = (r) => console.log(r.method, r.url),
-    __1 = () => console.log('ID:', +Math.random().toFixed(2)),
-    __2 = (() => {
+((_, _1, _2, _3, _4, _5, _6) => {
+  var __0 = (r) => console.log(r.method, r.url),
+    __1 = ['Access-Control-Max-Age', '60000'],
+    __2 = ['Access-Control-Allow-Origin', '*'],
+    __3 = (r, hd) => {
+      hd.push(__2);
+      r.method === 'OPTIONS' && hd.push(__1);
+    },
+    __4 = ['x-powered-by', '@mapl/web'],
+    __5 = (() => {
       var t = ['text/html', 'application/json'].map((c) => ['Content-Type', c]),
         [h, j] = t,
         [oh, oj] = t.map((c) => ({ headers: [c] })),
@@ -20,31 +26,31 @@ import { hydrate } from 'runtime-compiler/hydrate';
           p = e === -1 ? u.slice(s) : u.slice(s, e);
         if (r.method === 'POST') {
           if (p === 'api') {
-            __1();
             let hd = [],
               c = { status: 200, req: r, headers: hd };
+            __3(r, hd);
             _2(c);
             c.id = _3();
-            _4(c);
+            hd.push(__4);
             return (async () => {
-              c.body = await _6(c);
-              return new Response(_7(c), c);
+              c.body = await _5(c);
+              return new Response(_6(c), c);
             })();
           }
         }
         if (p === 'path') {
-          __1();
           let hd = [],
             c = { status: 200, req: r, headers: hd };
+          __3(r, hd);
           _2(c);
           c.id = _3();
-          _4(c);
-          return new Response(_5(c), c);
+          hd.push(__4);
+          return new Response(_4(c), c);
         }
         return n;
       };
     })();
-  _.push(__0, __2);
+  _.push(__0, __5);
 })(...hydrate());
 
 import { getDependency } from 'runtime-compiler';
