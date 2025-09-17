@@ -1,8 +1,6 @@
 import { injectDependency } from 'runtime-compiler';
 import {
   macro,
-  noOpMacro,
-  tap,
   type MiddlewareTypes,
 } from '../core/middleware.js';
 import type { RequestMethod } from '../core/utils.js';
@@ -36,12 +34,15 @@ export const allowCredentials: Header = [
 export const exposeHeaders = (v: string[] | string): Header =>
   ['access-control-expose-headers', '' + v] as any;
 
+// Need to create context
+const createContextMacro = macro(createContext);
+
 export const init: (
   origins: HeaderValue,
   preflightHeaders?: PreflightHeader[],
   headers?: Header[],
 ) => MiddlewareTypes<never, {}> = isHydrating
-  ? () => noOpMacro
+  ? () => createContextMacro
   : (origins, preflightHeaders = [], headers = []) => {
       if (origins !== '*') {
         headers.push(['vary', 'origin'] as any);
