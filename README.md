@@ -97,13 +97,3 @@ await input.write({
 });
 ```
 As of rn only `terser` can DCE `@mapl/web` well.
-
-### Hydration
-```ts
-import { isHydrating } from 'runtime-compiler/config';
-
-// false while building the output string
-// true while only building dependencies
-// Use this to for minifiedrs to eliminate unused code path in final output
-isHydrating;
-```

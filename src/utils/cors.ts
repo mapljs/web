@@ -1,9 +1,9 @@
 import { injectDependency } from 'runtime-compiler';
 import { macro, type MiddlewareTypes } from '../core/middleware.js';
 import type { RequestMethod } from '../core/utils.js';
-import { pushHeaders } from './static-headers.js';
 import { isHydrating } from 'runtime-compiler/config';
 import { createContext } from '@mapl/framework';
+import { injectList } from './static-headers.js';
 
 export type HeaderValue = '*' | (string & {}) | [string, string, ...string[]];
 
@@ -46,22 +46,22 @@ export const init: (
 
         if (Array.isArray(origins))
           return macro((scope) => {
-            const pushPreflights = pushHeaders(preflightHeaders);
             const originList = injectDependency(JSON.stringify(origins));
-
             return (
               createContext(scope) +
               (injectDependency(
-                '(r,' +
-                  constants.HEADERS +
-                  ')=>{let o=r.headers.get("origin");h.push(["access-control-allow-origin",typeof o==="string"&&' +
+                '(r,h)=>{let o=r.headers.get("origin");h.push(["access-control-allow-origin",typeof o==="string"&&' +
                   originList +
                   '.includes(o)?o:' +
                   originList +
                   '[0]]);' +
-                  pushHeaders(headers) +
-                  (pushPreflights === ''
-                    ? 'r.method==="OPTIONS"&&' + pushPreflights + '}'
+                  (headers.length > 0
+                    ? 'h.push(' + injectList(headers) + ');'
+                    : '') +
+                  (preflightHeaders.length > 0
+                    ? 'r.method==="OPTIONS"&&h.push(' +
+                      injectList(preflightHeaders) +
+                      ')}'
                     : '}'),
               ) +
                 // Call the fn
@@ -76,26 +76,25 @@ export const init: (
 
       headers.push(['access-control-allow-origin', origins] as Header);
       return macro((scope) => {
-        const pushPreflights = pushHeaders(preflightHeaders);
+        const pushHeaders =
+          headers.length > 0 ? 'h.push(' + injectList(headers) + ');' : '';
         return (
           createContext(scope) +
-          (pushPreflights === ''
-            ? pushHeaders(headers)
-            : injectDependency(
-                '(r,' +
-                  constants.HEADERS +
-                  ')=>{' +
-                  pushHeaders(headers) +
-                  'r.method==="OPTIONS"&&' +
-                  pushPreflights +
-                  '}',
+          (preflightHeaders.length > 0
+            ? injectDependency(
+                '(r,h)=>{' +
+                  pushHeaders +
+                  'r.method==="OPTIONS"&&h.push(' +
+                  injectList(preflightHeaders) +
+                  ')}',
               ) +
               // Call the fn
               '(' +
               constants.REQ +
               ',' +
               constants.HEADERS +
-              ');')
+              ');'
+            : pushHeaders)
         );
       });
     };

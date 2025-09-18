@@ -6,7 +6,8 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let macro = (f) => [-1, f],
+let hooks,
+  macro = (f) => [-1, f],
   noOpMacro = macro(() => ''),
   attach = (prop, f) => [1, f, prop],
   noType = { type: null },
@@ -20,8 +21,7 @@ let macro = (f) => [-1, f],
   exportedDepsCnt = 0,
   markExported = () => exportedDepsCnt++,
   getDependency = (h) => compiledDependencies[h],
-  injectExternalDependency = (e) => '_' + externalDependencies.push(e);
-let hooks,
+  injectExternalDependency = (e) => '_' + externalDependencies.push(e),
   _ = Symbol.for('@safe-std/error'),
   AsyncFunction =
     (injectExternalDependency((u) => Array.isArray(u) && u[0] === _),
@@ -75,8 +75,8 @@ let hooks,
           scope.slice(),
           '/' === childPrefix ? prefix : prefix + childPrefix,
         );
-  },
-  createContextMacro = macro(createContext);
+  };
+let createContextMacro = macro(createContext);
 const logRequest = markExported();
 var f, handler;
 ((router) => {
@@ -102,10 +102,10 @@ var f, handler;
   ),
 ),
   ((_$1, _1, _2, _3, _4, _5, _6) => {
-    var __1 = ['access-control-max-age', '60000'],
-      __2 = ['access-control-allow-origin', '*'],
-      __3 = (r, hd) => {
-        hd.push(__2), 'OPTIONS' === r.method && hd.push(__1);
+    var __1 = ['access-control-allow-origin', '*'],
+      __2 = ['access-control-max-age', '60000'],
+      __3 = (r, h) => {
+        h.push(__1), 'OPTIONS' === r.method && h.push(__2);
       },
       __4 = ['x-powered-by', '@mapl/web'],
       __5 = (() => {
