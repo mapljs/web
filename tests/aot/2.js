@@ -7,9 +7,8 @@ var core_default = (middlewares, handlers, children) => [
   children,
 ];
 let hooks,
-  macro = (f) => [-1, f],
-  noOpMacro = macro(() => ''),
-  attach = (prop, f) => [1, f, prop],
+  macro$1 = (f) => [-1, f],
+  noOpMacro$1 = macro$1(() => ''),
   compiledDependencies = [],
   externalDependencies = [],
   localDeps = '',
@@ -73,22 +72,46 @@ let hooks,
           '/' === childPrefix ? prefix : prefix + childPrefix,
         );
   };
-let createContextMacro = macro(createContext);
+let createContextMacro$1 = macro$1(createContext),
+  macro = (f) => [-1, f],
+  parserTag = (macro(() => ''), macro(createContext), Symbol());
+var u;
+let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
+  json =
+    (injectExternalDependency(bodyErr),
+    () =>
+      macro(
+        (f) => (
+          createAsyncScope(f),
+          setTmp(f),
+          compileErrorHandler(f),
+          createContext(f),
+          ''
+        ),
+      )),
+  string = [4];
 const logRequest = markExported();
-var handler,
+var required,
+  handler,
   f,
   main_default = core_default(
     [
-      createContextMacro,
+      createContextMacro$1,
       ((f = (c) => getDependency(logRequest)(c.req)), [0, f]),
-      attach('id', () => performance.now()),
-      noOpMacro,
+      [1, () => performance.now(), 'id'],
+      noOpMacro$1,
     ],
     [((handler = (c) => c.id), ['', '/path', handler, void 0])],
     {
       '/api': core_default(
-        [attach('body', async (c) => c.req.text())],
-        [['POST', '/body', (c) => c.body, void 0]],
+        [
+          json(
+            'body',
+            ((required = { name: string, pwd: string }),
+            [16, required, void 0]),
+          ),
+        ],
+        [['POST', '/body', (c) => c.body, { type: 'json' }]],
       ),
     },
   );
@@ -105,7 +128,7 @@ var handler,
         h.push(__1), 'OPTIONS' === r.method && h.push(__2);
       },
       __4 = ['x-powered-by', '@mapl/web'],
-      __5 = (() => {
+      __6 = (() => {
         var t = ['text/html', 'application/json'].map((c) => [
             'Content-Type',
             c,
@@ -123,10 +146,21 @@ var handler,
               c = { status: 200, req: r, headers: hd };
             return (
               __3(r, hd),
-              _2(c),
-              (c.id = _3()),
+              _3(c),
+              (c.id = _4()),
               hd.push(__4),
-              (async () => ((c.body = await _5(c)), new Response(_6(c), c)))()
+              (async () => {
+                let t$1 = await r.json().catch(() => {});
+                return null !== (o = t$1) &&
+                  'object' == typeof o &&
+                  'string' == typeof o.name &&
+                  'string' == typeof o.pwd
+                  ? ((t$1 = _2), b)
+                  : ((c.body = t$1),
+                    hd.push(j),
+                    new Response(JSON.stringify(_6(c)), c));
+                var o;
+              })()
             );
           }
           if ('path' === p) {
@@ -134,16 +168,16 @@ var handler,
               c = { status: 200, req: r, headers: hd };
             return (
               __3(r, hd),
-              _2(c),
-              (c.id = _3()),
+              _3(c),
+              (c.id = _4()),
               hd.push(__4),
-              new Response(_4(c), c)
+              new Response(_5(c), c)
             );
           }
           return n;
         };
       })();
-    _$1.push((r) => console.log(r.method, r.url), __5);
+    _$1.push((r) => console.log(r.method, r.url), __6);
   })(
     ...(() => {
       let r = [compiledDependencies].concat(externalDependencies);
