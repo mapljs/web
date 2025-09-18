@@ -13,7 +13,7 @@ export type Handler<
 export type DefineHandler = <P extends string, S = {}>(
   path: P,
   handler: Handler<InferPath<P>, Required<S>>,
-  ...dat: HandlerData[]
+  dat?: HandlerData,
 ) => HandlerTag<S>;
 
 export interface HandlerData extends Record<symbol, any> {
@@ -53,8 +53,6 @@ export const raw = {
   type: 'raw',
 } as const;
 
-const noType = { type: null };
-
 /**
  * Handle errors of a router
  * @param f
@@ -62,15 +60,12 @@ const noType = { type: null };
 export const error = <const E extends Err>(
   r: RouterTag<E>,
   f: ErrorHandler<E>,
-  ...dat: HandlerData[]
+  dat?: HandlerData,
 ): RouterTag<never> => {
   // @ts-ignore
-  r[2] = [f, dat.length === 0 ? noType : Object.assign({ type: null }, ...dat)];
+  r[2] = [f, dat];
   return r as any;
 };
-
-const mergeData = (...dat: HandlerData[]) =>
-  dat.length === 0 ? noType : Object.assign({ type: null }, ...dat);
 
 /**
  * Handle requests to a path with a specific method
@@ -83,22 +78,22 @@ export const route = <P extends string, S = {}>(
   method: RequestMethod,
   path: P,
   handler: Handler<InferPath<P>, Required<S>>,
-  ...dat: HandlerData[]
-): HandlerTag<S> => [method, path, handler, mergeData(...dat)] as any;
+  dat: HandlerData,
+): HandlerTag<S> => [method, path, handler, dat] as any;
 
-export const any: DefineHandler = (path, handler, ...dat) =>
-  ['', path, handler, mergeData(...dat)] as any;
-export const get: DefineHandler = (path, handler, ...dat) =>
-  ['GET', path, handler, mergeData(...dat)] as any;
-export const post: DefineHandler = (path, handler, ...dat) =>
-  ['POST', path, handler, mergeData(...dat)] as any;
-export const put: DefineHandler = (path, handler, ...dat) =>
-  ['PUT', path, handler, mergeData(...dat)] as any;
-export const del: DefineHandler = (path, handler, ...dat) =>
-  ['DELETE', path, handler, mergeData(...dat)] as any;
-export const patch: DefineHandler = (path, handler, ...dat) =>
-  ['PATCH', path, handler, mergeData(...dat)] as any;
-export const options: DefineHandler = (path, handler, ...dat) =>
-  ['OPTIONS', path, handler, mergeData(...dat)] as any;
-export const trace: DefineHandler = (path, handler, ...dat) =>
-  ['TRACE', path, handler, mergeData(...dat)] as any;
+export const any: DefineHandler = (path, handler, dat) =>
+  ['', path, handler, dat] as any;
+export const get: DefineHandler = (path, handler, dat) =>
+  ['GET', path, handler, dat] as any;
+export const post: DefineHandler = (path, handler, dat) =>
+  ['POST', path, handler, dat] as any;
+export const put: DefineHandler = (path, handler, dat) =>
+  ['PUT', path, handler, dat] as any;
+export const del: DefineHandler = (path, handler, dat) =>
+  ['DELETE', path, handler, dat] as any;
+export const patch: DefineHandler = (path, handler, dat) =>
+  ['PATCH', path, handler, dat] as any;
+export const options: DefineHandler = (path, handler, dat) =>
+  ['OPTIONS', path, handler, dat] as any;
+export const trace: DefineHandler = (path, handler, dat) =>
+  ['TRACE', path, handler, dat] as any;

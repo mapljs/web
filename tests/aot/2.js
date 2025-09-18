@@ -10,9 +10,6 @@ let hooks,
   macro = (f) => [-1, f],
   noOpMacro = macro(() => ''),
   attach = (prop, f) => [1, f, prop],
-  noType = { type: null },
-  mergeData = (...dat) =>
-    0 === dat.length ? noType : Object.assign({ type: null }, ...dat),
   compiledDependencies = [],
   externalDependencies = [],
   localDeps = '',
@@ -78,29 +75,29 @@ let hooks,
   };
 let createContextMacro = macro(createContext);
 const logRequest = markExported();
-var f, handler;
-((router) => {
-  let hook = (fn) => (injectExternalDependency(fn), '');
-  (hooks = { compileHandler: hook, compileErrorHandler: hook }),
-    hydrateDependency(router, [!1, !1, , '', !1], ''),
-    markExported();
-})(
-  core_default(
+var handler,
+  f,
+  main_default = core_default(
     [
       createContextMacro,
       ((f = (c) => getDependency(logRequest)(c.req)), [0, f]),
       attach('id', () => performance.now()),
       noOpMacro,
     ],
-    [((handler = (c) => c.id), ['', '/path', handler, mergeData()])],
+    [((handler = (c) => c.id), ['', '/path', handler, void 0])],
     {
       '/api': core_default(
         [attach('body', async (c) => c.req.text())],
-        [['POST', '/body', (c) => c.body, mergeData()]],
+        [['POST', '/body', (c) => c.body, void 0]],
       ),
     },
-  ),
-),
+  );
+(() => {
+  let hook = (fn) => (injectExternalDependency(fn), '');
+  (hooks = { compileHandler: hook, compileErrorHandler: hook }),
+    hydrateDependency(main_default, [!1, !1, , '', !1], ''),
+    markExported();
+})(),
   ((_$1, _1, _2, _3, _4, _5, _6) => {
     var __1 = ['access-control-allow-origin', '*'],
       __2 = ['access-control-max-age', '60000'],

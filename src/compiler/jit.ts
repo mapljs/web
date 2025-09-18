@@ -38,7 +38,7 @@ const compileReturn = (
   contextCreated: boolean,
   result: string,
 ): string => {
-  const typ = dat.type;
+  const typ = dat?.type;
   if (typ === 'raw') return 'return ' + result;
   fnAsync && (result = 'await ' + result);
 
