@@ -15,8 +15,6 @@ let hooks,
   localDepsCnt = 0,
   exportedDeps = '',
   exportedDepsCnt = 0,
-  markExported = () => exportedDepsCnt++,
-  getDependency = (h) => compiledDependencies[h],
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
   _ = Symbol.for('@safe-std/error'),
   AsyncFunction =
@@ -90,18 +88,14 @@ let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
         ),
       )),
   string = [4];
-const logRequest = markExported();
 var required,
   handler,
-  f,
   main_default = core_default(
+    [createContextMacro$1, noOpMacro$1],
     [
-      createContextMacro$1,
-      ((f = (c) => getDependency(logRequest)(c.req)), [0, f]),
-      [1, () => performance.now(), 'id'],
-      noOpMacro$1,
+      ((handler = (c) => '' + performance.now()),
+      ['', '/path', handler, void 0]),
     ],
-    [((handler = (c) => c.id), ['', '/path', handler, void 0])],
     {
       '/api': core_default(
         [
@@ -119,16 +113,16 @@ var required,
   let hook = (fn) => (injectExternalDependency(fn), '');
   (hooks = { compileHandler: hook, compileErrorHandler: hook }),
     hydrateDependency(main_default, [!1, !1, , '', !1], ''),
-    markExported();
+    exportedDepsCnt++;
 })(),
-  ((_$1, _1, _2, _3, _4, _5, _6) => {
-    var __1 = ['access-control-allow-origin', '*'],
-      __2 = ['access-control-max-age', '60000'],
-      __3 = (r, h) => {
-        h.push(__1), 'OPTIONS' === r.method && h.push(__2);
+  ((_$1, _1, _2, _3, _4) => {
+    var __0 = ['access-control-allow-origin', '*'],
+      __1 = ['access-control-max-age', '60000'],
+      __2 = (r, h) => {
+        h.push(__0), 'OPTIONS' === r.method && h.push(__1);
       },
-      __4 = ['x-powered-by', '@mapl/web'],
-      __6 = (() => {
+      __3 = ['x-powered-by', '@mapl/web'],
+      __5 = (() => {
         var t = ['text/html', 'application/json'].map((c) => [
             'Content-Type',
             c,
@@ -145,10 +139,8 @@ var required,
             let hd = [],
               c = { status: 200, req: r, headers: hd };
             return (
-              __3(r, hd),
-              _3(c),
-              (c.id = _4()),
-              hd.push(__4),
+              __2(r, hd),
+              hd.push(__3),
               (async () => {
                 let t$1 = await r.json().catch(() => {});
                 return null !== (o = t$1) &&
@@ -158,7 +150,7 @@ var required,
                   ? ((t$1 = _2), b)
                   : ((c.body = t$1),
                     hd.push(j),
-                    new Response(JSON.stringify(_6(c)), c));
+                    new Response(JSON.stringify(_4(c)), c));
                 var o;
               })()
             );
@@ -166,18 +158,12 @@ var required,
           if ('path' === p) {
             let hd = [],
               c = { status: 200, req: r, headers: hd };
-            return (
-              __3(r, hd),
-              _3(c),
-              (c.id = _4()),
-              hd.push(__4),
-              new Response(_5(c), c)
-            );
+            return __2(r, hd), hd.push(__3), new Response(_3(c), c);
           }
           return n;
         };
       })();
-    _$1.push((r) => console.log(r.method, r.url), __6);
+    _$1.push(__5);
   })(
     ...(() => {
       let r = [compiledDependencies].concat(externalDependencies);
@@ -191,5 +177,5 @@ var required,
       );
     })(),
   );
-var _1_default = { fetch: getDependency(1) };
+var _1_default = { fetch: compiledDependencies[0] };
 export { _1_default as default };

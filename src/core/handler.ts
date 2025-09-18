@@ -19,26 +19,27 @@ export type InferPath<T extends string> = T extends `${string}*${infer Next}`
     : [string, ...InferPath<Next>]
   : [];
 
-export type InferReturn<D extends HandlerData | undefined> = D extends HandlerData
-  ? D['type'] extends 'json'
-    ? any
-    : D['type'] extends 'raw'
-      ? Response
-      : BodyInit
-  : BodyInit
+export type InferReturn<D extends HandlerData | undefined> =
+  D extends HandlerData
+    ? D['type'] extends 'json'
+      ? any
+      : D['type'] extends 'raw'
+        ? Response
+        : BodyInit
+    : BodyInit;
 
 export type InferHandler<
   P extends string,
   D extends HandlerData | undefined,
   C,
-> = Handler<
-  InferPath<P>,
-  Required<C>,
-  InferReturn<D>
->;
+> = Handler<InferPath<P>, Required<C>, InferReturn<D>>;
 
 export interface DefineHandler {
-  <P extends string, const D extends HandlerData | undefined = undefined, C = {}>(
+  <
+    P extends string,
+    const D extends HandlerData | undefined = undefined,
+    C = {},
+  >(
     path: P,
     handler: NoInfer<InferHandler<P, D, C>>,
     dat?: D,
@@ -76,7 +77,10 @@ export const raw = {
  * Handle errors of a router
  * @param f
  */
-export const error = <const E extends Err, const D extends HandlerData | undefined = undefined>(
+export const error = <
+  const E extends Err,
+  const D extends HandlerData | undefined = undefined,
+>(
   r: RouterTag<E>,
   f: NoInfer<(err: E, c: Context) => InferReturn<D>>,
   dat?: D,
@@ -93,7 +97,11 @@ export const error = <const E extends Err, const D extends HandlerData | undefin
  * @param handler
  * @param dat
  */
-export const route = <P extends string, const D extends HandlerData | undefined = undefined, C = {}>(
+export const route = <
+  P extends string,
+  const D extends HandlerData | undefined = undefined,
+  C = {},
+>(
   method: RequestMethod,
   path: P,
   handler: NoInfer<InferHandler<P, D, C>>,

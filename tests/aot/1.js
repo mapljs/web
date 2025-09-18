@@ -5,23 +5,22 @@ import hydrateRouter from '../../lib/compiler/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
-((_, _1, _2, _3, _4, _5, _6) => {
-  var __0 = (r) => console.log(r.method, r.url),
-    __1 = ['access-control-allow-origin', '*'],
-    __2 = ['access-control-max-age', '60000'],
-    __3 = (r, h) => {
-      h.push(__1);
-      r.method === 'OPTIONS' && h.push(__2);
+((_, _1, _2, _3, _4) => {
+  var __0 = ['access-control-allow-origin', '*'],
+    __1 = ['access-control-max-age', '60000'],
+    __2 = (r, h) => {
+      h.push(__0);
+      r.method === 'OPTIONS' && h.push(__1);
     },
-    __4 = ['x-powered-by', '@mapl/web'],
-    __5 = (() => {
+    __3 = ['x-powered-by', '@mapl/web'],
+    __4 = (() => {
       return (o) =>
         o !== null &&
         typeof o === 'object' &&
         typeof o.name === 'string' &&
         typeof o.pwd === 'string';
     })(),
-    __6 = (() => {
+    __5 = (() => {
       var t = ['text/html', 'application/json'].map((c) => ['Content-Type', c]),
         [h, j] = t,
         [oh, oj] = t.map((c) => ({ headers: [c] })),
@@ -35,38 +34,34 @@ import { hydrate } from 'runtime-compiler/hydrate';
           if (p === 'api') {
             let hd = [],
               c = { status: 200, req: r, headers: hd };
-            __3(r, hd);
-            _3(c);
-            c.id = _4();
-            hd.push(__4);
+            __2(r, hd);
+            hd.push(__3);
             return (async () => {
               let t = await r.json().catch(() => {});
-              if (__5(t)) {
+              if (__4(t)) {
                 t = _2;
                 return b;
               }
               c.body = t;
               hd.push(j);
-              return new Response(JSON.stringify(_6(c)), c);
+              return new Response(JSON.stringify(_4(c)), c);
             })();
           }
         }
         if (p === 'path') {
           let hd = [],
             c = { status: 200, req: r, headers: hd };
-          __3(r, hd);
-          _3(c);
-          c.id = _4();
-          hd.push(__4);
-          return new Response(_5(c), c);
+          __2(r, hd);
+          hd.push(__3);
+          return new Response(_3(c), c);
         }
         return n;
       };
     })();
-  _.push(__0, __6);
+  _.push(__5);
 })(...hydrate());
 
 import { getDependency } from 'runtime-compiler';
 export default {
-  fetch: getDependency(1),
+  fetch: getDependency(0),
 };
