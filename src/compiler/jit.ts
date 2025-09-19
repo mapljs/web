@@ -49,19 +49,22 @@ const compileReturn = (
   if (res == null) return 'return ' + result;
 
   const str = res(fnAsync ? 'await ' + result : result, contextCreated);
-  return fnAsync && !scopeAsync ? wrapAsync(str) : str;
+  return fnAsync && !scopeAsync
+    ? constants.ASYNC_START + str + constants.ASYNC_END
+    : str;
 };
 
 const compileToState = (router: RouterTag): void => {
   URL_ROUTER = {}; // Create base router
 
   setHooks({
-    compileHandler: (fn, dat, path, scope) => {
+    compileHandler: (handler, prevContent, path, scope) => {
+      const fn = handler[2];
       // String builders
       let call = injectExternalDependency(fn) + '(';
 
-      // Load parameter args
-      const paramCount = countParams(path);
+      // Load parameter args from subpath
+      const paramCount = countParams(handler[1]);
       paramCount > 0 && (call += paramArgs[paramCount]);
 
       // Load other args
@@ -69,25 +72,40 @@ const compileToState = (router: RouterTag): void => {
         call += paramCount === 0 ? constants.CTX : ',' + constants.CTX;
 
         // Create context to pass in the function
-        if (!scope[1])
-          return (
-            contextInit +
-            compileReturn(
-              dat as HandlerData,
-              fn instanceof AsyncFunction,
-              scope[0],
-              true,
-              call + ')',
-            )
+        if (!scope[1]) {
+          insertItem(
+            URL_ROUTER,
+            handler[0],
+            path,
+            prevContent +
+              contextInit +
+              compileReturn(
+                handler[3] as HandlerData,
+                fn instanceof AsyncFunction,
+                scope[0],
+                true,
+                call + ')',
+              ) +
+              (scope[0] ? constants.ASYNC_END : ''),
           );
+
+          return;
+        }
       }
 
-      return compileReturn(
-        dat as HandlerData,
-        fn instanceof AsyncFunction,
-        scope[0],
-        scope[1],
-        call + ')',
+      insertItem(
+        URL_ROUTER,
+        handler[0],
+        path,
+        prevContent +
+          compileReturn(
+            handler[3] as HandlerData,
+            fn instanceof AsyncFunction,
+            scope[0],
+            scope[1],
+            call + ')',
+          ) +
+          (scope[0] ? constants.ASYNC_END : ''),
       );
     },
     compileErrorHandler: (input, fn, dat, scope) => {
@@ -120,8 +138,6 @@ const compileToState = (router: RouterTag): void => {
         call + ')',
       );
     },
-    registerCompiled: (method, path, content) =>
-      insertItem(URL_ROUTER, method, path, content),
   });
 
   // Set context initial statement

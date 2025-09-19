@@ -4,7 +4,7 @@
     "": {
       "name": "@mapl/web",
       "dependencies": {
-        "@mapl/framework": "^0.4.6",
+        "@mapl/framework": "^0.4.7",
         "@mapl/router": "^0.6.2",
         "@safe-std/error": "^1.0.1",
         "runtime-compiler": "^1.0.11",
@@ -121,7 +121,7 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@mapl/framework": ["@mapl/framework@0.4.6", "", { "peerDependencies": { "runtime-compiler": "^1.0.6" } }, "sha512-s5Cx8fpgTbh+bDVPsU0/11v/dHzADrjo/THqDMxkyNQ9gqIGpfQApOoYhnPXGn9C1E9/K6Snb90vLIg4QKoVzg=="],
+    "@mapl/framework": ["@mapl/framework@0.4.7", "", { "peerDependencies": { "runtime-compiler": "^1.0.6" } }, "sha512-MrfgR7lJtjvo0NypJS2Vq+51UcxPLTFK3MH6rJoSIEcATVG2ZYS7unJxw62SndtATnWJvx7gYmOf74R6hLsYMw=="],
 
     "@mapl/router": ["@mapl/router@0.6.2", "", {}, "sha512-qzGQnuVeapwNZxRcAH9zB4+cr3Q1AOLHjyhqeMVBfeJB6lYly2LHf7UsNEnT4KX4/KcxdNK7Te3ka/s327tmow=="],
 

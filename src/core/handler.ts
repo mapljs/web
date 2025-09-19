@@ -59,57 +59,55 @@ export interface HandlerTag<out T> {
   [handlerTag]: T;
 }
 
-const jsonHeader = isHydrating
-  ? ''
-  : injectDependency('["content-type","application/json"]');
-const jsonOptions = isHydrating
-  ? ''
-  : injectDependency('{headers:[' + jsonHeader + ']}');
-
 /**
  * Return JSON
  */
 export const json: HandlerResponse = isHydrating
   ? noOp
-  : (res, hasContext) =>
-      hasContext
-        ? constants.HEADERS +
-          '.push(' +
-          jsonHeader +
-          ');return new Response(JSON.stringify(' +
-          res +
-          '),' +
-          constants.CTX +
-          ')'
-        : 'return new Response(JSON.stringify(' +
-          res +
-          '),' +
-          jsonOptions +
-          ')';
+  : (() => {
+      const jsonHeader = injectDependency(
+        '["content-type","application/json"]',
+      );
+      const jsonOptions = injectDependency('{headers:[' + jsonHeader + ']}');
 
-const htmlHeader = isHydrating
-  ? ''
-  : injectDependency('["content-type","text/html"]');
-const htmlOptions = isHydrating
-  ? ''
-  : injectDependency('{headers:[' + htmlHeader + ']}');
+      return (res, hasContext) =>
+        hasContext
+          ? constants.HEADERS +
+            '.push(' +
+            jsonHeader +
+            ');return new Response(JSON.stringify(' +
+            res +
+            '),' +
+            constants.CTX +
+            ')'
+          : 'return new Response(JSON.stringify(' +
+            res +
+            '),' +
+            jsonOptions +
+            ')';
+    })();
 
 /**
  * Return HTML
  */
 export const html: HandlerResponse<BodyInit> = isHydrating
   ? noOp
-  : (res, hasContext) =>
-      hasContext
-        ? constants.HEADERS +
-          '.push(' +
-          htmlHeader +
-          ');return new Response(' +
-          res +
-          ',' +
-          constants.CTX +
-          ')'
-        : 'return new Response(' + res + ',' + htmlOptions + ')';
+  : (() => {
+      const htmlHeader = injectDependency('["content-type","text/html"]');
+      const htmlOptions = injectDependency('{headers:[' + htmlHeader + ']}');
+
+      return (res, hasContext) =>
+        hasContext
+          ? constants.HEADERS +
+            '.push(' +
+            htmlHeader +
+            ');return new Response(' +
+            res +
+            ',' +
+            constants.CTX +
+            ')'
+          : 'return new Response(' + res + ',' + htmlOptions + ')';
+    })();
 
 /**
  * Return a body init

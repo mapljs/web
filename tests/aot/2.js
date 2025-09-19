@@ -60,8 +60,8 @@ let hooks,
     for (let i = 0, handlers = group[1]; i < handlers.length; i++) {
       let handler = handlers[i];
       hooks.compileHandler(
-        handler[2],
-        handler[3],
+        handler,
+        '',
         prefix + ('/' === handler[1] || '' !== prefix ? '' : handler[1]),
         scope,
       );
@@ -105,14 +105,11 @@ let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
         ),
       )),
   string = [4];
-var required, handler, dat;
-((router) => {
-  let hook = (fn) => (injectExternalDependency(fn), '');
-  (hooks = { compileHandler: hook, compileErrorHandler: hook }),
-    hydrateDependency(router, [!1, !1, , '', !1], ''),
-    exportedDepsCnt++;
-})(
-  core_default(
+var required,
+  handler,
+  dat,
+  allHooks,
+  main_default = core_default(
     [createContextMacro$1, noOpMacro$1],
     [
       ((handler = () => '' + performance.now()),
@@ -131,8 +128,33 @@ var required, handler, dat;
         [['POST', '/body', (c) => c.body, { type: json$1 }]],
       ),
     },
+  );
+(allHooks = {
+  compileHandler: (handler, _$1, _1, scope) => {
+    let fn = handler[2];
+    injectExternalDependency(fn),
+      handler[3]?.type?.(
+        '',
+        scope[1] ||
+          fn.length >
+            ((path) => {
+              let cnt = path.endsWith('**') ? 2 : 0;
+              for (
+                let i = path.length - cnt;
+                -1 !== (i = path.lastIndexOf('*', i - 1));
+                cnt++
+              );
+              return cnt;
+            })(handler[1]),
+      );
+  },
+  compileErrorHandler: (_$1, fn, dat, scope) => (
+    injectExternalDependency(fn), dat?.type?.('', scope[1] || fn.length > 1), ''
   ),
-),
+}),
+  (hooks = allHooks),
+  hydrateDependency(main_default, [!1, !1, , '', !1], ''),
+  exportedDepsCnt++,
   ((_$1, _1, _2, _3, _4) => {
     var $0 = ['content-type', 'application/json'],
       $4 = new Response(null, { status: 404 }),
