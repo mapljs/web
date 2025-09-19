@@ -5,6 +5,7 @@ import {
   setHooks,
   contextInit,
   setContextInit,
+  wrapAsync,
 } from '@mapl/framework';
 
 import compile from '@mapl/router/method/compiler';
@@ -24,7 +25,13 @@ import {
 import { evaluate, evaluateSync } from 'runtime-compiler/jit';
 
 // Compiled values are loaded to the URL router
-let urlRouter: Router<string>;
+let URL_ROUTER: Router<string>;
+export const RES404: string = injectDependency(
+  'new Response(null,{status:404})',
+);
+export const RES400: string = injectDependency(
+  'new Response(null,{status:400})',
+);
 
 const paramArgs: string[] = createArgSet(
   new Array(16).fill(0).map((_1, i) => constants.PARAMS + i),
@@ -38,38 +45,15 @@ const compileReturn = (
   contextCreated: boolean,
   result: string,
 ): string => {
-  const typ = dat?.type;
-  if (typ === 'raw') return 'return ' + result;
-  fnAsync && (result = 'await ' + result);
+  const res = dat?.type;
+  if (res == null) return 'return ' + result;
 
-  const str =
-    typ == null
-      ? 'return new Response(' +
-        result +
-        (contextCreated ? ',' + constants.CTX + ')' : ')')
-      : contextCreated
-        ? constants.HEADERS +
-          '.push(' +
-          (typ === 'json' ? constants.CJSON : constants.CHTML) +
-          ');return new Response(' +
-          (typ === 'json' ? 'JSON.stringify(' + result + ')' : result) +
-          ',' +
-          constants.CTX +
-          ')'
-        : 'return new Response(' +
-          (typ === 'json'
-            ? 'JSON.stringify(' + result + '),' + constants.OJSON
-            : result + ',' + constants.OHTML) +
-          ')';
-
-  // Must manually wrap if scope was not async yet
-  return fnAsync && !scopeAsync
-    ? constants.ASYNC_START + str + constants.ASYNC_END
-    : str;
+  const str = res(fnAsync ? 'await ' + result : result, contextCreated);
+  return fnAsync && !scopeAsync ? wrapAsync(str) : str;
 };
 
 const compileToState = (router: RouterTag): void => {
-  urlRouter = {}; // Create base router
+  URL_ROUTER = {}; // Create base router
 
   setHooks({
     compileHandler: (fn, dat, path, scope) => {
@@ -106,9 +90,9 @@ const compileToState = (router: RouterTag): void => {
         call + ')',
       );
     },
-    compileErrorHandler: (fn, dat, scope) => {
+    compileErrorHandler: (input, fn, dat, scope) => {
       // String builders
-      let call = injectExternalDependency(fn) + '(' + constants.TMP;
+      let call = injectExternalDependency(fn) + '(' + input;
 
       // Load other args
       if (fn.length > 1) {
@@ -137,7 +121,7 @@ const compileToState = (router: RouterTag): void => {
       );
     },
     registerCompiled: (method, path, content) =>
-      insertItem(urlRouter, method, path, content),
+      insertItem(URL_ROUTER, method, path, content),
   });
 
   // Set context initial statement
@@ -145,7 +129,7 @@ const compileToState = (router: RouterTag): void => {
 
   compileGroup(
     router as any,
-    [false, false, , 'return ' + constants.R400, false],
+    [false, false, , 'return ' + RES400, false],
     '',
     '',
   );
@@ -154,19 +138,17 @@ const compileToState = (router: RouterTag): void => {
 export const compileToString = (router: RouterTag): string => {
   compileToState(router);
   return (
-    '()=>{' +
-    constants.GLOBALS +
-    'return(' +
+    '(' +
     constants.REQ +
     ')=>{' +
-    compile(urlRouter, constants.REQ + '.method', constants.PARSE_PATH, 1) +
+    compile(URL_ROUTER, constants.REQ + '.method', constants.PARSE_PATH, 1) +
     'return ' +
-    constants.R404 +
-    '}}'
+    RES404 +
+    '}'
   );
 };
 
-export const compileToDependency = (
+export const compileToExportedDependency = (
   router: RouterTag,
 ): CompiledDependency<(req: Request) => any> =>
   exportDependency(injectDependency('(' + compileToString(router) + ')()'));
@@ -174,7 +156,7 @@ export const compileToDependency = (
 export const compileToHandler = async (
   router: RouterTag,
 ): Promise<(req: Request) => any> => {
-  const id = compileToDependency(router);
+  const id = compileToExportedDependency(router);
   await evaluate();
   return getDependency(id);
 };
@@ -182,7 +164,7 @@ export const compileToHandler = async (
 export const compileToHandlerSync = (
   router: RouterTag,
 ): ((req: Request) => any) => {
-  const id = compileToDependency(router);
+  const id = compileToExportedDependency(router);
   evaluateSync();
   return getDependency(id);
 };

@@ -1,10 +1,18 @@
 import type { Err } from '@safe-std/error';
 import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
-import type { RequestMethod } from './utils.js';
+import { noOp, type RequestMethod } from './utils.js';
+import { isHydrating } from 'runtime-compiler/config';
+import { injectDependency } from 'runtime-compiler';
+
+export type HandlerResponse<I = any> = (
+  response: string,
+  hasContext: boolean,
+  _?: I,
+) => string;
 
 export interface HandlerData extends Record<symbol, any> {
-  type?: 'json' | 'html' | 'raw' | null;
+  type?: HandlerResponse;
 }
 
 export type Handler<
@@ -19,14 +27,13 @@ export type InferPath<T extends string> = T extends `${string}*${infer Next}`
     : [string, ...InferPath<Next>]
   : [];
 
+// toResponse macro
 export type InferReturn<D extends HandlerData | undefined> =
   D extends HandlerData
-    ? D['type'] extends 'json'
-      ? any
-      : D['type'] extends 'raw'
-        ? Response
-        : BodyInit
-    : BodyInit;
+    ? D['type'] extends HandlerResponse<infer I>
+      ? I
+      : Response
+    : Response;
 
 export type InferHandler<
   P extends string,
@@ -52,26 +59,67 @@ export interface HandlerTag<out T> {
   [handlerTag]: T;
 }
 
+const jsonHeader = isHydrating
+  ? ''
+  : injectDependency('["content-type","application/json"]');
+const jsonOptions = isHydrating
+  ? ''
+  : injectDependency('{headers:[' + jsonHeader + ']}');
+
 /**
  * Return JSON
  */
-export const json = {
-  type: 'json',
-} as const;
+export const json: HandlerResponse = isHydrating
+  ? noOp
+  : (res, hasContext) =>
+      hasContext
+        ? constants.HEADERS +
+          '.push(' +
+          jsonHeader +
+          ');return new Response(JSON.stringify(' +
+          res +
+          '),' +
+          constants.CTX +
+          ')'
+        : 'return new Response(JSON.stringify(' +
+          res +
+          '),' +
+          jsonOptions +
+          ')';
+
+const htmlHeader = isHydrating
+  ? ''
+  : injectDependency('["content-type","text/html"]');
+const htmlOptions = isHydrating
+  ? ''
+  : injectDependency('{headers:[' + htmlHeader + ']}');
 
 /**
  * Return HTML
  */
-export const html = {
-  type: 'html',
-} as const;
+export const html: HandlerResponse<BodyInit> = isHydrating
+  ? noOp
+  : (res, hasContext) =>
+      hasContext
+        ? constants.HEADERS +
+          '.push(' +
+          htmlHeader +
+          ');return new Response(' +
+          res +
+          ',' +
+          constants.CTX +
+          ')'
+        : 'return new Response(' + res + ',' + htmlOptions + ')';
 
 /**
- * Return raw Response
+ * Return a body init
  */
-export const raw = {
-  type: 'raw',
-} as const;
+export const text: HandlerResponse<BodyInit> = isHydrating
+  ? noOp
+  : (res, hasContext) =>
+      'return new Response(' +
+      res +
+      (hasContext ? ',' + constants.CTX + ')' : ')');
 
 /**
  * Handle errors of a router

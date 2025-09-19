@@ -18,3 +18,5 @@ export type RequestMethod =
   | 'OPTIONS'
   | 'TRACE'
   | (string & {});
+
+export const noOp = () => '';

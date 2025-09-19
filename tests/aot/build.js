@@ -1,7 +1,7 @@
 // @ts-check
 // Currently works with terser
 import app from './main.js';
-import { compileToDependency } from '@mapl/web/compiler/jit';
+import { compileToExportedDependency } from '@mapl/web/compiler/jit';
 
 import terser from '@rollup/plugin-terser';
 
@@ -12,7 +12,7 @@ import { rolldown } from 'rolldown';
 
 const RAW = import.meta.dir + '/1.js';
 const ENTRY = import.meta.dir + '/2.js';
-const HANDLER = compileToDependency(app);
+const HANDLER = compileToExportedDependency(app);
 
 writeFileSync(
   RAW,
@@ -47,12 +47,9 @@ const output = await input.write({
   inlineDynamicImports: true,
 });
 
-const code = output.output[0].code;
-console.log(
-  'minified size:',
-  minifySync(code, {
-    module: true,
-  }).code.length,
-);
+const code = minifySync(output.output[0].code, {
+  module: true,
+}).code;
+console.log('minified size:', code.length);
 
-await Bun.$`bun fmt --write ./tests/aot`;
+await Bun.$`bun biome format --write ./tests/aot`;

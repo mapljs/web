@@ -1,28 +1,36 @@
 // @ts-check
-import { cors, handle, router, staticHeaders } from "../../lib/index.js";
-import * as bodyParser from "@mapl/stnl/body-parser";
-import { t } from "stnl";
+import { cors, handle, router, staticHeaders } from '../../lib/index.js';
+import * as bodyParser from '@mapl/stnl/body-parser';
+import { t } from 'stnl';
 
 export default router(
   [
-    cors.init("*", [cors.maxAge(60000)]),
+    cors.init('*', [cors.maxAge(60000)]),
     staticHeaders({
-      "x-powered-by": "@mapl/web",
+      'x-powered-by': '@mapl/web',
     }),
   ],
-  [handle.any("/path", () => "" + performance.now())],
+  [
+    handle.any('/path', () => '' + performance.now(), {
+      type: handle.text,
+    }),
+  ],
   {
-    "/api": router(
+    '/api': router(
       [
         bodyParser.json(
-          "body",
+          'body',
           t.dict({
             name: t.string,
             pwd: t.string,
           }),
         ),
       ],
-      [handle.post("/body", (c) => c.body, handle.json)],
+      [
+        handle.post('/body', (c) => c.body, {
+          type: handle.json,
+        }),
+      ],
     ),
   },
 );
