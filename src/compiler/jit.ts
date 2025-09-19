@@ -167,7 +167,7 @@ export const compileToString = (router: RouterTag): string => {
 export const compileToExportedDependency = (
   router: RouterTag,
 ): CompiledDependency<(req: Request) => any> =>
-  exportDependency(injectDependency('(' + compileToString(router) + ')()'));
+  exportDependency(injectDependency(compileToString(router)));
 
 export const compileToHandler = async (
   router: RouterTag,
