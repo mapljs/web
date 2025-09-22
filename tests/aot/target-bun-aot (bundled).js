@@ -156,16 +156,22 @@ var fn;
   ((_$1, _1, _2, _3, __1, __2) => {
     var $0 = ['access-control-allow-origin', '*'],
       $1 = ['access-control-max-age', '60000'],
+      $2 = (r, h) => {
+        h.push($0), 'OPTIONS' === r.method && h.push($1);
+      },
       $3 = ['x-powered-by', '@mapl/web'],
       $5 = {
+        '/path': (r, s) => {
+          let h = [],
+            c = { status: 200, req: r, server: s, headers: h };
+          return $2(r, h), h.push($3), new Response(_1(), c);
+        },
         '/api': {
           POST: (r, s) => {
             let h = [],
               c = { status: 200, req: r, server: s, headers: h };
             return (
-              ((r, h) => {
-                h.push($0), 'OPTIONS' === r.method && h.push($1);
-              })(r, h),
+              $2(r, h),
               h.push($3),
               (async () => {
                 let t = await r.json().catch(() => {});

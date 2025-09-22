@@ -34,7 +34,7 @@ const bundle = async (target, content) => {
     ],
   });
   const output = await input.write({
-    file: target + ' (minified).js',
+    file: target + ' (bundled).js',
     inlineDynamicImports: true,
   });
 

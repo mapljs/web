@@ -1,11 +1,10 @@
 import { injectDependency } from 'runtime-compiler';
 import { RES404 } from '../jit.js';
 
-let ROUTES: Dict<Dict<string>>, ALL_ROUTES: Dict<string>;
+let ROUTES: Record<string, Record<string, string>>;
 
 export const resetRouter = (): void => {
   ROUTES = {};
-  ALL_ROUTES = {};
 };
 
 export const insertRoute = (
@@ -35,36 +34,27 @@ export const insertRoute = (
         ? ',' + constants.PARAMS + i + '=' + constants.REQ + '.params["*"];'
         : ';');
   }
+  (ROUTES![bunPattern] ??= {})[method] = str + content + '}';
 
-  str += content + '}';
+  // Add a 404 to any other method to deoptimize if method is not a passable method to Bun
+  // https://bun.com/docs/api/http#per-http-method-routes
+  if (
+    method !== '' &&
+    method !== 'GET' &&
+    method !== 'HEAD' &&
+    method !== 'OPTIONS' &&
+    method !== 'DELETE' &&
+    method !== 'PATCH' &&
+    method !== 'POST' &&
+    method !== 'PUT'
+  )
+    ROUTES![bunPattern][''] ??= RES404;
 
-  if (method === '') {
-    ALL_ROUTES[bunPattern] = str;
-
-    if (isWildcard)
-      ALL_ROUTES[bunPattern === '/*' ? '/' : bunPattern.slice(0, -3)] ??=
-        RES404;
-  } else {
-    (ROUTES[bunPattern] ??= {})[method] = str;
-    // Add a 404 to any other method to deoptimize if method is not a passable method to Bun
-    // https://bun.com/docs/api/http#per-http-method-routes
-    if (
-      method !== 'GET' &&
-      method !== 'HEAD' &&
-      method !== 'OPTIONS' &&
-      method !== 'DELETE' &&
-      method !== 'PATCH' &&
-      method !== 'POST' &&
-      method !== 'PUT'
-    )
-      ALL_ROUTES[bunPattern] ??= RES404;
-
-    // Compatible with @mapl/router
-    if (isWildcard)
-      (ROUTES[bunPattern === '/*' ? '/' : bunPattern.slice(0, -3)] ??= {})[
-        method
-      ] ??= RES404;
-  }
+  // Compatible with @mapl/router
+  if (isWildcard)
+    (ROUTES![bunPattern === '/*' ? '/' : bunPattern.slice(0, -3)] ??= {})[
+      method
+    ] ??= RES404;
 };
 
 export const routerToString = (): string => {
@@ -73,31 +63,33 @@ export const routerToString = (): string => {
     str += '"' + pattern + '":';
 
     const methods = ROUTES[pattern];
-    const allMethods = ALL_ROUTES[pattern];
+    const allMethods = methods[''];
 
     if (allMethods == null) {
       str += '{';
       for (const method in methods) str += method + ':' + methods[method] + ',';
       str += '},';
-    } else if (methods == null) str += allMethods + ',';
+    } else if (Object.keys(methods).length === 1) str += methods[''] + ',';
     else {
       str += constants.BUN_FN_START;
 
       // Check methods
       for (const method in methods) {
-        const fn = methods[method]!;
-        str +=
-          constants.REQ +
-          '.method==="' +
-          method +
-          '"?' +
-          (fn.startsWith(constants.BUN_FN_START)
-            ? injectDependency(fn) + constants.BUN_FN_ARGS
-            : fn) +
-          ':';
+        if (method !== '') {
+          const fn = methods[method];
+          str +=
+            constants.REQ +
+            '.method==="' +
+            method +
+            '"?' +
+            (fn.startsWith(constants.BUN_FN_START)
+              ? injectDependency(fn) + constants.BUN_FN_ARGS
+              : fn) +
+            ':';
+        }
       }
 
-      // Last check for all methods
+      // Last check for other methods
       str +=
         (allMethods.startsWith(constants.BUN_FN_START)
           ? injectDependency(allMethods) + constants.BUN_FN_ARGS

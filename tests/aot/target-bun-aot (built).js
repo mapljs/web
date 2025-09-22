@@ -21,6 +21,13 @@ import { hydrate } from 'runtime-compiler/hydrate';
         typeof o.pwd === 'string';
     })(),
     $5 = {
+      '/path': (r, s) => {
+        let h = [],
+          c = { status: 200, req: r, server: s, headers: h };
+        $2(r, h);
+        h.push($3);
+        return new Response(_1(), c);
+      },
       '/api': {
         POST: (r, s) => {
           let h = [],
