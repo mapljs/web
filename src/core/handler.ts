@@ -3,7 +3,7 @@ import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
 import { noOp, type RequestMethod } from './utils.js';
 import { isHydrating } from 'runtime-compiler/config';
-import { injectDependency } from 'runtime-compiler';
+import { injectDependency, lazyDependency } from 'runtime-compiler';
 
 export type HandlerResponse<I = any> = (
   response: string,
@@ -59,7 +59,8 @@ export interface HandlerTag<out T> {
   [handlerTag]: T;
 }
 
-let jsonHeader: string, jsonOptions: string;
+const JSON_HEADER = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
+const JSON_OPTIONS = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
 /**
  * Return JSON
  */
@@ -69,9 +70,7 @@ export const json: HandlerResponse = isHydrating
       hasContext
         ? constants.HEADERS +
           '.push(' +
-          (jsonHeader ??= injectDependency(
-            '["content-type","application/json"]',
-          )) +
+          JSON_HEADER() +
           ');return new Response(JSON.stringify(' +
           res +
           '),' +
@@ -80,10 +79,11 @@ export const json: HandlerResponse = isHydrating
         : 'return new Response(JSON.stringify(' +
           res +
           '),' +
-          (jsonOptions ??= injectDependency('{headers:[' + jsonHeader + ']}')) +
+          JSON_OPTIONS() +
           ')';
 
-let htmlHeader: string, htmlOptions: string;
+const HTML_HEADER = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
+const HTML_OPTIONS = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
 /**
  * Return HTML
  */
@@ -93,7 +93,7 @@ export const html: HandlerResponse<BodyInit> = isHydrating
       hasContext
         ? constants.HEADERS +
           '.push(' +
-          (htmlHeader ??= injectDependency('["content-type","text/html"]')) +
+          HTML_HEADER() +
           ');return new Response(' +
           res +
           ',' +
@@ -102,7 +102,7 @@ export const html: HandlerResponse<BodyInit> = isHydrating
         : 'return new Response(' +
           res +
           ',' +
-          (htmlOptions ??= injectDependency('{headers:[' + htmlHeader + ']}')) +
+          HTML_OPTIONS() +
           ')';
 
 /**

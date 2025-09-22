@@ -4,33 +4,41 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let jsonHeader,
-  jsonOptions,
-  compileHandlerHook,
+let compileHandlerHook,
   compileErrorHandlerHook,
   macro$1 = (f) => [-1, f],
   compiledDependencies = (macro$1(() => ''), []),
   externalDependencies = [],
-  persistentDependencies = [],
+  cache = {},
   localDeps = '',
   localDepsCnt = 0,
   injectDependency = (e) => (
-    (localDeps =
-      '' === localDeps
-        ? 'var $' + localDepsCnt + '=' + e
-        : localDeps + ',$' + localDepsCnt + '=' + e),
-    '$' + localDepsCnt++
+    (localDeps += ',$' + localDepsCnt + '=' + e), '$' + localDepsCnt++
   ),
   asyncDeps = '',
   exportedDeps = '',
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
-  injectPersistentDependency = (e) => '__' + persistentDependencies.push(e),
-  text = (res, hasContext) =>
-    'return new Response(' + res + (hasContext ? ',c)' : ')'),
+  lazyDependency = (e, _$1) => {
+    let y = Symbol();
+    return () => (cache[y] ??= e(_$1));
+  },
+  JSON_HEADER = lazyDependency(
+    injectDependency,
+    '["content-type","application/json"]',
+  ),
+  JSON_OPTIONS = lazyDependency(
+    injectDependency,
+    '{headers:[' + JSON_HEADER() + ']}',
+  ),
+  text =
+    (lazyDependency(injectDependency, '["content-type","application/json"]'),
+    lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}'),
+    (res, hasContext) =>
+      'return new Response(' + res + (hasContext ? ',c)' : ')')),
   _ = Symbol.for('@safe-std/error'),
   isErr = (u) => Array.isArray(u) && u[0] === _,
-  IS_ERR$1 = injectPersistentDependency(isErr),
+  IS_ERR_FN = lazyDependency(injectExternalDependency, isErr),
   AsyncFunction = (async () => {}).constructor,
   contextInit = '',
   compileErrorHandler$1 = (input, scope) =>
@@ -79,7 +87,7 @@ let jsonHeader,
                     '=' +
                     call +
                     ';if(' +
-                    IS_ERR$1 +
+                    IS_ERR_FN() +
                     '(t)){' +
                     compileErrorHandler$1('t', scope) +
                     '}')
@@ -89,7 +97,7 @@ let jsonHeader,
                     '=' +
                     call +
                     ';if(' +
-                    IS_ERR$1 +
+                    IS_ERR_FN() +
                     '(t)){' +
                     compileErrorHandler$1('t', scope) +
                     '}' +
@@ -261,14 +269,13 @@ let optimizeDirectCall =
   },
   parserTag = Symbol();
 var u;
-let ERROR_DEP = injectPersistentDependency(
-    ((u = parserTag), (d) => [_, d, u])('malformed body'),
-  ),
+let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
+  ERROR_DEP = lazyDependency(injectExternalDependency, bodyErr),
   string = [4];
 var required,
   handler,
   dat,
-  m,
+  h,
   headers,
   main_default = core_default(
     [
@@ -340,17 +347,17 @@ var required,
         core_default(
           [
             ((required = { name: string, pwd: string }),
-            (m = [16, required, void 0]),
+            (h = [16, required, void 0]),
             macro(
-              (f) =>
-                createAsyncScope(f) +
-                setTmp(f) +
+              (p) =>
+                createAsyncScope(p) +
+                setTmp(p) +
                 '=await r.json().catch(()=>{});if(' +
                 injectDependency(
                   '(()=>{' +
                     (() => {
                       let deps = [],
-                        str = optimizeDirectCall(compileToFn(m, deps));
+                        str = optimizeDirectCall(compileToFn(h, deps));
                       return (
                         ((deps) => {
                           let res = '';
@@ -370,9 +377,9 @@ var required,
                     '})()',
                 ) +
                 '(t)){' +
-                compileErrorHandler$1(ERROR_DEP, f) +
+                compileErrorHandler$1(ERROR_DEP(), p) +
                 '}' +
-                createContext(f) +
+                createContext(p) +
                 'c.body=t;',
             )),
           ],
@@ -385,18 +392,14 @@ var required,
                 type: (res, hasContext) =>
                   hasContext
                     ? 'h.push(' +
-                      (jsonHeader ??= injectDependency(
-                        '["content-type","application/json"]',
-                      )) +
+                      JSON_HEADER() +
                       ');return new Response(JSON.stringify(' +
                       res +
                       '),c)'
                     : 'return new Response(JSON.stringify(' +
                       res +
                       '),' +
-                      (jsonOptions ??= injectDependency(
-                        '{headers:[' + jsonHeader + ']}',
-                      )) +
+                      JSON_OPTIONS() +
                       ')',
               },
             ],
@@ -564,37 +567,37 @@ Bun.serve({
       exportedDepsCnt++);
     var e;
     return (
-      Function(
-        (() => {
-          let e = '_,';
-          for (let y = 0; y < externalDependencies.length; y++)
-            e += '_' + (y + 1) + ',';
-          for (let v = 0; v < persistentDependencies.length; v++)
-            e += '__' + (v + 1) + ',';
-          return e;
-        })(),
-        '{' +
-          localDeps +
-          ('' === asyncDeps
-            ? ';_.push('
-            : ';[' +
-              asyncDeps +
-              ']=await Promise.all([' +
-              asyncDeps +
-              ']);_.push(') +
-          exportedDeps +
-          ')}',
-      )(
-        compiledDependencies,
-        ...externalDependencies,
-        ...persistentDependencies,
-      ),
-      (externalDependencies.length = 0),
-      (localDeps = ''),
-      (localDepsCnt = 0),
-      (asyncDeps = ''),
-      (exportedDeps = ''),
-      (exportedDepsCnt = 0),
+      (() => {
+        try {
+          Function(
+            (() => {
+              let e = '_,';
+              for (let v = 0; v < externalDependencies.length; v++)
+                e += '_' + (v + 1) + ',';
+              return e;
+            })(),
+            '{var $' +
+              localDeps +
+              ('' === asyncDeps
+                ? ';_.push('
+                : ';[' +
+                  asyncDeps +
+                  ']=await Promise.all([' +
+                  asyncDeps +
+                  ']);_.push(') +
+              exportedDeps +
+              ')}',
+          )(compiledDependencies, ...externalDependencies);
+        } finally {
+          (externalDependencies.length = 0),
+            (cache = {}),
+            (localDeps = ''),
+            (localDepsCnt = 0),
+            (asyncDeps = ''),
+            (exportedDeps = ''),
+            (exportedDepsCnt = 0);
+        }
+      })(),
       compiledDependencies[id]
     );
   })(),

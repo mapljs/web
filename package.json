@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@mapl/stnl": "^0.0.4",
+    "@mapl/stnl": "^0.1.1",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/bun": "^1.2.10",
@@ -45,10 +45,10 @@
     "esbuild"
   ],
   "dependencies": {
-    "@mapl/framework": "^0.4.9",
+    "@mapl/framework": "^0.5.2",
     "@mapl/router": "^0.6.2",
     "@safe-std/error": "^1.0.1",
-    "runtime-compiler": "^1.0.12"
+    "runtime-compiler": "^1.2.4"
   },
   "optionalDependencies": {
     "secure-headers": "^0.0.6"

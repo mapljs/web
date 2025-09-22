@@ -13,16 +13,19 @@ let compileHandlerHook,
   noOpMacro$1 = macro$1(noOp),
   compiledDependencies = [],
   externalDependencies = [],
-  persistentDependencies = [],
+  cache = {},
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
-  injectPersistentDependency = (e) => '__' + persistentDependencies.push(e),
+  lazyDependency = (e, _$1) => {
+    let y = Symbol();
+    return () => (cache[y] ??= e(_$1));
+  },
   json$1 = noOp,
   text = noOp,
   _ = Symbol.for('@safe-std/error'),
   isErr = (u) => Array.isArray(u) && u[0] === _,
-  AsyncFunction$2 =
-    (injectPersistentDependency(isErr), (async () => {}).constructor),
+  IS_ERR_FN = lazyDependency(injectExternalDependency, isErr),
+  AsyncFunction$2 = (async () => {}).constructor,
   compileErrorHandler = (input, scope) =>
     (scope[3] ??= compileErrorHandlerHook(
       input,
@@ -54,9 +57,10 @@ let compileHandlerHook,
           1 === id
             ? createContext(scope)
             : 2 === id
-              ? (setTmp(scope), compileErrorHandler('t', scope))
+              ? (setTmp(scope), IS_ERR_FN(), compileErrorHandler('t', scope))
               : 3 === id &&
                 (setTmp(scope),
+                IS_ERR_FN(),
                 compileErrorHandler('t', scope),
                 createContext(scope)));
     }
@@ -94,10 +98,9 @@ macro(() => ''),
   );
 let parserTag = Symbol();
 var u;
-injectPersistentDependency(
-  ((u = parserTag), (d) => [_, d, u])('malformed body'),
-);
-let string = [4];
+let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
+  ERROR_DEP = lazyDependency(injectExternalDependency, bodyErr),
+  string = [4];
 var handler,
   dat,
   fn,
@@ -113,11 +116,12 @@ var handler,
         core_default(
           [
             macro(
-              (f) => (
-                createAsyncScope(f),
-                setTmp(f),
-                compileErrorHandler('', f),
-                createContext(f),
+              (p) => (
+                createAsyncScope(p),
+                setTmp(p),
+                ERROR_DEP(),
+                compileErrorHandler('', p),
+                createContext(p),
                 ''
               ),
             ),
@@ -153,7 +157,7 @@ var handler,
   )),
   hydrateDependency(main_default, [!1, !1, , '', !1], ''),
   exportedDepsCnt++,
-  ((_$1, _1, _2, _3, __1, __2) => {
+  ((_$1, _1, _2, _3, _4) => {
     var $0 = ['access-control-allow-origin', '*'],
       $1 = ['access-control-max-age', '60000'],
       $2 = (r, h) => {
@@ -178,10 +182,10 @@ var handler,
               'object' == typeof o &&
               'string' == typeof o.name &&
               'string' == typeof o.pwd
-              ? new Response(_2(__2), c)
+              ? new Response(_3(_2), c)
               : ((c.body = t),
                 h.push($5),
-                new Response(JSON.stringify(_3(c)), c));
+                new Response(JSON.stringify(_4(c)), c));
             var o;
           })()
         );
@@ -191,15 +195,17 @@ var handler,
           c = { status: 200, req: r, headers: h };
         return $2(r, h), h.push($3), new Response(_1(), c);
       }
-      return $0;
+      return $1;
     });
   })(
     ...(() => {
-      let i = [compiledDependencies].concat(
-        externalDependencies,
-        persistentDependencies,
+      let r = [compiledDependencies].concat(externalDependencies);
+      return (
+        (externalDependencies.length = 0),
+        (cache = {}),
+        (exportedDepsCnt = 0),
+        r
       );
-      return (externalDependencies.length = 0), (exportedDepsCnt = 0), i;
     })(),
   );
 var target_any_aot__built__default = { fetch: compiledDependencies[0] };
