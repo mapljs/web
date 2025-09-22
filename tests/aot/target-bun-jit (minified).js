@@ -4,7 +4,9 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let macro$1 = (f) => [-1, f],
+let compileHandlerHook,
+  compileErrorHandlerHook,
+  macro$1 = (f) => [-1, f],
   compiledDependencies = (macro$1(() => ''), []),
   externalDependencies = [],
   persistentDependencies = [],
@@ -21,6 +23,7 @@ let macro$1 = (f) => [-1, f],
   exportedDeps = '',
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
+  injectPersistentDependency = (e) => '__' + persistentDependencies.push(e),
   json$1 = (() => {
     let jsonHeader = injectDependency('["content-type","application/json"]'),
       jsonOptions = injectDependency('{headers:[' + jsonHeader + ']}');
@@ -46,10 +49,7 @@ let macro$1 = (f) => [-1, f],
       'return new Response(' + res + (hasContext ? ',c)' : ')')),
   _ = Symbol.for('@safe-std/error'),
   isErr = (u) => Array.isArray(u) && u[0] === _,
-  IS_ERR$1 = ((e = isErr), '__' + persistentDependencies.push(e));
-var e;
-let compileHandlerHook,
-  compileErrorHandlerHook,
+  IS_ERR$1 = injectPersistentDependency(isErr),
   AsyncFunction = (async () => {}).constructor,
   contextInit = '',
   compileErrorHandler$1 = (input, scope) =>
@@ -142,18 +142,18 @@ let compileHandlerHook,
       ? '...' + injectDependency(JSON.stringify(list))
       : injectDependency(JSON.stringify(list[0]));
 macro$1(createContext);
-let macro = (f) => [-1, f],
-  externalDependencies$1 = (macro(() => ''), []),
-  clearErrorHandler =
-    (((e) => {
-      externalDependencies$1.push(e);
-    })(isErr),
-    (scope) => {
-      null != scope[2] && (scope[3] = null);
-    }),
-  optimizeDirectCall =
+let macro = (f) => [-1, f];
+macro(() => ''), [].push(isErr);
+let optimizeDirectCall =
     (macro(
-      (scope) => (scope[1] || ((scope[1] = !0), clearErrorHandler(scope)), ''),
+      (scope) => (
+        scope[1] ||
+          ((scope[1] = !0),
+          ((scope) => {
+            null != scope[2] && (scope[3] = null);
+          })(scope)),
+        ''
+      ),
     ),
     (s) =>
       'o=>Number.isInteger(o)' === s
@@ -280,8 +280,9 @@ let macro = (f) => [-1, f],
   },
   parserTag = Symbol();
 var u;
-let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
-  ERROR_DEP = injectExternalDependency(bodyErr),
+let ERROR_DEP = injectPersistentDependency(
+    ((u = parserTag), (d) => [_, d, u])('malformed body'),
+  ),
   string = [4];
 var required,
   handler,
@@ -354,46 +355,50 @@ var required,
       ['', '/path', handler, dat]),
     ],
     {
-      '/api': core_default(
-        [
-          ((required = { name: string, pwd: string }),
-          (m = [16, required, void 0]),
-          macro(
-            (f) =>
-              createAsyncScope(f) +
-              setTmp(f) +
-              '=await r.json().catch(()=>{});if(' +
-              injectDependency(
-                '(()=>{' +
-                  (() => {
-                    let deps = [],
-                      str = optimizeDirectCall(compileToFn(m, deps));
-                    return (
-                      ((deps) => {
-                        let res = '';
-                        if (deps.length > 0)
-                          for (let i = 0; i < deps.length; i++)
-                            res +=
-                              (0 === i ? 'var d' : ',d') +
-                              (i + 1) +
-                              '=' +
-                              deps[i];
-                        return res;
-                      })(deps) +
-                      ';return ' +
-                      str
-                    );
-                  })() +
-                  '})()',
-              ) +
-              '(t)){' +
-              compileErrorHandler$1(ERROR_DEP, f) +
-              '}' +
-              createContext(f) +
-              'c.body=t;',
-          )),
-        ],
-        [['POST', '/body', (c) => c.body, { type: json$1 }]],
+      '/api': ((r, f, dat) => ((r[2] = [(err) => err[1], dat]), r))(
+        core_default(
+          [
+            ((required = { name: string, pwd: string }),
+            (m = [16, required, void 0]),
+            macro(
+              (f) =>
+                createAsyncScope(f) +
+                setTmp(f) +
+                '=await r.json().catch(()=>{});if(' +
+                injectDependency(
+                  '(()=>{' +
+                    (() => {
+                      let deps = [],
+                        str = optimizeDirectCall(compileToFn(m, deps));
+                      return (
+                        ((deps) => {
+                          let res = '';
+                          if (deps.length > 0)
+                            for (let i = 0; i < deps.length; i++)
+                              res +=
+                                (0 === i ? 'var d' : ',d') +
+                                (i + 1) +
+                                '=' +
+                                deps[i];
+                          return res;
+                        })(deps) +
+                        ';return ' +
+                        str
+                      );
+                    })() +
+                    '})()',
+                ) +
+                '(t)){' +
+                compileErrorHandler$1(ERROR_DEP, f) +
+                '}' +
+                createContext(f) +
+                'c.body=t;',
+            )),
+          ],
+          [['POST', '/body', (c) => c.body, { type: json$1 }]],
+        ),
+        0,
+        { type: text },
       ),
     },
   );
@@ -460,8 +465,8 @@ let ROUTES,
   };
 Bun.serve({
   routes: (() => {
-    let id = ((e) => ((exportedDeps += e + ','), exportedDepsCnt++))(
-      injectDependency(
+    let id =
+      ((e = injectDependency(
         (((router) => {
           var fn;
           (ROUTES = {}),
@@ -548,8 +553,10 @@ Bun.serve({
           }
           return str + '}';
         })()),
-      ),
-    );
+      )),
+      (exportedDeps += e + ','),
+      exportedDepsCnt++);
+    var e;
     return (
       Function(
         (() => {

@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@mapl/stnl": "^0.0.3",
+    "@mapl/stnl": "^0.0.4",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/bun": "^1.2.10",

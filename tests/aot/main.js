@@ -1,6 +1,7 @@
 // @ts-check
 import { cors, handle, router, staticHeaders } from '../../lib/index.js';
 import * as bodyParser from '@mapl/stnl/body-parser';
+import { payload } from '@safe-std/error';
 import { t } from 'stnl';
 
 export default router(
@@ -16,21 +17,27 @@ export default router(
     }),
   ],
   {
-    '/api': router(
-      [
-        bodyParser.json(
-          'body',
-          t.dict({
-            name: t.string,
-            pwd: t.string,
+    '/api': handle.error(
+      router(
+        [
+          bodyParser.json(
+            'body',
+            t.dict({
+              name: t.string,
+              pwd: t.string,
+            }),
+          ),
+        ],
+        [
+          handle.post('/body', (c) => c.body, {
+            type: handle.json,
           }),
-        ),
-      ],
-      [
-        handle.post('/body', (c) => c.body, {
-          type: handle.json,
-        }),
-      ],
+        ],
+      ),
+      (err) => payload(err),
+      {
+        type: handle.text,
+      },
     ),
   },
 );

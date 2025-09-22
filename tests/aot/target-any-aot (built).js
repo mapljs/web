@@ -5,7 +5,7 @@ import hydrateRouter from '../../lib/compiler/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
-((_, _1, _2, __1) => {
+((_, _1, _2, _3, __1, __2) => {
   var $0 = ['access-control-allow-origin', '*'],
     $1 = ['access-control-max-age', '60000'],
     $2 = (r, h) => {
@@ -34,11 +34,11 @@ import { hydrate } from 'runtime-compiler/hydrate';
           return (async () => {
             let t = await r.json().catch(() => {});
             if ($4(t)) {
-              return $5;
+              return new Response(_2(__2), c);
             }
             c.body = t;
             h.push($0);
-            return new Response(JSON.stringify(_2(c)), c);
+            return new Response(JSON.stringify(_3(c)), c);
           })();
         }
       }

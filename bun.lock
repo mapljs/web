@@ -11,7 +11,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
-        "@mapl/stnl": "^0.0.3",
+        "@mapl/stnl": "^0.0.4",
         "@rollup/plugin-node-resolve": "^16.0.1",
         "@rollup/plugin-terser": "^0.4.4",
         "@types/bun": "^1.2.10",
@@ -125,7 +125,7 @@
 
     "@mapl/router": ["@mapl/router@0.6.2", "", {}, "sha512-qzGQnuVeapwNZxRcAH9zB4+cr3Q1AOLHjyhqeMVBfeJB6lYly2LHf7UsNEnT4KX4/KcxdNK7Te3ka/s327tmow=="],
 
-    "@mapl/stnl": ["@mapl/stnl@0.0.3", "", { "peerDependencies": { "@mapl/web": "^0.2.0", "stnl": "^1.2.3" } }, "sha512-t1GV2m1ilVmFHqLjNw+IE0D7qJzXlzVx9oOUims1F8RRXl+Nqn8/adwJ1x5BthUnkbd1Uhb8NsFzY/SfVAJ8Eg=="],
+    "@mapl/stnl": ["@mapl/stnl@0.0.4", "", { "peerDependencies": { "@mapl/framework": "^0.4.9", "@mapl/web": "^0.2.0", "runtime-compiler": "^1.0.12", "stnl": "^1.2.3" } }, "sha512-XSAKXrX7SsHSx0nB+KwrIOTTgLPm31HG1HJf5u2UxbF3LouNhD/r5ZJp57laNfEVkGO/XL4GPZBe3/+X4FhGbQ=="],
 
     "@mapl/web": ["@mapl/web@0.2.1", "", { "dependencies": { "@mapl/framework": "^0.4.4", "@mapl/router": "^0.6.2", "@safe-std/error": "^1.0.1", "runtime-compiler": "^1.0.8" }, "optionalDependencies": { "secure-headers": "^0.0.6" } }, "sha512-IoyZfrJdskaXYIOz7V+NRwS6tL9pVdWrFmDGW0bYNP2q8v9J1ZlJura2Qh2M+CjbowbnqAKKe0hc1wN3y3UnIw=="],
 

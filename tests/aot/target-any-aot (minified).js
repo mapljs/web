@@ -6,7 +6,9 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let noOp = () => '',
+let compileHandlerHook,
+  compileErrorHandlerHook,
+  noOp = () => '',
   macro$1 = (f) => [-1, f],
   noOpMacro$1 = macro$1(noOp),
   compiledDependencies = [],
@@ -14,15 +16,13 @@ let noOp = () => '',
   persistentDependencies = [],
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
+  injectPersistentDependency = (e) => '__' + persistentDependencies.push(e),
   json$1 = noOp,
   text = noOp,
   _ = Symbol.for('@safe-std/error'),
-  isErr = (u) => Array.isArray(u) && u[0] === _;
-var e;
-(e = isErr), persistentDependencies.push(e);
-let compileHandlerHook,
-  compileErrorHandlerHook,
-  AsyncFunction$2 = (async () => {}).constructor,
+  isErr = (u) => Array.isArray(u) && u[0] === _,
+  AsyncFunction$2 =
+    (injectPersistentDependency(isErr), (async () => {}).constructor),
   compileErrorHandler = (input, scope) =>
     (scope[3] ??= compileErrorHandlerHook(
       input,
@@ -79,37 +79,26 @@ let compileHandlerHook,
         );
   };
 let createContextMacro$1 = macro$1(createContext),
-  macro = (f) => [-1, f],
-  externalDependencies$1 = (macro(() => ''), []),
-  clearErrorHandler =
-    (((e) => {
-      externalDependencies$1.push(e);
-    })(isErr),
-    (scope) => {
-      null != scope[2] && (scope[3] = null);
-    }),
-  parserTag =
-    (macro(
-      (scope) => (scope[1] || ((scope[1] = !0), clearErrorHandler(scope)), ''),
+  macro = (f) => [-1, f];
+macro(() => ''),
+  [].push(isErr),
+  macro(
+    (scope) => (
+      scope[1] ||
+        ((scope[1] = !0),
+        ((scope) => {
+          null != scope[2] && (scope[3] = null);
+        })(scope)),
+      ''
     ),
-    Symbol());
+  );
+let parserTag = Symbol();
 var u;
-let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
-  json =
-    (injectExternalDependency(bodyErr),
-    () =>
-      macro(
-        (f) => (
-          createAsyncScope(f),
-          setTmp(f),
-          compileErrorHandler('', f),
-          createContext(f),
-          ''
-        ),
-      )),
-  string = [4];
-var required,
-  handler,
+injectPersistentDependency(
+  ((u = parserTag), (d) => [_, d, u])('malformed body'),
+);
+let string = [4];
+var handler,
   dat,
   fn,
   main_default = core_default(
@@ -120,15 +109,23 @@ var required,
       ['', '/path', handler, dat]),
     ],
     {
-      '/api': core_default(
-        [
-          json(
-            'body',
-            ((required = { name: string, pwd: string }),
-            [16, required, void 0]),
-          ),
-        ],
-        [['POST', '/body', (c) => c.body, { type: json$1 }]],
+      '/api': ((r, f, dat) => ((r[2] = [(err) => err[1], dat]), r))(
+        core_default(
+          [
+            macro(
+              (f) => (
+                createAsyncScope(f),
+                setTmp(f),
+                compileErrorHandler('', f),
+                createContext(f),
+                ''
+              ),
+            ),
+          ],
+          [['POST', '/body', (c) => c.body, { type: json$1 }]],
+        ),
+        0,
+        { type: text },
       ),
     },
   );
@@ -156,7 +153,7 @@ var required,
   )),
   hydrateDependency(main_default, [!1, !1, , '', !1], ''),
   exportedDepsCnt++,
-  ((_$1, _1, _2) => {
+  ((_$1, _1, _2, _3, __1, __2) => {
     var $0 = ['access-control-allow-origin', '*'],
       $1 = ['access-control-max-age', '60000'],
       $2 = (r, h) => {
@@ -167,36 +164,35 @@ var required,
         null !== o &&
         'object' == typeof o &&
         'string' == typeof o.name &&
-        'string' == typeof o.pwd,
-      $5 = (r) => {
-        let u = r.url,
-          s = u.indexOf('/', 12) + 1,
-          e = u.indexOf('?', s),
-          p = -1 === e ? u.slice(s) : u.slice(s, e);
-        if ('POST' === r.method && 'api' === p) {
-          let h = [],
-            c = { status: 200, req: r, headers: h };
-          return (
-            $2(r, h),
-            h.push($3),
-            (async () => {
-              let t = await r.json().catch(() => {});
-              return $4(t)
-                ? $5
-                : ((c.body = t),
-                  h.push($0),
-                  new Response(JSON.stringify(_2(c)), c));
-            })()
-          );
-        }
-        if ('path' === p) {
-          let h = [],
-            c = { status: 200, req: r, headers: h };
-          return $2(r, h), h.push($3), new Response(_1(), c);
-        }
-        return $4;
-      };
-    _$1.push($5);
+        'string' == typeof o.pwd;
+    _$1.push((r) => {
+      let u = r.url,
+        s = u.indexOf('/', 12) + 1,
+        e = u.indexOf('?', s),
+        p = -1 === e ? u.slice(s) : u.slice(s, e);
+      if ('POST' === r.method && 'api' === p) {
+        let h = [],
+          c = { status: 200, req: r, headers: h };
+        return (
+          $2(r, h),
+          h.push($3),
+          (async () => {
+            let t = await r.json().catch(() => {});
+            return $4(t)
+              ? new Response(_2(__2), c)
+              : ((c.body = t),
+                h.push($0),
+                new Response(JSON.stringify(_3(c)), c));
+          })()
+        );
+      }
+      if ('path' === p) {
+        let h = [],
+          c = { status: 200, req: r, headers: h };
+        return $2(r, h), h.push($3), new Response(_1(), c);
+      }
+      return $4;
+    });
   })(
     ...(() => {
       let i = [compiledDependencies].concat(
