@@ -1,13 +1,18 @@
 import { injectDependency } from 'runtime-compiler';
 import { RES404 } from '../jit.js';
 
-let ROUTES: Record<string, Record<string, string>>;
+let ROUTES: Dict<Dict<string>>, ALL_ROUTES: Dict<string>;
 
 export const resetRouter = (): void => {
   ROUTES = {};
+  ALL_ROUTES = {};
 };
 
-export const insertRoute = (method: string, path: string, content: string): void => {
+export const insertRoute = (
+  method: string,
+  path: string,
+  content: string,
+): void => {
   const isWildcard = path.endsWith('**');
 
   let i = 0;
@@ -30,26 +35,36 @@ export const insertRoute = (method: string, path: string, content: string): void
         ? ',' + constants.PARAMS + i + '=' + constants.REQ + '.params["*"];'
         : ';');
   }
-  (ROUTES![bunPattern] ??= {})[method] = str + content + '}';
 
-  // Add a 404 to any other method to deoptimize if method is not a passable method to Bun
-  // https://bun.com/docs/api/http#per-http-method-routes
-  if (
-    method !== 'GET' &&
-    method !== 'HEAD' &&
-    method !== 'OPTIONS' &&
-    method !== 'DELETE' &&
-    method !== 'PATCH' &&
-    method !== 'POST' &&
-    method !== 'PUT'
-  )
-    ROUTES![bunPattern][''] ??= RES404;
+  str += content + '}';
 
-  // Compatible with @mapl/router
-  if (isWildcard)
-    (ROUTES![bunPattern === '/*' ? '/' : bunPattern.slice(0, -3)] ??= {})[
-      method
-    ] ??= RES404;
+  if (method === '') {
+    ALL_ROUTES[bunPattern] = str;
+
+    if (isWildcard)
+      ALL_ROUTES[bunPattern === '/*' ? '/' : bunPattern.slice(0, -3)] ??=
+        RES404;
+  } else {
+    (ROUTES[bunPattern] ??= {})[method] = str;
+    // Add a 404 to any other method to deoptimize if method is not a passable method to Bun
+    // https://bun.com/docs/api/http#per-http-method-routes
+    if (
+      method !== 'GET' &&
+      method !== 'HEAD' &&
+      method !== 'OPTIONS' &&
+      method !== 'DELETE' &&
+      method !== 'PATCH' &&
+      method !== 'POST' &&
+      method !== 'PUT'
+    )
+      ALL_ROUTES[bunPattern] ??= RES404;
+
+    // Compatible with @mapl/router
+    if (isWildcard)
+      (ROUTES[bunPattern === '/*' ? '/' : bunPattern.slice(0, -3)] ??= {})[
+        method
+      ] ??= RES404;
+  }
 };
 
 export const routerToString = (): string => {
@@ -58,37 +73,35 @@ export const routerToString = (): string => {
     str += '"' + pattern + '":';
 
     const methods = ROUTES[pattern];
-    if (methods[''] == null) {
+    const allMethods = ALL_ROUTES[pattern];
+
+    if (allMethods == null) {
       str += '{';
       for (const method in methods) str += method + ':' + methods[method] + ',';
       str += '},';
-    } else if (Object.keys(methods).length === 1)
-      str += methods[''] + ',';
+    } else if (methods == null) str += allMethods + ',';
     else {
       str += constants.BUN_FN_START;
 
       // Check methods
       for (const method in methods) {
-        if (method !== '') {
-          const fn = methods[method];
-          str +=
-            constants.REQ +
-            '.method==="' +
-            method +
-            '"?' +
-            (fn.startsWith(constants.BUN_FN_START)
-              ? injectDependency(fn) + constants.BUN_FN_ARGS
-              : fn) +
-            ':';
-        }
+        const fn = methods[method]!;
+        str +=
+          constants.REQ +
+          '.method==="' +
+          method +
+          '"?' +
+          (fn.startsWith(constants.BUN_FN_START)
+            ? injectDependency(fn) + constants.BUN_FN_ARGS
+            : fn) +
+          ':';
       }
 
-      // Last check for other methods
-      const fn = methods[''];
+      // Last check for all methods
       str +=
-        (fn.startsWith(constants.BUN_FN_START)
-          ? injectDependency(fn) + constants.BUN_FN_ARGS
-          : fn) + ',';
+        (allMethods.startsWith(constants.BUN_FN_START)
+          ? injectDependency(allMethods) + constants.BUN_FN_ARGS
+          : allMethods) + ',';
     }
   }
   return str + '}';

@@ -66,22 +66,22 @@ let jsonHeader: string, jsonOptions: string;
 export const json: HandlerResponse = isHydrating
   ? noOp
   : (res, hasContext) =>
-    hasContext
-      ? constants.HEADERS +
-        '.push(' +
-        (jsonHeader ??= injectDependency(
-          '["content-type","application/json"]',
-        )) +
-        ');return new Response(JSON.stringify(' +
-        res +
-        '),' +
-        constants.CTX +
-        ')'
-      : 'return new Response(JSON.stringify(' +
-        res +
-        '),' +
-        (jsonOptions ??= injectDependency('{headers:[' + jsonHeader + ']}')) +
-        ')';;
+      hasContext
+        ? constants.HEADERS +
+          '.push(' +
+          (jsonHeader ??= injectDependency(
+            '["content-type","application/json"]',
+          )) +
+          ');return new Response(JSON.stringify(' +
+          res +
+          '),' +
+          constants.CTX +
+          ')'
+        : 'return new Response(JSON.stringify(' +
+          res +
+          '),' +
+          (jsonOptions ??= injectDependency('{headers:[' + jsonHeader + ']}')) +
+          ')';
 
 let htmlHeader: string, htmlOptions: string;
 /**
@@ -90,16 +90,20 @@ let htmlHeader: string, htmlOptions: string;
 export const html: HandlerResponse<BodyInit> = isHydrating
   ? noOp
   : (res, hasContext) =>
-    hasContext
-      ? constants.HEADERS +
-        '.push(' +
-        (htmlHeader ??= injectDependency('["content-type","text/html"]')) +
-        ');return new Response(' +
-        res +
-        ',' +
-        constants.CTX +
-        ')'
-      : 'return new Response(' + res + ',' + (htmlOptions ??= injectDependency('{headers:[' + htmlHeader + ']}')) + ')';
+      hasContext
+        ? constants.HEADERS +
+          '.push(' +
+          (htmlHeader ??= injectDependency('["content-type","text/html"]')) +
+          ');return new Response(' +
+          res +
+          ',' +
+          constants.CTX +
+          ')'
+        : 'return new Response(' +
+          res +
+          ',' +
+          (htmlOptions ??= injectDependency('{headers:[' + htmlHeader + ']}')) +
+          ')';
 
 /**
  * Return a body init

@@ -194,17 +194,13 @@ export const compileToExportedDependency = (
 ): CompiledDependency<FetchFn> =>
   exportDependency(injectDependency(compileToString(router)));
 
-export const compileToHandler = async (
-  router: RouterTag,
-): Promise<FetchFn> => {
+export const compileToHandler = async (router: RouterTag): Promise<FetchFn> => {
   const id = compileToExportedDependency(router);
   await evaluate();
   return getDependency(id);
 };
 
-export const compileToHandlerSync = (
-  router: RouterTag,
-): FetchFn => {
+export const compileToHandlerSync = (router: RouterTag): FetchFn => {
   const id = compileToExportedDependency(router);
   evaluateSync();
   return getDependency(id);

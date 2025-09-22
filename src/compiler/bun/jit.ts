@@ -21,7 +21,12 @@ import {
 } from 'runtime-compiler';
 import { evaluate, evaluateSync } from 'runtime-compiler/jit';
 
-import { compileErrorHandler, compileReturn, paramArgs, RES400 } from '../jit.js';
+import {
+  compileErrorHandler,
+  compileReturn,
+  paramArgs,
+  RES400,
+} from '../jit.js';
 import { insertRoute, resetRouter, routerToString } from './router.js';
 import type { FetchFn } from '../../core/utils.js';
 
@@ -122,9 +127,7 @@ export const compileToHandler = async (
   return getDependency(id);
 };
 
-export const compileToHandlerSync = (
-  router: RouterTag,
-): BunRoutes => {
+export const compileToHandlerSync = (router: RouterTag): BunRoutes => {
   const id = compileToExportedDependency(router);
   evaluateSync();
   return getDependency(id);

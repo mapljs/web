@@ -408,6 +408,7 @@ var required,
     },
   );
 let ROUTES,
+  ALL_ROUTES,
   RES404 = injectDependency('new Response(null,{status:404})'),
   RES400 = injectDependency('new Response(null,{status:400})'),
   paramArgs = ((args) => {
@@ -454,19 +455,24 @@ let ROUTES,
       for (let j = 1, l = i - (isWildcard ? 1 : 0); j < l; j++) str += 'q,' + j;
       str += '}=r.params' + (isWildcard ? ',q' + i + '=r.params["*"];' : ';');
     }
-    ((ROUTES[bunPattern] ??= {})[method] = str + content + '}'),
-      'GET' !== method &&
-        'HEAD' !== method &&
-        'OPTIONS' !== method &&
-        'DELETE' !== method &&
-        'PATCH' !== method &&
-        'POST' !== method &&
-        'PUT' !== method &&
-        (ROUTES[bunPattern][''] ??= RES404),
-      isWildcard &&
-        ((ROUTES['/*' === bunPattern ? '/' : bunPattern.slice(0, -3)] ??= {})[
-          method
-        ] ??= RES404);
+    (str += content + '}'),
+      '' === method
+        ? ((ALL_ROUTES[bunPattern] = str),
+          isWildcard &&
+            (ALL_ROUTES['/*' === bunPattern ? '/' : bunPattern.slice(0, -3)] ??=
+              RES404))
+        : (((ROUTES[bunPattern] ??= {})[method] = str),
+          'GET' !== method &&
+            'HEAD' !== method &&
+            'OPTIONS' !== method &&
+            'DELETE' !== method &&
+            'PATCH' !== method &&
+            'POST' !== method &&
+            'PUT' !== method &&
+            (ALL_ROUTES[bunPattern] ??= RES404),
+          isWildcard &&
+            ((ROUTES['/*' === bunPattern ? '/' : bunPattern.slice(0, -3)] ??=
+              {})[method] ??= RES404));
   };
 Bun.serve({
   routes: (() => {
@@ -475,6 +481,7 @@ Bun.serve({
         (((router) => {
           var fn;
           (ROUTES = {}),
+            (ALL_ROUTES = {}),
             (fn = (handler, prevContent, path, scope) => {
               let fn = handler[2],
                 call = injectExternalDependency(fn) + '(',
@@ -527,33 +534,31 @@ Bun.serve({
           let str = '{';
           for (let pattern in ROUTES) {
             str += '"' + pattern + '":';
-            let methods = ROUTES[pattern];
-            if (null == methods['']) {
+            let methods = ROUTES[pattern],
+              allMethods = ALL_ROUTES[pattern];
+            if (null == allMethods) {
               str += '{';
               for (let method in methods)
                 str += method + ':' + methods[method] + ',';
               str += '},';
-            } else if (1 === Object.keys(methods).length)
-              str += methods[''] + ',';
+            } else if (null == methods) str += allMethods + ',';
             else {
               str += '(r,s)=>';
-              for (let method in methods)
-                if ('' !== method) {
-                  let fn$1 = methods[method];
-                  str +=
-                    'r.method==="' +
-                    method +
-                    '"?' +
-                    (fn$1.startsWith('(r,s)=>')
-                      ? injectDependency(fn$1) + '(r,s)'
-                      : fn$1) +
-                    ':';
-                }
-              let fn = methods[''];
+              for (let method in methods) {
+                let fn = methods[method];
+                str +=
+                  'r.method==="' +
+                  method +
+                  '"?' +
+                  (fn.startsWith('(r,s)=>')
+                    ? injectDependency(fn) + '(r,s)'
+                    : fn) +
+                  ':';
+              }
               str +=
-                (fn.startsWith('(r,s)=>')
-                  ? injectDependency(fn) + '(r,s)'
-                  : fn) + ',';
+                (allMethods.startsWith('(r,s)=>')
+                  ? injectDependency(allMethods) + '(r,s)'
+                  : allMethods) + ',';
             }
           }
           return str + '}';

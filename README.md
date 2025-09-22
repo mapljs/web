@@ -13,7 +13,12 @@ const app = router(
   [ layer.attach('id', () => performance.now()) ],
 
   // Routes
-  [ handle.get('/path', (c) => c.id) ],
+  [
+    handle.get('/path', (c) => c.id, {
+      // Response wrapper
+      type: handle.text
+    })
+  ],
 
   // Subrouters
   { '/api': api }
@@ -85,7 +90,7 @@ const input = await rolldown({
       module: true,
       mangle: false,
       compress: {
-        // passes should be at least 2
+        // passes should be at least 2, recommend 3 - 5
         passes: 3,
       },
     }),
@@ -96,4 +101,4 @@ await input.write({
   inlineDynamicImports: true,
 });
 ```
-As of rn only `terser` can DCE `@mapl/web` well.
+As of rn only `terser` can DCE `@mapl/web` patterns.
