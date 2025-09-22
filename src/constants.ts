@@ -9,16 +9,10 @@ import {
 export * from '@mapl/framework/constants';
 
 export const HEADERS: string = 'h';
-export const CTX_INIT: string =
-  'let ' +
-  HEADERS +
-  '=[],' +
-  CTX +
-  '={status:200,req:' +
-  REQ +
-  ',headers:' +
-  HEADERS +
-  '};';
+export const SERVER_INFO: string = 's';
+
+export const BUN_FN_ARGS: string = '(' + REQ + ',' + SERVER_INFO + ')';
+export const BUN_FN_START: string = BUN_FN_ARGS + '=>';
 
 export const PARSE_PATH: string =
   'let ' +

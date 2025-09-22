@@ -19,4 +19,6 @@ export type RequestMethod =
   | 'TRACE'
   | (string & {});
 
+export type FetchFn = (req: Request) => any;
+
 export const noOp = () => '';

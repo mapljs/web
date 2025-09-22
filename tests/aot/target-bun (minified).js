@@ -6,7 +6,8 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let hooks,
+let compileHandlerHook,
+  compileErrorHandlerHook,
   noOp = () => '',
   macro$1 = (f) => [-1, f],
   noOpMacro$1 = macro$1(noOp),
@@ -21,7 +22,7 @@ let hooks,
   AsyncFunction$2 =
     (injectExternalDependency(isErr), (async () => {}).constructor),
   compileErrorHandler = (input, scope) =>
-    (scope[3] ??= hooks.compileErrorHandler(
+    (scope[3] ??= compileErrorHandlerHook(
       input,
       scope[2][0],
       scope[2][1],
@@ -59,7 +60,7 @@ let hooks,
     }
     for (let i = 0, handlers = group[1]; i < handlers.length; i++) {
       let handler = handlers[i];
-      hooks.compileHandler(
+      compileHandlerHook(
         handler,
         '',
         prefix + ('/' === handler[1] || '' !== prefix ? '' : handler[1]),
@@ -108,7 +109,6 @@ let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
 var required,
   handler,
   dat,
-  allHooks,
   main_default = core_default(
     [createContextMacro$1, noOpMacro$1],
     [
@@ -129,53 +129,52 @@ var required,
       ),
     },
   );
-(allHooks = {
-  compileHandler: (handler, _$1, _1, scope) => {
-    let fn = handler[2];
-    injectExternalDependency(fn),
-      handler[3]?.type?.(
-        '',
-        scope[1] ||
-          fn.length >
-            ((path) => {
-              let cnt = path.endsWith('**') ? 2 : 0;
-              for (
-                let i = path.length - cnt;
-                -1 !== (i = path.lastIndexOf('*', i - 1));
-                cnt++
-              );
-              return cnt;
-            })(handler[1]),
-      );
-  },
-  compileErrorHandler: (_$1, fn, dat, scope) => (
-    injectExternalDependency(fn), dat?.type?.('', scope[1] || fn.length > 1), ''
-  ),
+var fn;
+(fn = (handler, _$1, _1, scope) => {
+  let fn = handler[2];
+  injectExternalDependency(fn),
+    handler[3]?.type?.(
+      '',
+      scope[1] ||
+        fn.length >
+          ((path) => {
+            let cnt = path.endsWith('**') ? 2 : 0;
+            for (
+              let i = path.length - cnt;
+              -1 !== (i = path.lastIndexOf('*', i - 1));
+              cnt++
+            );
+            return cnt;
+          })(handler[1]),
+    );
 }),
-  (hooks = allHooks),
+  (compileHandlerHook = fn),
+  (compileErrorHandlerHook = (_$1, fn, dat, scope) => (
+    injectExternalDependency(fn), dat?.type?.('', scope[1] || fn.length > 1), ''
+  )),
   hydrateDependency(main_default, [!1, !1, , '', !1], ''),
   exportedDepsCnt++,
-  ((_$1, _1, _2, _3, _4) => {
-    var $0 = ['content-type', 'application/json'],
-      $4 = new Response(null, { status: 404 }),
-      $5 = new Response(null, { status: 400 }),
-      $6 = ['access-control-allow-origin', '*'],
-      $7 = ['access-control-max-age', '60000'],
-      $8 = (r, h) => {
-        h.push($6), 'OPTIONS' === r.method && h.push($7);
+  ((_$1, _1, _2) => {
+    var $0 = ['access-control-allow-origin', '*'],
+      $1 = ['access-control-max-age', '60000'],
+      $2 = (r, h) => {
+        h.push($0), 'OPTIONS' === r.method && h.push($1);
       },
-      $9 = ['x-powered-by', '@mapl/web'],
-      $11 = ((r) => {
-        let u = r.url,
-          s = u.indexOf('/', 12) + 1,
-          e = u.indexOf('?', s),
-          p = -1 === e ? u.slice(s) : u.slice(s, e);
-        if ('POST' === r.method && 'api' === p) {
+      $3 = ['x-powered-by', '@mapl/web'],
+      $5 = (r, s) => {
+        let h = [],
+          c = { status: 200, req: r, server: s, headers: h };
+        return $2(r, h), h.push($3), new Response(_1(), c);
+      };
+    _$1.push({
+      '/path': (r, s) => $5(r, s),
+      '/api': {
+        POST: (r, s) => {
           let h = [],
-            c = { status: 200, req: r, headers: h };
+            c = { status: 200, req: r, server: s, headers: h };
           return (
-            $8(r, h),
-            h.push($9),
+            $2(r, h),
+            h.push($3),
             (async () => {
               let t = await r.json().catch(() => {});
               return null !== (o = t) &&
@@ -185,24 +184,18 @@ var required,
                 ? $5
                 : ((c.body = t),
                   h.push($0),
-                  new Response(JSON.stringify(_4(c)), c));
+                  new Response(JSON.stringify(_2(c)), c));
               var o;
             })()
           );
-        }
-        if ('path' === p) {
-          let h = [],
-            c = { status: 200, req: r, headers: h };
-          return $8(r, h), h.push($9), new Response(_3(), c);
-        }
-        return $4;
-      })();
-    _$1.push($11);
+        },
+      },
+    });
   })(
     ...(() => {
       let r = [compiledDependencies].concat(externalDependencies);
       return (externalDependencies.length = 0), (exportedDepsCnt = 0), r;
     })(),
   );
-var _1_default = { fetch: compiledDependencies[0] };
-export { _1_default as default };
+var target_bun__aot__default = { routes: compiledDependencies[0] };
+export { target_bun__aot__default as default };

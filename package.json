@@ -45,7 +45,7 @@
     "esbuild"
   ],
   "dependencies": {
-    "@mapl/framework": "^0.4.7",
+    "@mapl/framework": "^0.4.8",
     "@mapl/router": "^0.6.2",
     "@safe-std/error": "^1.0.1",
     "runtime-compiler": "^1.0.11"

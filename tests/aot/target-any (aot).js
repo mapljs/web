@@ -5,28 +5,22 @@ import hydrateRouter from '../../lib/compiler/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
-((_, _1, _2, _3, _4) => {
-  var $0 = ['content-type', 'application/json'],
-    $1 = { headers: [$0] },
-    $2 = ['content-type', 'text/html'],
-    $3 = { headers: [$2] },
-    $4 = new Response(null, { status: 404 }),
-    $5 = new Response(null, { status: 400 }),
-    $6 = ['access-control-allow-origin', '*'],
-    $7 = ['access-control-max-age', '60000'],
-    $8 = (r, h) => {
-      h.push($6);
-      r.method === 'OPTIONS' && h.push($7);
+((_, _1, _2) => {
+  var $0 = ['access-control-allow-origin', '*'],
+    $1 = ['access-control-max-age', '60000'],
+    $2 = (r, h) => {
+      h.push($0);
+      r.method === 'OPTIONS' && h.push($1);
     },
-    $9 = ['x-powered-by', '@mapl/web'],
-    $10 = (() => {
+    $3 = ['x-powered-by', '@mapl/web'],
+    $4 = (() => {
       return (o) =>
         o !== null &&
         typeof o === 'object' &&
         typeof o.name === 'string' &&
         typeof o.pwd === 'string';
     })(),
-    $11 = ((r) => {
+    $5 = (r) => {
       let u = r.url,
         s = u.indexOf('/', 12) + 1,
         e = u.indexOf('?', s),
@@ -35,29 +29,29 @@ import { hydrate } from 'runtime-compiler/hydrate';
         if (p === 'api') {
           let h = [],
             c = { status: 200, req: r, headers: h };
-          $8(r, h);
-          h.push($9);
+          $2(r, h);
+          h.push($3);
           return (async () => {
             let t = await r.json().catch(() => {});
-            if ($10(t)) {
+            if ($4(t)) {
               return $5;
             }
             c.body = t;
             h.push($0);
-            return new Response(JSON.stringify(_4(c)), c);
+            return new Response(JSON.stringify(_2(c)), c);
           })();
         }
       }
       if (p === 'path') {
         let h = [],
           c = { status: 200, req: r, headers: h };
-        $8(r, h);
-        h.push($9);
-        return new Response(_3(), c);
+        $2(r, h);
+        h.push($3);
+        return new Response(_1(), c);
       }
       return $4;
-    })();
-  _.push($11);
+    };
+  _.push($5);
 })(...hydrate());
 
 import { getDependency } from 'runtime-compiler';
