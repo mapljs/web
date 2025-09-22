@@ -109,6 +109,7 @@ let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
 var required,
   handler,
   dat,
+  fn,
   main_default = core_default(
     [createContextMacro$1, noOpMacro$1],
     [
@@ -129,7 +130,6 @@ var required,
       ),
     },
   );
-var fn;
 (fn = (handler, _$1, _1, scope) => {
   let fn = handler[2];
   injectExternalDependency(fn),
@@ -161,34 +161,38 @@ var fn;
         h.push($0), 'OPTIONS' === r.method && h.push($1);
       },
       $3 = ['x-powered-by', '@mapl/web'],
-      $5 = {
-        '/path': (r, s) => {
+      $4 = (o) =>
+        null !== o &&
+        'object' == typeof o &&
+        'string' == typeof o.name &&
+        'string' == typeof o.pwd,
+      $5 = (r) => {
+        let u = r.url,
+          s = u.indexOf('/', 12) + 1,
+          e = u.indexOf('?', s),
+          p = -1 === e ? u.slice(s) : u.slice(s, e);
+        if ('POST' === r.method && 'api' === p) {
           let h = [],
-            c = { status: 200, req: r, server: s, headers: h };
+            c = { status: 200, req: r, headers: h };
+          return (
+            $2(r, h),
+            h.push($3),
+            (async () => {
+              let t = await r.json().catch(() => {});
+              return $4(t)
+                ? $5
+                : ((c.body = t),
+                  h.push($0),
+                  new Response(JSON.stringify(_2(c)), c));
+            })()
+          );
+        }
+        if ('path' === p) {
+          let h = [],
+            c = { status: 200, req: r, headers: h };
           return $2(r, h), h.push($3), new Response(_1(), c);
-        },
-        '/api': {
-          POST: (r, s) => {
-            let h = [],
-              c = { status: 200, req: r, server: s, headers: h };
-            return (
-              $2(r, h),
-              h.push($3),
-              (async () => {
-                let t = await r.json().catch(() => {});
-                return null !== (o = t) &&
-                  'object' == typeof o &&
-                  'string' == typeof o.name &&
-                  'string' == typeof o.pwd
-                  ? $5
-                  : ((c.body = t),
-                    h.push($0),
-                    new Response(JSON.stringify(_2(c)), c));
-                var o;
-              })()
-            );
-          },
-        },
+        }
+        return $4;
       };
     _$1.push($5);
   })(
@@ -197,5 +201,5 @@ var fn;
       return (externalDependencies.length = 0), (exportedDepsCnt = 0), r;
     })(),
   );
-var target_bun__aot__default = { routes: compiledDependencies[0] };
-export { target_bun__aot__default as default };
+var target_any_aot__built__default = { fetch: compiledDependencies[0] };
+export { target_any_aot__built__default as default };
