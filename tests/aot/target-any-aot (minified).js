@@ -160,11 +160,7 @@ var handler,
         h.push($0), 'OPTIONS' === r.method && h.push($1);
       },
       $3 = ['x-powered-by', '@mapl/web'],
-      $4 = (o) =>
-        null !== o &&
-        'object' == typeof o &&
-        'string' == typeof o.name &&
-        'string' == typeof o.pwd;
+      $5 = ['content-type', 'application/json'];
     _$1.push((r) => {
       let u = r.url,
         s = u.indexOf('/', 12) + 1,
@@ -178,11 +174,15 @@ var handler,
           h.push($3),
           (async () => {
             let t = await r.json().catch(() => {});
-            return $4(t)
+            return null !== (o = t) &&
+              'object' == typeof o &&
+              'string' == typeof o.name &&
+              'string' == typeof o.pwd
               ? new Response(_2(__2), c)
               : ((c.body = t),
-                h.push($0),
+                h.push($5),
                 new Response(JSON.stringify(_3(c)), c));
+            var o;
           })()
         );
       }
@@ -191,7 +191,7 @@ var handler,
           c = { status: 200, req: r, headers: h };
         return $2(r, h), h.push($3), new Response(_1(), c);
       }
-      return $4;
+      return $0;
     });
   })(
     ...(() => {

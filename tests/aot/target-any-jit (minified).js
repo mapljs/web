@@ -4,7 +4,9 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let compileHandlerHook,
+let jsonHeader,
+  jsonOptions,
+  compileHandlerHook,
   compileErrorHandlerHook,
   macro$1 = (f) => [-1, f],
   compiledDependencies = (macro$1(() => ''), []),
@@ -24,29 +26,8 @@ let compileHandlerHook,
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
   injectPersistentDependency = (e) => '__' + persistentDependencies.push(e),
-  json$1 = (() => {
-    let jsonHeader = injectDependency('["content-type","application/json"]'),
-      jsonOptions = injectDependency('{headers:[' + jsonHeader + ']}');
-    return (res, hasContext) =>
-      hasContext
-        ? 'h.push(' +
-          jsonHeader +
-          ');return new Response(JSON.stringify(' +
-          res +
-          '),c)'
-        : 'return new Response(JSON.stringify(' +
-          res +
-          '),' +
-          jsonOptions +
-          ')';
-  })(),
-  text =
-    ((() => {
-      let htmlHeader = injectDependency('["content-type","text/html"]');
-      injectDependency('{headers:[' + htmlHeader + ']}');
-    })(),
-    (res, hasContext) =>
-      'return new Response(' + res + (hasContext ? ',c)' : ')')),
+  text = (res, hasContext) =>
+    'return new Response(' + res + (hasContext ? ',c)' : ')'),
   _ = Symbol.for('@safe-std/error'),
   isErr = (u) => Array.isArray(u) && u[0] === _,
   IS_ERR$1 = injectPersistentDependency(isErr),
@@ -395,7 +376,31 @@ var required,
                 'c.body=t;',
             )),
           ],
-          [['POST', '/body', (c) => c.body, { type: json$1 }]],
+          [
+            [
+              'POST',
+              '/body',
+              (c) => c.body,
+              {
+                type: (res, hasContext) =>
+                  hasContext
+                    ? 'h.push(' +
+                      (jsonHeader ??= injectDependency(
+                        '["content-type","application/json"]',
+                      )) +
+                      ');return new Response(JSON.stringify(' +
+                      res +
+                      '),c)'
+                    : 'return new Response(JSON.stringify(' +
+                      res +
+                      '),' +
+                      (jsonOptions ??= injectDependency(
+                        '{headers:[' + jsonHeader + ']}',
+                      )) +
+                      ')',
+              },
+            ],
+          ],
         ),
         0,
         { type: text },

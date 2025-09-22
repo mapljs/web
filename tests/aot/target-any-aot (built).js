@@ -20,7 +20,8 @@ import { hydrate } from 'runtime-compiler/hydrate';
         typeof o.name === 'string' &&
         typeof o.pwd === 'string';
     })(),
-    $5 = (r) => {
+    $5 = ['content-type', 'application/json'],
+    $6 = (r) => {
       let u = r.url,
         s = u.indexOf('/', 12) + 1,
         e = u.indexOf('?', s),
@@ -37,7 +38,7 @@ import { hydrate } from 'runtime-compiler/hydrate';
               return new Response(_2(__2), c);
             }
             c.body = t;
-            h.push($0);
+            h.push($5);
             return new Response(JSON.stringify(_3(c)), c);
           })();
         }
@@ -49,9 +50,9 @@ import { hydrate } from 'runtime-compiler/hydrate';
         h.push($3);
         return new Response(_1(), c);
       }
-      return $4;
+      return $0;
     };
-  _.push($5);
+  _.push($6);
 })(...hydrate());
 
 import { getDependency } from 'runtime-compiler';

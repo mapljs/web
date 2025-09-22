@@ -59,55 +59,47 @@ export interface HandlerTag<out T> {
   [handlerTag]: T;
 }
 
+let jsonHeader: string, jsonOptions: string;
 /**
  * Return JSON
  */
 export const json: HandlerResponse = isHydrating
   ? noOp
-  : (() => {
-      const jsonHeader = injectDependency(
-        '["content-type","application/json"]',
-      );
-      const jsonOptions = injectDependency('{headers:[' + jsonHeader + ']}');
+  : (res, hasContext) =>
+    hasContext
+      ? constants.HEADERS +
+        '.push(' +
+        (jsonHeader ??= injectDependency(
+          '["content-type","application/json"]',
+        )) +
+        ');return new Response(JSON.stringify(' +
+        res +
+        '),' +
+        constants.CTX +
+        ')'
+      : 'return new Response(JSON.stringify(' +
+        res +
+        '),' +
+        (jsonOptions ??= injectDependency('{headers:[' + jsonHeader + ']}')) +
+        ')';;
 
-      return (res, hasContext) =>
-        hasContext
-          ? constants.HEADERS +
-            '.push(' +
-            jsonHeader +
-            ');return new Response(JSON.stringify(' +
-            res +
-            '),' +
-            constants.CTX +
-            ')'
-          : 'return new Response(JSON.stringify(' +
-            res +
-            '),' +
-            jsonOptions +
-            ')';
-    })();
-
+let htmlHeader: string, htmlOptions: string;
 /**
  * Return HTML
  */
 export const html: HandlerResponse<BodyInit> = isHydrating
   ? noOp
-  : (() => {
-      const htmlHeader = injectDependency('["content-type","text/html"]');
-      const htmlOptions = injectDependency('{headers:[' + htmlHeader + ']}');
-
-      return (res, hasContext) =>
-        hasContext
-          ? constants.HEADERS +
-            '.push(' +
-            htmlHeader +
-            ');return new Response(' +
-            res +
-            ',' +
-            constants.CTX +
-            ')'
-          : 'return new Response(' + res + ',' + htmlOptions + ')';
-    })();
+  : (res, hasContext) =>
+    hasContext
+      ? constants.HEADERS +
+        '.push(' +
+        (htmlHeader ??= injectDependency('["content-type","text/html"]')) +
+        ');return new Response(' +
+        res +
+        ',' +
+        constants.CTX +
+        ')'
+      : 'return new Response(' + res + ',' + (htmlOptions ??= injectDependency('{headers:[' + htmlHeader + ']}')) + ')';
 
 /**
  * Return a body init

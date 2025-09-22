@@ -40,7 +40,7 @@ import { hydrate } from 'runtime-compiler/hydrate';
               return new Response(_2(__2), c);
             }
             c.body = t;
-            h.push($0);
+            h.push($5);
             return new Response(JSON.stringify(_3(c)), c);
           })();
         },

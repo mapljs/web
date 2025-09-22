@@ -159,36 +159,37 @@ var fn;
       $2 = (r, h) => {
         h.push($0), 'OPTIONS' === r.method && h.push($1);
       },
-      $3 = ['x-powered-by', '@mapl/web'];
-    _$1.push({
-      '/path': (r, s) => {
-        let h = [],
-          c = { status: 200, req: r, server: s, headers: h };
-        return $2(r, h), h.push($3), new Response(_1(), c);
-      },
-      '/api': {
-        POST: (r, s) => {
+      $3 = ['x-powered-by', '@mapl/web'],
+      $5 = {
+        '/path': (r, s) => {
           let h = [],
             c = { status: 200, req: r, server: s, headers: h };
-          return (
-            $2(r, h),
-            h.push($3),
-            (async () => {
-              let t = await r.json().catch(() => {});
-              return null !== (o = t) &&
-                'object' == typeof o &&
-                'string' == typeof o.name &&
-                'string' == typeof o.pwd
-                ? new Response(_2(__2), c)
-                : ((c.body = t),
-                  h.push($0),
-                  new Response(JSON.stringify(_3(c)), c));
-              var o;
-            })()
-          );
+          return $2(r, h), h.push($3), new Response(_1(), c);
         },
-      },
-    });
+        '/api': {
+          POST: (r, s) => {
+            let h = [],
+              c = { status: 200, req: r, server: s, headers: h };
+            return (
+              $2(r, h),
+              h.push($3),
+              (async () => {
+                let t = await r.json().catch(() => {});
+                return null !== (o = t) &&
+                  'object' == typeof o &&
+                  'string' == typeof o.name &&
+                  'string' == typeof o.pwd
+                  ? new Response(_2(__2), c)
+                  : ((c.body = t),
+                    h.push($5),
+                    new Response(JSON.stringify(_3(c)), c));
+                var o;
+              })()
+            );
+          },
+        },
+      };
+    _$1.push($5);
   })(
     ...(() => {
       let i = [compiledDependencies].concat(
