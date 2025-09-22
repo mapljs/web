@@ -4,11 +4,10 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let compileHandlerHook,
-  compileErrorHandlerHook,
-  macro$1 = (f) => [-1, f],
+let macro$1 = (f) => [-1, f],
   compiledDependencies = (macro$1(() => ''), []),
   externalDependencies = [],
+  persistentDependencies = [],
   localDeps = '',
   localDepsCnt = 0,
   injectDependency = (e) => (
@@ -47,7 +46,10 @@ let compileHandlerHook,
       'return new Response(' + res + (hasContext ? ',c)' : ')')),
   _ = Symbol.for('@safe-std/error'),
   isErr = (u) => Array.isArray(u) && u[0] === _,
-  IS_ERR$1 = injectExternalDependency(isErr),
+  IS_ERR$1 = ((e = isErr), '__' + persistentDependencies.push(e));
+var e;
+let compileHandlerHook,
+  compileErrorHandlerHook,
   AsyncFunction = (async () => {}).constructor,
   contextInit = '',
   compileErrorHandler$1 = (input, scope) =>
@@ -140,18 +142,18 @@ let compileHandlerHook,
       ? '...' + injectDependency(JSON.stringify(list))
       : injectDependency(JSON.stringify(list[0]));
 macro$1(createContext);
-let macro = (f) => [-1, f];
-macro(() => ''), [].push(isErr);
-let optimizeDirectCall =
+let macro = (f) => [-1, f],
+  externalDependencies$1 = (macro(() => ''), []),
+  clearErrorHandler =
+    (((e) => {
+      externalDependencies$1.push(e);
+    })(isErr),
+    (scope) => {
+      null != scope[2] && (scope[3] = null);
+    }),
+  optimizeDirectCall =
     (macro(
-      (scope) => (
-        scope[1] ||
-          ((scope[1] = !0),
-          ((scope) => {
-            null != scope[2] && (scope[3] = null);
-          })(scope)),
-        ''
-      ),
+      (scope) => (scope[1] || ((scope[1] = !0), clearErrorHandler(scope)), ''),
     ),
     (s) =>
       'o=>Number.isInteger(o)' === s
@@ -456,10 +458,10 @@ let ROUTES,
           method
         ] ??= RES404);
   };
-var target_bun_jit__built__default = {
-  fetch: (() => {
-    let id =
-      ((e = injectDependency(
+Bun.serve({
+  routes: (() => {
+    let id = ((e) => ((exportedDeps += e + ','), exportedDepsCnt++))(
+      injectDependency(
         (((router) => {
           var fn;
           (ROUTES = {}),
@@ -546,16 +548,16 @@ var target_bun_jit__built__default = {
           }
           return str + '}';
         })()),
-      )),
-      (exportedDeps += e + ','),
-      exportedDepsCnt++);
-    var e;
+      ),
+    );
     return (
       Function(
         (() => {
           let e = '_,';
-          for (let _$1 = 0; _$1 < externalDependencies.length; _$1++)
-            e += '_' + (_$1 + 1) + ',';
+          for (let y = 0; y < externalDependencies.length; y++)
+            e += '_' + (y + 1) + ',';
+          for (let v = 0; v < persistentDependencies.length; v++)
+            e += '__' + (v + 1) + ',';
           return e;
         })(),
         '{' +
@@ -569,7 +571,11 @@ var target_bun_jit__built__default = {
               ']);_.push(') +
           exportedDeps +
           ')}',
-      )(compiledDependencies, ...externalDependencies),
+      )(
+        compiledDependencies,
+        ...externalDependencies,
+        ...persistentDependencies,
+      ),
       (externalDependencies.length = 0),
       (localDeps = ''),
       (localDepsCnt = 0),
@@ -579,5 +585,4 @@ var target_bun_jit__built__default = {
       compiledDependencies[id]
     );
   })(),
-};
-export { target_bun_jit__built__default as default };
+});

@@ -5,7 +5,7 @@ import hydrateRouter from '../../lib/compiler/bun/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
-((_, _1, _2) => {
+((_, _1, _2, __1) => {
   var $0 = ['access-control-allow-origin', '*'],
     $1 = ['access-control-max-age', '60000'],
     $2 = (r, h) => {
@@ -50,6 +50,6 @@ import { hydrate } from 'runtime-compiler/hydrate';
 })(...hydrate());
 
 import { getDependency } from 'runtime-compiler';
-export default {
+Bun.serve({
   routes: getDependency(0),
-};
+});

@@ -6,21 +6,23 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let compileHandlerHook,
-  compileErrorHandlerHook,
-  noOp = () => '',
+let noOp = () => '',
   macro$1 = (f) => [-1, f],
   noOpMacro$1 = macro$1(noOp),
   compiledDependencies = [],
   externalDependencies = [],
+  persistentDependencies = [],
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
   json$1 = noOp,
   text = noOp,
   _ = Symbol.for('@safe-std/error'),
-  isErr = (u) => Array.isArray(u) && u[0] === _,
-  AsyncFunction$2 =
-    (injectExternalDependency(isErr), (async () => {}).constructor),
+  isErr = (u) => Array.isArray(u) && u[0] === _;
+var e;
+(e = isErr), persistentDependencies.push(e);
+let compileHandlerHook,
+  compileErrorHandlerHook,
+  AsyncFunction$2 = (async () => {}).constructor,
   compileErrorHandler = (input, scope) =>
     (scope[3] ??= compileErrorHandlerHook(
       input,
@@ -77,20 +79,20 @@ let compileHandlerHook,
         );
   };
 let createContextMacro$1 = macro$1(createContext),
-  macro = (f) => [-1, f];
-macro(() => ''),
-  [].push(isErr),
-  macro(
-    (scope) => (
-      scope[1] ||
-        ((scope[1] = !0),
-        ((scope) => {
-          null != scope[2] && (scope[3] = null);
-        })(scope)),
-      ''
+  macro = (f) => [-1, f],
+  externalDependencies$1 = (macro(() => ''), []),
+  clearErrorHandler =
+    (((e) => {
+      externalDependencies$1.push(e);
+    })(isErr),
+    (scope) => {
+      null != scope[2] && (scope[3] = null);
+    }),
+  parserTag =
+    (macro(
+      (scope) => (scope[1] || ((scope[1] = !0), clearErrorHandler(scope)), ''),
     ),
-  );
-let parserTag = Symbol();
+    Symbol());
 var u;
 let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
   json =
@@ -197,8 +199,11 @@ var required,
     _$1.push($5);
   })(
     ...(() => {
-      let r = [compiledDependencies].concat(externalDependencies);
-      return (externalDependencies.length = 0), (exportedDepsCnt = 0), r;
+      let i = [compiledDependencies].concat(
+        externalDependencies,
+        persistentDependencies,
+      );
+      return (externalDependencies.length = 0), (exportedDepsCnt = 0), i;
     })(),
   );
 var target_any_aot__built__default = { fetch: compiledDependencies[0] };
