@@ -20,15 +20,14 @@ import { hydrate } from 'runtime-compiler/hydrate';
         typeof o.name === 'string' &&
         typeof o.pwd === 'string';
     })(),
-    $5 = (r, s) => {
-      let h = [],
-        c = { status: 200, req: r, server: s, headers: h };
-      $2(r, h);
-      h.push($3);
-      return new Response(_1(), c);
-    },
-    $6 = {
-      '/path': (r, s) => $5(r, s),
+    $5 = {
+      '/path': (r, s) => {
+        let h = [],
+          c = { status: 200, req: r, server: s, headers: h };
+        $2(r, h);
+        h.push($3);
+        return new Response(_1(), c);
+      },
       '/api': {
         POST: (r, s) => {
           let h = [],
@@ -47,7 +46,7 @@ import { hydrate } from 'runtime-compiler/hydrate';
         },
       },
     };
-  _.push($6);
+  _.push($5);
 })(...hydrate());
 
 import { getDependency } from 'runtime-compiler';

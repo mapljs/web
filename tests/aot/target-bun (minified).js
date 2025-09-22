@@ -161,36 +161,36 @@ var fn;
         h.push($0), 'OPTIONS' === r.method && h.push($1);
       },
       $3 = ['x-powered-by', '@mapl/web'],
-      $5 = (r, s) => {
-        let h = [],
-          c = { status: 200, req: r, server: s, headers: h };
-        return $2(r, h), h.push($3), new Response(_1(), c);
-      };
-    _$1.push({
-      '/path': (r, s) => $5(r, s),
-      '/api': {
-        POST: (r, s) => {
+      $5 = {
+        '/path': (r, s) => {
           let h = [],
             c = { status: 200, req: r, server: s, headers: h };
-          return (
-            $2(r, h),
-            h.push($3),
-            (async () => {
-              let t = await r.json().catch(() => {});
-              return null !== (o = t) &&
-                'object' == typeof o &&
-                'string' == typeof o.name &&
-                'string' == typeof o.pwd
-                ? $5
-                : ((c.body = t),
-                  h.push($0),
-                  new Response(JSON.stringify(_2(c)), c));
-              var o;
-            })()
-          );
+          return $2(r, h), h.push($3), new Response(_1(), c);
         },
-      },
-    });
+        '/api': {
+          POST: (r, s) => {
+            let h = [],
+              c = { status: 200, req: r, server: s, headers: h };
+            return (
+              $2(r, h),
+              h.push($3),
+              (async () => {
+                let t = await r.json().catch(() => {});
+                return null !== (o = t) &&
+                  'object' == typeof o &&
+                  'string' == typeof o.name &&
+                  'string' == typeof o.pwd
+                  ? $5
+                  : ((c.body = t),
+                    h.push($0),
+                    new Response(JSON.stringify(_2(c)), c));
+                var o;
+              })()
+            );
+          },
+        },
+      };
+    _$1.push($5);
   })(
     ...(() => {
       let r = [compiledDependencies].concat(externalDependencies);

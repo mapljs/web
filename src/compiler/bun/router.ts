@@ -62,7 +62,7 @@ export const routerToString = (): string => {
       str += '{';
       for (const method in methods) str += method + ':' + methods[method] + ',';
       str += '},';
-    } else if (Object.keys(methods).length === 0)
+    } else if (Object.keys(methods).length === 1)
       str += methods[''] + ',';
     else {
       str += constants.BUN_FN_START;
