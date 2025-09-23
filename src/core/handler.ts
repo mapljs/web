@@ -1,9 +1,9 @@
 import type { Err } from '@safe-std/error';
 import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
-import { noOp, type RequestMethod } from './utils.js';
+import type { RequestMethod } from './utils.js';
 import { isHydrating } from 'runtime-compiler/config';
-import { injectDependency, lazyDependency } from 'runtime-compiler';
+import { injectDependency, lazyDependency, noOp } from 'runtime-compiler';
 
 export type HandlerResponse<I = any> = (
   response: string,
@@ -59,8 +59,8 @@ export interface HandlerTag<out T> {
   [handlerTag]: T;
 }
 
-const JSON_HEADER = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
-const JSON_OPTIONS = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
+export const JSON_HEADER: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
+export const JSON_OPTIONS: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
 /**
  * Return JSON
  */
@@ -82,8 +82,8 @@ export const json: HandlerResponse = isHydrating
           JSON_OPTIONS() +
           ')';
 
-const HTML_HEADER = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
-const HTML_OPTIONS = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
+export const HTML_HEADER: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
+export const HTML_OPTIONS: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
 /**
  * Return HTML
  */

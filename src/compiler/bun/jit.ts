@@ -94,10 +94,10 @@ const compileToState = (router: RouterTag): void => {
       constants.CTX +
       '={status:200,req:' +
       constants.REQ +
-      ',server:' +
-      constants.SERVER_INFO +
       ',headers:' +
       constants.HEADERS +
+      ',server:' +
+      constants.SERVER_INFO +
       '};',
   );
 

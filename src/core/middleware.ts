@@ -1,8 +1,9 @@
 import type { ScopeState } from '@mapl/framework';
 import type { InferErr, InferResult } from '@safe-std/error';
 
-import { noOp, type AwaitedReturn } from './utils.js';
+import type { AwaitedReturn } from './utils.js';
 import type { Context } from './context.js';
+import { noOp } from 'runtime-compiler';
 
 export type MiddlewareHandler = (c: Context) => any;
 export type MiddlewareTypes<E, S> = [err: E, state: S];

@@ -20,5 +20,3 @@ export type RequestMethod =
   | (string & {});
 
 export type FetchFn = (req: Request) => any;
-
-export const noOp = () => '';
