@@ -5,11 +5,10 @@ import type { RequestMethod } from './utils.js';
 import { isHydrating } from 'runtime-compiler/config';
 import { injectDependency, lazyDependency, noOp } from 'runtime-compiler';
 
-export type HandlerResponse<I = any> = (
-  response: string,
-  hasContext: boolean,
-  _?: I,
-) => string;
+export interface HandlerResponse<I = any> {
+  (response: string, hasContext: boolean): string;
+  (response: string, hasContext: boolean, _: I): string;
+};
 
 export interface HandlerData extends Record<symbol, any> {
   type?: HandlerResponse;
@@ -44,12 +43,20 @@ export type InferHandler<
 export interface DefineHandler {
   <
     P extends string,
-    const D extends HandlerData | undefined = undefined,
-    C = {},
+    const D extends HandlerData,
+    C,
   >(
     path: P,
     handler: NoInfer<InferHandler<P, D, C>>,
-    dat?: D,
+    dat: D,
+  ): HandlerTag<C>;
+
+  <
+    P extends string,
+    C,
+  >(
+    path: P,
+    handler: NoInfer<InferHandler<P, undefined, C>>
   ): HandlerTag<C>;
 }
 

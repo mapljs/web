@@ -1,6 +1,7 @@
 // @ts-check
 import { cors, handle, router, staticHeaders } from '../../lib/index.js';
 import * as bodyParser from '@mapl/stnl/body-parser';
+import * as stringifier from '@mapl/stnl/stringifier';
 import { payload } from '@safe-std/error';
 import { t } from 'stnl';
 
@@ -30,7 +31,12 @@ export default router(
         ],
         [
           handle.post('/body', (c) => c.body, {
-            type: handle.json,
+            type: stringifier.json(
+              t.dict({
+                name: t.string,
+                pwd: t.string,
+              }),
+            ),
           }),
         ],
       ),

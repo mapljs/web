@@ -8,24 +8,25 @@ var core_default = (middlewares, handlers, children) => [
 ];
 let compileHandlerHook,
   compileErrorHandlerHook,
-  noOp = () => '',
-  macro$1 = (f) => [-1, f],
-  noOpMacro$1 = macro$1(noOp),
   compiledDependencies = [],
   externalDependencies = [],
   cache = {},
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
-  lazyDependency = (e, _$1) => {
-    let y = Symbol();
-    return () => (cache[y] ??= e(_$1));
+  noOp = () => '',
+  lazyDependency = (e, v) => {
+    let b = Symbol();
+    return () => (cache[b] ??= e(v));
   },
-  json$1 = noOp,
+  macro$1 = (f) => [-1, f],
+  noOpMacro$1 = macro$1(noOp),
   text = noOp,
   _ = Symbol.for('@safe-std/error'),
-  isErr = (u) => Array.isArray(u) && u[0] === _,
-  IS_ERR_FN = lazyDependency(injectExternalDependency, isErr),
-  AsyncFunction$2 = (async () => {}).constructor,
+  IS_ERR_FN = lazyDependency(
+    injectExternalDependency,
+    (u) => Array.isArray(u) && u[0] === _,
+  ),
+  AsyncFunction = (async () => {}).constructor,
   compileErrorHandler = (input, scope) =>
     (scope[3] ??= compileErrorHandlerHook(
       input,
@@ -33,14 +34,14 @@ let compileHandlerHook,
       scope[2][1],
       scope,
     )),
-  clearErrorHandler$1 = (scope) => {
+  clearErrorHandler = (scope) => {
     null != scope[2] && (scope[3] = null);
   },
   createContext = (scope) => (
-    scope[1] || ((scope[1] = !0), clearErrorHandler$1(scope)), ''
+    scope[1] || ((scope[1] = !0), clearErrorHandler(scope)), ''
   ),
   createAsyncScope = (scope) => (
-    scope[0] || ((scope[0] = !0), clearErrorHandler$1(scope)), ''
+    scope[0] || ((scope[0] = !0), clearErrorHandler(scope)), ''
   ),
   setTmp = (scope) => ((scope[4] = !0), ''),
   hydrateDependency = (group, scope, prefix) => {
@@ -53,7 +54,7 @@ let compileHandlerHook,
         ? fn(scope)
         : (injectExternalDependency(fn),
           fn.length > 0 && createContext(scope),
-          fn instanceof AsyncFunction$2 && createAsyncScope(scope),
+          fn instanceof AsyncFunction && createAsyncScope(scope),
           1 === id
             ? createContext(scope)
             : 2 === id
@@ -83,24 +84,13 @@ let compileHandlerHook,
         );
   };
 let createContextMacro$1 = macro$1(createContext),
-  macro = (f) => [-1, f];
-macro(() => ''),
-  [].push(isErr),
-  macro(
-    (scope) => (
-      scope[1] ||
-        ((scope[1] = !0),
-        ((scope) => {
-          null != scope[2] && (scope[3] = null);
-        })(scope)),
-      ''
-    ),
-  );
-let parserTag = Symbol();
+  macro = (f) => [-1, f],
+  parserTag = (macro(noOp), macro(createContext), Symbol());
 var u;
 let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
   ERROR_DEP = lazyDependency(injectExternalDependency, bodyErr),
-  string = [4];
+  string = [4],
+  dict = (required, optional) => [16, required, optional];
 var handler,
   dat,
   main_default = core_default(
@@ -114,6 +104,7 @@ var handler,
       '/api': ((r, f, dat) => ((r[2] = [(err) => err[1], dat]), r))(
         core_default(
           [
+            (dict({ name: string, pwd: string }),
             macro(
               (p) => (
                 createAsyncScope(p),
@@ -123,9 +114,16 @@ var handler,
                 createContext(p),
                 ''
               ),
-            ),
+            )),
           ],
-          [['POST', '/body', (c) => c.body, { type: json$1 }]],
+          [
+            [
+              'POST',
+              '/body',
+              (c) => c.body,
+              { type: (dict({ name: string, pwd: string }), noOp) },
+            ],
+          ],
         ),
         0,
         { type: text },
@@ -168,13 +166,13 @@ var fn;
     _$1.push({
       '/path': (r, s) => {
         let h = [],
-          c = { status: 200, req: r, server: s, headers: h };
+          c = { status: 200, req: r, headers: h, server: s };
         return $2(r, h), h.push($3), new Response(_1(), c);
       },
       '/api': {
         POST: (r, s) => {
           let h = [],
-            c = { status: 200, req: r, server: s, headers: h };
+            c = { status: 200, req: r, headers: h, server: s };
           return (
             $2(r, h),
             h.push($3),

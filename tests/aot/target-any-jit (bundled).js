@@ -6,8 +6,7 @@ var core_default = (middlewares, handlers, children) => [
 ];
 let compileHandlerHook,
   compileErrorHandlerHook,
-  macro$1 = (f) => [-1, f],
-  compiledDependencies = (macro$1(() => ''), []),
+  compiledDependencies = [],
   externalDependencies = [],
   cache = {},
   localDeps = '',
@@ -19,26 +18,26 @@ let compileHandlerHook,
   exportedDeps = '',
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
-  lazyDependency = (e, _$1) => {
-    let y = Symbol();
-    return () => (cache[y] ??= e(_$1));
+  noOp = () => '',
+  lazyDependency = (e, v) => {
+    let b = Symbol();
+    return () => (cache[b] ??= e(v));
   },
-  JSON_HEADER = lazyDependency(
-    injectDependency,
-    '["content-type","application/json"]',
-  ),
-  JSON_OPTIONS = lazyDependency(
-    injectDependency,
-    '{headers:[' + JSON_HEADER() + ']}',
-  ),
+  macro$1 = (f) => [-1, f],
+  JSON_HEADER$1 =
+    (macro$1(noOp),
+    lazyDependency(injectDependency, '["content-type","application/json"]')),
   text =
-    (lazyDependency(injectDependency, '["content-type","application/json"]'),
-    lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}'),
+    (lazyDependency(injectDependency, '{headers:[' + JSON_HEADER$1() + ']}'),
+    lazyDependency(injectDependency, '["content-type","application/json"]'),
+    lazyDependency(injectDependency, '{headers:[' + JSON_HEADER$1() + ']}'),
     (res, hasContext) =>
       'return new Response(' + res + (hasContext ? ',c)' : ')')),
   _ = Symbol.for('@safe-std/error'),
-  isErr = (u) => Array.isArray(u) && u[0] === _,
-  IS_ERR_FN = lazyDependency(injectExternalDependency, isErr),
+  IS_ERR_FN = lazyDependency(
+    injectExternalDependency,
+    (u) => Array.isArray(u) && u[0] === _,
+  ),
   AsyncFunction = (async () => {}).constructor,
   contextInit = '',
   compileErrorHandler$1 = (input, scope) =>
@@ -48,15 +47,15 @@ let compileHandlerHook,
       scope[2][1],
       scope,
     )),
-  clearErrorHandler$1 = (scope) => {
+  clearErrorHandler = (scope) => {
     null != scope[2] && (scope[3] = null);
   },
   createContext = (scope) =>
-    scope[1] ? '' : ((scope[1] = !0), clearErrorHandler$1(scope), contextInit),
+    scope[1] ? '' : ((scope[1] = !0), clearErrorHandler(scope), contextInit),
   createAsyncScope = (scope) =>
     scope[0]
       ? ''
-      : ((scope[0] = !0), clearErrorHandler$1(scope), 'return (async()=>{'),
+      : ((scope[0] = !0), clearErrorHandler(scope), 'return (async()=>{'),
   setTmp = (scope) => (scope[4] ? 't' : ((scope[4] = !0), 'let t')),
   compileGroup = (group, scope, prefix, content) => {
     null != group[2] && ((scope[2] = group[2]), (scope[3] = null));
@@ -131,19 +130,18 @@ let compileHandlerHook,
       ? '...' + injectDependency(JSON.stringify(list))
       : injectDependency(JSON.stringify(list[0]));
 macro$1(createContext);
-let macro = (f) => [-1, f];
-macro(() => ''), [].push(isErr);
-let optimizeDirectCall =
-    (macro(
-      (scope) => (
-        scope[1] ||
-          ((scope[1] = !0),
-          ((scope) => {
-            null != scope[2] && (scope[3] = null);
-          })(scope)),
-        ''
-      ),
-    ),
+let macro = (f) => [-1, f],
+  JSON_HEADER =
+    (macro(noOp),
+    lazyDependency(injectDependency, '["content-type","application/json"]')),
+  JSON_OPTIONS = lazyDependency(
+    injectDependency,
+    '{headers:[' + JSON_HEADER() + ']}',
+  ),
+  optimizeDirectCall =
+    (lazyDependency(injectDependency, '["content-type","application/json"]'),
+    lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}'),
+    macro(createContext),
     (s) =>
       'o=>Number.isInteger(o)' === s
         ? 'Number.isInteger'
@@ -271,10 +269,19 @@ let optimizeDirectCall =
 var u;
 let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
   ERROR_DEP = lazyDependency(injectExternalDependency, bodyErr),
-  string = [4];
-var required,
-  handler,
+  NUMBER_LIST = lazyDependency(
+    injectDependency,
+    '(o)=>{if(o.length>1){let s="["+o[0];for(let i=1;i<o.length;i++)s+=","+o[i];return s+"]"}return o.length===1?"["+o[0]+"]":"[]"}',
+  ),
+  BOOL_LIST = lazyDependency(
+    injectDependency,
+    '(o)=>{if(o.length>1){let s=o[0]?"[true":"[false";for(let i=1;i<o.length;i++)s+=o[i]?",true":",false";return s+"]"}return o.length===1?o[0]?"[true]":"[false]":"[]"}',
+  ),
+  string = [4],
+  dict = (required, optional) => [16, required, optional];
+var handler,
   dat,
+  a,
   h,
   headers,
   main_default = core_default(
@@ -346,8 +353,7 @@ var required,
       '/api': ((r, f, dat) => ((r[2] = [(err) => err[1], dat]), r))(
         core_default(
           [
-            ((required = { name: string, pwd: string }),
-            (h = [16, required, void 0]),
+            ((h = dict({ name: string, pwd: string })),
             macro(
               (p) =>
                 createAsyncScope(p) +
@@ -389,18 +395,44 @@ var required,
               '/body',
               (c) => c.body,
               {
-                type: (res, hasContext) =>
-                  hasContext
-                    ? 'h.push(' +
-                      JSON_HEADER() +
-                      ');return new Response(JSON.stringify(' +
-                      res +
-                      '),c)'
-                    : 'return new Response(JSON.stringify(' +
-                      res +
-                      '),' +
-                      JSON_OPTIONS() +
-                      ')',
+                type:
+                  ((a = dict({ name: string, pwd: string })),
+                  (o, s) => {
+                    let c = ((t, input) => {
+                      let id = t[0];
+                      if (0 === id || 2 === id) return '""+' + input;
+                      if (6 === id) return input + '?"true":"false"';
+                      if (10 === id) {
+                        let obj = {};
+                        for (let i = 0, list = t[1]; i < list.length; i++)
+                          obj[list[i]] = JSON.stringify(list[i]);
+                        return (
+                          injectDependency(JSON.stringify(obj)) +
+                          '[' +
+                          input +
+                          ']'
+                        );
+                      }
+                      return 14 === id
+                        ? ((id = t[1][0]),
+                          (0 === id || 2 === id
+                            ? NUMBER_LIST()
+                            : 6 === id
+                              ? BOOL_LIST()
+                              : 'JSON.stringify') +
+                            '(' +
+                            input +
+                            ')')
+                        : 'JSON.stringify(' + input + ')';
+                    })(a, o);
+                    return s
+                      ? 'h.push(' +
+                          JSON_HEADER() +
+                          ');return new Response(' +
+                          c +
+                          ',c)'
+                      : 'return new Response(' + c + ',' + JSON_OPTIONS() + ')';
+                  }),
               },
             ],
           ],
@@ -713,8 +745,8 @@ var target_any_jit__built__default = {
           Function(
             (() => {
               let e = '_,';
-              for (let v = 0; v < externalDependencies.length; v++)
-                e += '_' + (v + 1) + ',';
+              for (let y = 0; y < externalDependencies.length; y++)
+                e += '_' + (y + 1) + ',';
               return e;
             })(),
             '{var $' +
