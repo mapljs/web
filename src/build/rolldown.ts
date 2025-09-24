@@ -8,11 +8,34 @@ import { evaluateToString } from 'runtime-compiler/jit';
 import { clear } from 'runtime-compiler';
 
 export interface MaplBuildOptions {
+  /**
+   * App entry point
+   */
   input: string;
+
+  /**
+   * Output options
+   */
   output: Omit<OutputOptions, 'dir'> & { file: string };
+
+  /**
+   * App build options
+   */
   buildOptions?: Omit<BuildOptions, 'input' | 'output'>;
+
+  /**
+   * App output build options
+   */
   finalizeOptions?: Omit<BuildOptions, 'input' | 'output'>;
+
+  /**
+   * Whether to emit asynchronous output
+   */
   asynchronous?: boolean,
+
+  /**
+   * Build target
+   */
   target?: 'bun';
 }
 

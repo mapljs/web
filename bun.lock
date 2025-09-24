@@ -121,7 +121,7 @@
 
     "@mapl/web": ["@mapl/web@0.3.0-beta.2", "", { "dependencies": { "@mapl/framework": "^0.5.2", "@mapl/router": "^0.6.2", "@safe-std/error": "^1.0.1", "runtime-compiler": "^1.2.5" }, "optionalDependencies": { "secure-headers": "^0.0.6" } }, "sha512-x/ILSirghbArdx8zUv4mQq3VIvWOtj2bf8V713rGm35fhTkoYDRm+mSwqIDrlbjgIdF4kaud039OjUIc2V3K+Q=="],
 
-    "@mapl/web_dev": ["@mapl/web@file:lib", { "dependencies": { "@mapl/framework": "^0.5.2", "@mapl/router": "^0.6.2", "@safe-std/error": "^1.0.1", "runtime-compiler": "^1.2.5" }, "optionalDependencies": { "secure-headers": "^0.0.6" } }],
+    "@mapl/web_dev": ["@mapl/web@file:lib", { "dependencies": { "@mapl/framework": "^0.5.2", "@mapl/router": "^0.6.2", "@safe-std/error": "^1.0.1", "runtime-compiler": "^1.2.5" } }],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.0.3", "", { "dependencies": { "@emnapi/core": "^1.4.5", "@emnapi/runtime": "^1.4.5", "@tybys/wasm-util": "^0.10.0" } }, "sha512-rZxtMsLwjdXkMUGC3WwsPwLNVqVqnTJT6MNIB6e+5fhMcSCPP0AOsNWuMQ5mdCq6HNjs/ZeWAEchpqeprqBD2Q=="],
 

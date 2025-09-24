@@ -32,11 +32,13 @@ export default {
 ## AOT compilation (experimental)
 Build `@mapl/web` to improve startup time.
 
-Setup:
+### Rolldown
+Dependencies: `rolldown`, `@rollup/plugin-terser`.
 ```ts
 // main.ts
 import { handle, layer, router } from '@mapl/web';
 
+// Main app
 export default router(
   [
     layer.tap((c) => {
@@ -53,6 +55,9 @@ export default router(
   },
 );
 
+// Additional options
+export const serveOptions = {};
+
 // build.ts
 import terser from '@rollup/plugin-terser';
 import build from '@mapl/web/build/rolldown';
@@ -66,7 +71,7 @@ build({
     plugins: [
       terser({
         compress: {
-          // passes should be >= 2, recommend 3
+          // passes should be >= 2
           passes: 3,
         },
         mangle: false,
