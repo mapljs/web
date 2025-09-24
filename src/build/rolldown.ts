@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { build, watch, type BuildOptions, type OutputOptions, type RolldownWatcher, type WatcherOptions } from 'rolldown';
 
 import { compileToExportedDependency as generic } from '../compiler/jit.js';
@@ -6,7 +6,7 @@ import { compileToExportedDependency as bun } from '../compiler/bun/jit.js';
 
 import { evaluateToString } from 'runtime-compiler/jit';
 import { clear } from 'runtime-compiler';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 
 export interface MaplBuildOptions {
   /**
@@ -17,7 +17,7 @@ export interface MaplBuildOptions {
   /**
    * Output options
    */
-  output: Omit<OutputOptions, 'dir'> & { file: string };
+  output: Omit<OutputOptions, 'file'> & { dir: string };
 
   /**
    * App build options
@@ -40,27 +40,47 @@ export interface MaplBuildOptions {
   target?: 'bun';
 }
 
+export interface MaplDevOptions extends Omit<MaplBuildOptions, 'finalizeOptions'> {
+  /**
+   * File watcher option
+   */
+  watcherOptions?: WatcherOptions
+}
+
+export interface MaplAllOptions {
+  common: MaplDevOptions & MaplBuildOptions;
+  dev?: Partial<MaplDevOptions>,
+  build?: Partial<MaplBuildOptions>
+};
+
 export default async (opts: MaplBuildOptions): Promise<void> => {
   const output = opts.output;
-  const input = resolve(opts.input);
+  const outputFile = join(output.dir, 'server-exports.js');
+  const tmpFile = resolve(output.dir, 'tmp.js');
 
+  // Bundle input to tmpFile
   await build({
     ...opts.buildOptions,
-    input,
+    input: opts.input,
     output: {
-      file: output.file,
+      file: tmpFile,
     },
   });
 
-  const appMod = await import(resolve(output.file));
+  // calculate tmpFile JIT content
+  const appMod = await import(tmpFile);
   const HANDLER = (opts.target === 'bun' ? bun : generic)(appMod.default);
 
+  // Write JIT content to output
+  try {
+    mkdirSync(output.dir, { recursive: true });
+  } catch {}
   writeFileSync(
-    output.file,
+    outputFile,
     `
       import 'runtime-compiler/hydrate-loader';
 
-      import * as app from ${JSON.stringify(input)};
+      import * as app from ${JSON.stringify(tmpFile)};
       import hydrateRouter from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}aot';
       hydrateRouter(app.default);
 
@@ -77,28 +97,33 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
   );
   clear();
 
+  // Bundle output
   await build({
     ...(opts.finalizeOptions ?? opts.buildOptions),
-    input: output.file,
-    output,
+    input: outputFile,
+    output: {
+      ...output,
+      file: outputFile,
+      dir: undefined
+    },
   });
 };
-
-export interface MaplDevOptions extends Omit<MaplBuildOptions, 'finalizeOptions'> {
-  watcherOptions?: WatcherOptions
-}
 
 export const dev = (opts: MaplDevOptions): RolldownWatcher => {
   const output = opts.output;
   const input = resolve(opts.input);
-  const outputFile = resolve(output.file);
+  const tmpFile = join(output.dir, 'tmp.js');
 
   const compileResult = opts.asynchronous
     ? 'await compileToHandler(app.default)'
     : 'compileToHandlerSync(app.default)';
 
+  // Write JIT code to tmpFile
+  try {
+    mkdirSync(output.dir, { recursive: true });
+  } catch {}
   writeFileSync(
-    outputFile,
+    tmpFile,
     `
       import * as app from ${JSON.stringify(input)};
       import { compileToHandler${opts.asynchronous ? '' : 'Sync'} } from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}jit';
@@ -110,19 +135,13 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
     `,
   );
 
-  // Add output file to exclude
-  const watcher = opts.watcherOptions ??= {};
-  const exclude = watcher.exclude;
-  watcher.exclude = exclude == null
-    ? outputFile
-    : !Array.isArray(exclude)
-      ? [exclude, outputFile]
-      : exclude.concat(outputFile);
-
+  // Bundle tmpFile to outputFile
   return watch({
     ...opts.buildOptions,
-    input: outputFile,
-    output,
-    watch: watcher
+    input: tmpFile,
+    output: {
+      file: join(output.dir, 'server-exports.js'),
+      dir: undefined,
+    }
   });
 };

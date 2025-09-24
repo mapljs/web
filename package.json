@@ -27,6 +27,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@mapl/stnl": "^0.1.2",
+    "@mapl/web_dev": "./lib",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/bun": "^1.2.10",
     "mitata": "^1.0.34",
@@ -36,7 +37,7 @@
     "secure-headers": "^0.0.6",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
-    "@mapl/web_dev": "./lib"
+    "winter-compat": "^0.1.8"
   },
   "trustedDependencies": [
     "@biomejs/biome"

@@ -22,6 +22,7 @@
         "secure-headers": "^0.0.6",
         "tsx": "^4.19.3",
         "typescript": "^5.8.3",
+        "winter-compat": "^0.1.8",
       },
     },
   },
@@ -325,7 +326,11 @@
 
     "typescript": ["typescript@5.8.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="],
 
+    "uWebSockets.js": ["uWebSockets.js@github:uNetworking/uWebSockets.js#cfc9a40", {}, "uNetworking-uWebSockets.js-cfc9a40"],
+
     "undici-types": ["undici-types@7.8.0", "", {}, "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="],
+
+    "winter-compat": ["winter-compat@0.1.8", "", { "optionalDependencies": { "uWebSockets.js": "uNetworking/uWebSockets.js#v20.52.0" } }, "sha512-vsgT0prgd5yN4dObNO6PnfE/FdB7BBS183y5phLaKBPRWLzpa8EL//hEj3wGRxDIvhjXO83Khzt3/NJb2lRjgw=="],
 
     "@oxc-transform/binding-wasm32-wasi/@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@0.2.11", "", { "dependencies": { "@emnapi/core": "^1.4.3", "@emnapi/runtime": "^1.4.3", "@tybys/wasm-util": "^0.9.0" } }, "sha512-9DPkXtvHydrcOsopiYpUgPHpmj0HWZKMUnL2dZqpvC42lsratuBG06V5ipyno0fUek5VlFsNQ+AcFATSrJXgMA=="],
 
