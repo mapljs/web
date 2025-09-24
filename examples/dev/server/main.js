@@ -1,4 +1,6 @@
 // @ts-check
 import options from "../build/server-exports.js";
-const server = Bun.serve(options);
-console.log("Server started at", server.url.href);
+import { serve } from "winter-compat";
+
+// Runtime agnostic server (You can change to whatever u want)
+serve(options.fetch, options);

@@ -6,6 +6,7 @@
         "@mapl/web": "../../lib",
         "@rollup/plugin-terser": "^0.4.4",
         "rolldown": "^1.0.0-beta.40",
+        "winter-compat": "^0.1.8",
       },
     },
   },
@@ -99,5 +100,9 @@
     "terser": ["terser@5.44.0", "", { "dependencies": { "@jridgewell/source-map": "^0.3.3", "acorn": "^8.15.0", "commander": "^2.20.0", "source-map-support": "~0.5.20" }, "bin": { "terser": "bin/terser" } }, "sha512-nIVck8DK+GM/0Frwd+nIhZ84pR/BX7rmXMfYwyg+Sri5oGVE99/E3KvXqpC2xHFxyqXyGHTKBSioxxplrO4I4w=="],
 
     "tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
+    "uWebSockets.js": ["uWebSockets.js@github:uNetworking/uWebSockets.js#cfc9a40", {}, "uNetworking-uWebSockets.js-cfc9a40"],
+
+    "winter-compat": ["winter-compat@0.1.8", "", { "optionalDependencies": { "uWebSockets.js": "uNetworking/uWebSockets.js#v20.52.0" } }, "sha512-vsgT0prgd5yN4dObNO6PnfE/FdB7BBS183y5phLaKBPRWLzpa8EL//hEj3wGRxDIvhjXO83Khzt3/NJb2lRjgw=="],
   }
 }

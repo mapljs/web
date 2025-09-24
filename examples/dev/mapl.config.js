@@ -10,7 +10,6 @@ export const buildOptions = {
     output: {
       dir: "./build",
     },
-    target: "bun",
   },
 
   // Use terser for production build
