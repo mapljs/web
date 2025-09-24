@@ -55,7 +55,7 @@ export default router(
 
 // build.ts
 import terser from '@rollup/plugin-terser';
-import build from '@mapl/web_dev/build/rolldown';
+import build from '@mapl/web/build/rolldown';
 
 build({
   input: INPUT,
@@ -66,6 +66,7 @@ build({
     plugins: [
       terser({
         compress: {
+          // passes should be >= 2, recommend 3
           passes: 3,
         },
         mangle: false,
