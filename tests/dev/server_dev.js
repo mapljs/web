@@ -1,10 +1,13 @@
-//#region server_dev.js
+//#region ../../node_modules/@mapl/web_dev/core/index.js
 var core_default = (middlewares, handlers, children) => [
 	middlewares,
 	handlers,
 	,
 	children
 ];
+
+//#endregion
+//#region ../../node_modules/runtime-compiler/index.js
 let compiledDependencies = [];
 let externalDependencies = [];
 let cache = {};
@@ -43,27 +46,43 @@ let lazyDependency = (e, v) => {
 	return () => cache[b] ??= e(v);
 };
 let evaluateCode = () => `{var $` + localDeps + (asyncDeps === `` ? `;_.push(` : `;[` + asyncDeps + `]=await Promise.all([` + asyncDeps + `]);_.push(`) + exportedDeps + `)}`;
-(async () => {}).constructor;
+let AsyncFunction$1 = (async () => {}).constructor;
+
+//#endregion
+//#region ../../node_modules/@mapl/web_dev/core/middleware.js
 let macro = (f) => [-1, f];
-macro(noOp);
+let noOpMacro = macro(noOp);
 let attach = (prop, f) => [
 	1,
 	f,
 	prop
 ];
-let JSON_HEADER = lazyDependency(injectDependency, `["content-type","application/json"]`);
-lazyDependency(injectDependency, `{headers:[` + JSON_HEADER() + `]}`);
-lazyDependency(injectDependency, `["content-type","application/json"]`);
-lazyDependency(injectDependency, `{headers:[` + JSON_HEADER() + `]}`);
-let text = (res, hasContext) => `return new Response(` + res + (hasContext ? `,c)` : `)`);
+
+//#endregion
+//#region ../../node_modules/runtime-compiler/config.js
+let isHydrating = false;
+
+//#endregion
+//#region ../../node_modules/@mapl/web_dev/core/handler.js
+let JSON_HEADER = isHydrating ? noOp : lazyDependency(injectDependency, `["content-type","application/json"]`);
+let JSON_OPTIONS = isHydrating ? noOp : lazyDependency(injectDependency, `{headers:[` + JSON_HEADER() + `]}`);
+let HTML_HEADER = isHydrating ? noOp : lazyDependency(injectDependency, `["content-type","application/json"]`);
+let HTML_OPTIONS = isHydrating ? noOp : lazyDependency(injectDependency, `{headers:[` + JSON_HEADER() + `]}`);
+let text = isHydrating ? noOp : (res, hasContext) => `return new Response(` + res + (hasContext ? `,c)` : `)`);
 let get = (path, handler, dat) => [
 	`GET`,
 	path,
 	handler,
 	dat
 ];
+
+//#endregion
+//#region ../../node_modules/@safe-std/error/index.js
 let _ = Symbol.for(`@safe-std/error`);
 let isErr = (u) => Array.isArray(u) && u[0] === _;
+
+//#endregion
+//#region ../../node_modules/@mapl/framework/index.js
 let IS_ERR_FN = lazyDependency(injectExternalDependency, isErr);
 let createArgSet = (args) => {
 	let len = args.length;
@@ -90,19 +109,34 @@ let compileErrorHandler$1 = (input, scope) => scope[3] ??= compileErrorHandlerHo
 let clearErrorHandler = (scope) => {
 	scope[2] != null && (scope[3] = null);
 };
-let createContext = (scope) => {
+let createContext = isHydrating ? (scope) => {
+	if (!scope[1]) {
+		scope[1] = true;
+		clearErrorHandler(scope);
+	}
+	return ``;
+} : (scope) => {
 	if (scope[1]) return ``;
 	scope[1] = true;
 	clearErrorHandler(scope);
 	return contextInit;
 };
-let createAsyncScope = (scope) => {
+let createAsyncScope = isHydrating ? (scope) => {
+	if (!scope[0]) {
+		scope[0] = true;
+		clearErrorHandler(scope);
+	}
+	return ``;
+} : (scope) => {
 	if (scope[0]) return ``;
 	scope[0] = true;
 	clearErrorHandler(scope);
 	return `return (async()=>{`;
 };
-let setTmp = (scope) => {
+let setTmp = isHydrating ? (scope) => {
+	scope[4] = true;
+	return ``;
+} : (scope) => {
 	if (scope[4]) return `t`;
 	scope[4] = true;
 	return `let t`;
@@ -141,14 +175,29 @@ let compileGroup = (group, scope, prefix, content) => {
 	let childGroups = group[3];
 	if (childGroups != null) for (let childPrefix in childGroups) compileGroup(childGroups[childPrefix], scope.slice(), childPrefix === `/` ? prefix : prefix + childPrefix, content);
 };
-macro(createContext);
+
+//#endregion
+//#region ../../node_modules/@mapl/web_dev/utils/cors.js
+let createContextMacro = macro(createContext);
+
+//#endregion
+//#region api.ts
 var api_default = core_default([], [get("/", () => "Hi", { type: text })]);
+
+//#endregion
+//#region server.ts
 var server_default = core_default([attach("id", () => performance.now())], [get("/path", (c) => "" + c.id, { type: text })], { "/api": api_default });
+
+//#endregion
+//#region ../../node_modules/@mapl/router/path/index.js
 let countParams = (path) => {
 	let cnt = path.endsWith(`**`) ? 2 : 0;
 	for (let i = path.length - cnt; (i = path.lastIndexOf(`*`, i - 1)) !== -1; cnt++);
 	return cnt;
 };
+
+//#endregion
+//#region ../../node_modules/runtime-compiler/jit.js
 let evaluateSync = () => {
 	try {
 		Function(externalDependencyNames(), evaluateCode())(compiledDependencies, ...externalDependencies);
@@ -156,6 +205,9 @@ let evaluateSync = () => {
 		clear();
 	}
 };
+
+//#endregion
+//#region ../../node_modules/@mapl/web/compiler/jit.js
 let RES404 = injectDependency(`new Response(null,{status:404})`);
 let RES400 = injectDependency(`new Response(null,{status:400})`);
 let paramArgs = createArgSet(new Array(16).fill(0).map((_1, i) => `q` + i));
@@ -173,6 +225,9 @@ let compileErrorHandler = (input, fn, dat, scope) => {
 	}
 	return compileReturn(dat, fn instanceof AsyncFunction, scope[0], scope[1], call + `)`);
 };
+
+//#endregion
+//#region ../../node_modules/@mapl/web/compiler/bun/router.js
 let ROUTES;
 let resetRouter = () => {
 	ROUTES = {};
@@ -213,6 +268,9 @@ let routerToString = () => {
 	}
 	return str + `}`;
 };
+
+//#endregion
+//#region ../../node_modules/@mapl/web/compiler/bun/jit.js
 let compileToState = (router) => {
 	resetRouter();
 	setCompileHandlerHook((handler, prevContent, path, scope) => {
@@ -249,6 +307,13 @@ let compileToHandlerSync = (router) => {
 	evaluateSync();
 	return getDependency(id);
 };
-Bun.serve({ routes: compileToHandlerSync(server_default) });
 
 //#endregion
+//#region server_dev.js
+var server_dev_default = {
+	routes: compileToHandlerSync(server_default),
+	...void 0
+};
+
+//#endregion
+export { server_dev_default as default };

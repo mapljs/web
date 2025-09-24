@@ -70,7 +70,7 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
       ${opts.asynchronous ? 'await(async' : '('}${evaluateToString()})(...hydrate());
       ${
         opts.target === 'bun'
-          ? `Bun.serve({ routes: getDependency(${HANDLER}), ...app.serveOptions });`
+          ? `export default { routes: getDependency(${HANDLER}), ...app.serveOptions };`
           : `export default { fetch: getDependency(${HANDLER}), ...app.serveOptions };`
       }
     `,
@@ -104,7 +104,7 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
       import { compileToHandler${opts.asynchronous ? '' : 'Sync'} } from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}jit';
 
       ${opts.target === 'bun'
-      ? `Bun.serve({ routes: ${compileResult}, ...app.serveOptions });`
+      ? `export default { routes: ${compileResult}, ...app.serveOptions };`
       : `export default { fetch: ${compileResult}, ...app.serveOptions };`
     }
     `,
