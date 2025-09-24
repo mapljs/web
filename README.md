@@ -33,4 +33,9 @@ export default {
 Build `@mapl/web` to improve startup time.
 
 ### Rolldown
-See in `examples/dev`.
+Try it out using:
+```sh
+npm install -g degit
+degit github:mapljs/web/examples/generic
+```
+And change `@mapl/web` version in `package.json`.
