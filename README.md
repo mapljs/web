@@ -14,7 +14,7 @@ const app = router(
 
   // Routes
   [
-    handle.get('/path', (c) => c.id, {
+    handle.get('/path', (c) => '' + c.id, {
       // Response wrapper
       type: handle.text
     })
@@ -46,7 +46,11 @@ export default router(
     }),
     layer.attach('id', () => performance.now()),
   ],
-  [handle.any('/path', (c) => c.id)],
+  [
+    handle.any('/path', (c) => '' + c.id, {
+      type: handle.text
+    })
+  ],
   {
     '/api': router(
       [layer.parse('body', async (c) => c.req.text())],
@@ -55,14 +59,11 @@ export default router(
   },
 );
 
-// Additional options
-export const serveOptions = {};
-
 // build.ts
 import terser from '@rollup/plugin-terser';
 import build from '@mapl/web/build/rolldown';
 
-build({
+await build({
   input: INPUT,
   output: {
     file: OUTPUT,
