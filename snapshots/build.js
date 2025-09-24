@@ -1,8 +1,8 @@
 // @ts-check
 // Currently works with terser
 import app from './main.js';
-import { compileToExportedDependency } from '@mapl/web/compiler/jit';
-import { compileToExportedDependency as bunCompileToExportedDependency } from '@mapl/web/compiler/bun/jit';
+import { compileToExportedDependency } from '@mapl/web_dev/compiler/jit.js';
+import { compileToExportedDependency as bunCompileToExportedDependency } from '@mapl/web_dev/compiler/bun/jit.js';
 
 import terser from '@rollup/plugin-terser';
 
@@ -47,7 +47,7 @@ const bundle = async (target, content) => {
   const code = await bundle(
     'target-any-jit',
     `import app from './main.js';
-import { compileToHandlerSync } from '../../lib/compiler/jit.js';
+import { compileToHandlerSync } from '../lib/compiler/jit.js';
 
 export default {
   fetch: compileToHandlerSync(app)
@@ -61,7 +61,7 @@ export default {
   const code = await bundle(
     'target-bun-jit',
     `import app from './main.js';
-import { compileToHandlerSync } from '../../lib/compiler/bun/jit.js';
+import { compileToHandlerSync } from '../lib/compiler/bun/jit.js';
 
 Bun.serve({
   routes: compileToHandlerSync(app)
@@ -80,7 +80,7 @@ Bun.serve({
     `import 'runtime-compiler/hydrate-loader';
 
 import app from './main.js';
-import hydrateRouter from '../../lib/compiler/aot.js';
+import hydrateRouter from '../lib/compiler/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
@@ -104,7 +104,7 @@ export default {
     `import 'runtime-compiler/hydrate-loader';
 
 import app from './main.js';
-import hydrateRouter from '../../lib/compiler/bun/aot.js';
+import hydrateRouter from '../lib/compiler/bun/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
@@ -119,4 +119,4 @@ Bun.serve({
   console.log('bun aot - minified size:', code.length);
 }
 
-await Bun.$`bun biome format --write ./tests/aot`;
+await Bun.$`bun biome format --write ${import.meta.dir}`;

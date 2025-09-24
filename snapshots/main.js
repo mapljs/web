@@ -1,5 +1,5 @@
 // @ts-check
-import { cors, handle, router, staticHeaders } from '../../lib/index.js';
+import { cors, handle, router, staticHeaders } from '@mapl/web_dev';
 import * as bodyParser from '@mapl/stnl/body-parser';
 import * as stringifier from '@mapl/stnl/stringifier';
 import { payload } from '@safe-std/error';

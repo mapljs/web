@@ -8,7 +8,7 @@ import { injectDependency, lazyDependency, noOp } from 'runtime-compiler';
 export interface HandlerResponse<I = any> {
   (response: string, hasContext: boolean): string;
   (response: string, hasContext: boolean, _: I): string;
-};
+}
 
 export interface HandlerData extends Record<symbol, any> {
   type?: HandlerResponse;
@@ -41,22 +41,15 @@ export type InferHandler<
 > = Handler<InferPath<P>, Required<C>, InferReturn<D>>;
 
 export interface DefineHandler {
-  <
-    P extends string,
-    const D extends HandlerData,
-    C,
-  >(
+  <P extends string, const D extends HandlerData, C>(
     path: P,
     handler: NoInfer<InferHandler<P, D, C>>,
     dat: D,
   ): HandlerTag<C>;
 
-  <
-    P extends string,
-    C,
-  >(
+  <P extends string, C>(
     path: P,
-    handler: NoInfer<InferHandler<P, undefined, C>>
+    handler: NoInfer<InferHandler<P, undefined, C>>,
   ): HandlerTag<C>;
 }
 
@@ -66,8 +59,12 @@ export interface HandlerTag<out T> {
   [handlerTag]: T;
 }
 
-export const JSON_HEADER: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
-export const JSON_OPTIONS: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
+export const JSON_HEADER: () => string = isHydrating
+  ? noOp
+  : lazyDependency(injectDependency, '["content-type","application/json"]');
+export const JSON_OPTIONS: () => string = isHydrating
+  ? noOp
+  : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
 /**
  * Return JSON
  */
@@ -89,8 +86,12 @@ export const json: HandlerResponse = isHydrating
           JSON_OPTIONS() +
           ')';
 
-export const HTML_HEADER: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '["content-type","application/json"]');
-export const HTML_OPTIONS: () => string = isHydrating ? noOp : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
+export const HTML_HEADER: () => string = isHydrating
+  ? noOp
+  : lazyDependency(injectDependency, '["content-type","application/json"]');
+export const HTML_OPTIONS: () => string = isHydrating
+  ? noOp
+  : lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}');
 /**
  * Return HTML
  */
@@ -106,11 +107,7 @@ export const html: HandlerResponse<BodyInit> = isHydrating
           ',' +
           constants.CTX +
           ')'
-        : 'return new Response(' +
-          res +
-          ',' +
-          HTML_OPTIONS() +
-          ')';
+        : 'return new Response(' + res + ',' + HTML_OPTIONS() + ')';
 
 /**
  * Return a body init

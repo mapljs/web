@@ -54,51 +54,24 @@ export default router(
 );
 
 // build.ts
-import app from './main.ts';
-import { compileToDependency } from '@mapl/web/compiler/jit';
-import { evaluateToString } from "runtime-compiler/jit";
-
-import { rolldown } from "rolldown";
 import terser from '@rollup/plugin-terser';
+import build from '@mapl/web_dev/build/rolldown';
 
-import { writeFileSync } from "node:fs";
-
-// Output file
-const OUTPUT = "./index.js";
-const HANDLER = compileToDependency(app);
-
-writeFileSync(
-  OUTPUT,
-  `import 'runtime-compiler/hydrate-loader';
-
-import app from './main.js';
-import hydrateRouter from '@mapl/web/compiler/aot';
-hydrateRouter(app);
-
-import { hydrate } from 'runtime-compiler/hydrate';
-(${evaluateToString()})(...hydrate());
-
-import { getDependency } from 'runtime-compiler';
-export default {
-  fetch: getDependency(${HANDLER})
-};`,
-);
-const input = await rolldown({
-  input: ENTRY,
-  plugins: [
-    terser({
-      module: true,
-      mangle: false,
-      compress: {
-        // passes should be at least 2, recommend 3 - 5
-        passes: 3,
-      },
-    }),
-  ],
-});
-await input.write({
-  file: ENTRY,
-  inlineDynamicImports: true,
+build({
+  input: INPUT,
+  output: {
+    file: OUTPUT,
+  },
+  finalizeOptions: {
+    plugins: [
+      terser({
+        compress: {
+          passes: 3,
+        },
+        mangle: false,
+      }),
+    ],
+  },
 });
 ```
 As of rn only `terser` can DCE `@mapl/web` patterns.

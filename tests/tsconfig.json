@@ -12,11 +12,6 @@
     // Best practices
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true,
-    // Paths
-    "paths": {
-      "@mapl/web": ["../lib/index"],
-      "@mapl/web/*": ["../lib/*"]
-    }
+    "skipLibCheck": true
   }
 }

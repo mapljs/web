@@ -61,11 +61,15 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
       }),
     ),
   )
-  .then(() => {
+  .then(async () => {
     delete pkg.trustedDependencies;
     delete pkg.devDependencies;
     delete pkg.scripts;
 
-    Bun.write(LIB + '/package.json', JSON.stringify(pkg));
-    cp(ROOT, LIB, 'README.md');
+    await Promise.all([
+      Bun.write(LIB + '/package.json', JSON.stringify(pkg)),
+      cp(ROOT, LIB, 'README.md'),
+    ]);
+
+    await Bun.$`cd ${import.meta.dir + '/..'} && bun update @mapl/web_dev`;
   });

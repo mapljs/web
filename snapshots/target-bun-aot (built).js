@@ -1,7 +1,7 @@
 import 'runtime-compiler/hydrate-loader';
 
 import app from './main.js';
-import hydrateRouter from '../../lib/compiler/aot.js';
+import hydrateRouter from '../lib/compiler/bun/aot.js';
 hydrateRouter(app);
 
 import { hydrate } from 'runtime-compiler/hydrate';
@@ -22,15 +22,18 @@ import { hydrate } from 'runtime-compiler/hydrate';
         typeof o.pwd === 'string';
     })(),
     $5 = ['content-type', 'application/json'],
-    $6 = (r) => {
-      let u = r.url,
-        s = u.indexOf('/', 12) + 1,
-        e = u.indexOf('?', s),
-        p = e === -1 ? u.slice(s) : u.slice(s, e);
-      if (r.method === 'POST') {
-        if (p === 'api') {
+    $6 = {
+      '/path': (r, s) => {
+        let h = [],
+          c = { status: 200, req: r, headers: h, server: s };
+        $2(r, h);
+        h.push($3);
+        return new Response(_1(), c);
+      },
+      '/api': {
+        POST: (r, s) => {
           let h = [],
-            c = { status: 200, req: r, headers: h };
+            c = { status: 200, req: r, headers: h, server: s };
           $2(r, h);
           h.push($3);
           return (async () => {
@@ -42,21 +45,13 @@ import { hydrate } from 'runtime-compiler/hydrate';
             h.push($5);
             return new Response(JSON.stringify(_4(c)), c);
           })();
-        }
-      }
-      if (p === 'path') {
-        let h = [],
-          c = { status: 200, req: r, headers: h };
-        $2(r, h);
-        h.push($3);
-        return new Response(_1(), c);
-      }
-      return $2;
+        },
+      },
     };
   _.push($6);
 })(...hydrate());
 
 import { getDependency } from 'runtime-compiler';
-export default {
-  fetch: getDependency(0),
-};
+Bun.serve({
+  routes: getDependency(0),
+});
