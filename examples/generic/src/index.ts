@@ -1,5 +1,5 @@
 import { router, handle, layer } from '@mapl/web';
-import api from './api.js';
+import api from './api.ts';
 
 export default router(
   // Middlewares

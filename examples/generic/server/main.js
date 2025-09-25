@@ -1,6 +1,8 @@
 // @ts-check
 import options from "../build/server-exports.js";
-import { serve } from "winter-compat";
+import serveOptions from "./options.js";
+import { serve } from "winter-compat/node";
 
-// Runtime agnostic server (You can change to whatever u want)
-serve(options.fetch, options);
+serve(options.fetch, serveOptions).then(() => {
+  console.log("Server started at port 3000");
+});

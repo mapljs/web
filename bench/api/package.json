@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "scripts": {
-    "perf": "tsx --expose-gc --allow-natives-syntax perf.ts"
-  }
-}

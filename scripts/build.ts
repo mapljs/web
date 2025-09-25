@@ -70,6 +70,4 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
       Bun.write(LIB + '/package.json', JSON.stringify(pkg)),
       cp(ROOT, LIB, 'README.md'),
     ]);
-
-    await Bun.$`cd ${import.meta.dir + '/..'} && bun update @mapl/web_dev`;
   });

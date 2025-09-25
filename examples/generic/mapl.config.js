@@ -1,8 +1,7 @@
-// @ts-check
 import terser from "@rollup/plugin-terser";
 
 /**
- * @type {import("@mapl/web_dev/build/rolldown").MaplAllOptions}
+ * @type {import("@mapl/web/build/rolldown").MaplAllOptions}
  */
 export const buildOptions = {
   common: {
@@ -19,7 +18,7 @@ export const buildOptions = {
         compress: {
           passes: 3,
         },
-        mangle: false,
+        toplevel: true,
       }),
     },
   },
