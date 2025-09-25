@@ -1,6 +1,5 @@
 // @ts-check
 import child_process from "node:child_process";
-import serveOptions from "./options.js";
 
 /**
  * @type {import("node:child_process").ChildProcess | undefined}
