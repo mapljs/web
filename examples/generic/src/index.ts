@@ -1,18 +1,48 @@
-import { router, handle, layer } from '@mapl/web';
-import api from './api.ts';
+import { cors, handle, router, staticHeaders } from "@mapl/web_dev";
+import * as bodyParser from "@mapl/stnl/body-parser";
+import * as stringifier from "@mapl/stnl/stringifier";
+import { payload } from "@safe-std/error";
+import { t } from "stnl";
 
 export default router(
-  // Middlewares
-  [ layer.attach('id', () => performance.now()) ],
-
-  // Routes
   [
-    handle.get('/path', (c) => '' + c.id, {
-      // Response wrapper
-      type: handle.text
-    })
+    cors.init("*", [cors.maxAge(60000)]),
+    staticHeaders({
+      "x-powered-by": "@mapl/web",
+    }),
   ],
-
-  // Subrouters
-  { '/api': api }
+  [
+    handle.any("/path", () => "" + performance.now(), {
+      type: handle.text,
+    }),
+  ],
+  {
+    "/api": handle.error(
+      router(
+        [
+          bodyParser.json(
+            "body",
+            t.dict({
+              name: t.string,
+              pwd: t.string,
+            }),
+          ),
+        ],
+        [
+          handle.post("/body", (c) => c.body, {
+            type: stringifier.json(
+              t.dict({
+                name: t.string,
+                pwd: t.string,
+              }),
+            ),
+          }),
+        ],
+      ),
+      (err) => payload(err),
+      {
+        type: handle.text,
+      },
+    ),
+  },
 );
