@@ -141,10 +141,11 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
       import { ${opts.asynchronous ? 'compileToHandler' : 'compileToHandlerSync'} } from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}jit';
 
       export default {
-        ${opts.target === 'bun' ? 'routes' : 'fetch'}: ${opts.asynchronous
-      ? 'await compileToHandler(app)'
-      : 'compileToHandlerSync(app)'
-    }
+        ${opts.target === 'bun' ? 'routes' : 'fetch'}: ${
+          opts.asynchronous
+            ? 'await compileToHandler(app)'
+            : 'compileToHandlerSync(app)'
+        }
       };
     `,
   );
@@ -156,6 +157,6 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
       ...output,
       file: outputFile,
       dir: undefined,
-    }
+    },
   });
 };
