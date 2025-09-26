@@ -1,27 +1,27 @@
-import { cors, handle, router, staticHeaders } from "@mapl/web_dev";
-import * as bodyParser from "@mapl/stnl/body-parser";
-import * as stringifier from "@mapl/stnl/stringifier";
-import { payload } from "@safe-std/error";
-import { t } from "stnl";
+import { cors, handle, router, staticHeaders } from '@mapl/web';
+import * as bodyParser from '@mapl/stnl/body-parser';
+import * as stringifier from '@mapl/stnl/stringifier';
+import { payload } from '@safe-std/error';
+import { t } from 'stnl';
 
 export default router(
   [
-    cors.init("*", [cors.maxAge(60000)]),
+    cors.init('*', [cors.maxAge(60000)]),
     staticHeaders({
-      "x-powered-by": "@mapl/web",
+      'x-powered-by': '@mapl/web',
     }),
   ],
   [
-    handle.any("/path", () => "" + performance.now(), {
+    handle.any('/path', () => '' + performance.now(), {
       type: handle.text,
     }),
   ],
   {
-    "/api": handle.error(
+    '/api': handle.error(
       router(
         [
           bodyParser.json(
-            "body",
+            'body',
             t.dict({
               name: t.string,
               pwd: t.string,
@@ -29,7 +29,7 @@ export default router(
           ),
         ],
         [
-          handle.post("/body", (c) => c.body, {
+          handle.post('/body', (c) => c.body, {
             type: stringifier.json(
               t.dict({
                 name: t.string,

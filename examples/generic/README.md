@@ -10,6 +10,12 @@
 - `mapl.config.js`: Mapl build config.
 
 ```sh
+# Install build dependencies
+npm i @mapl/web rolldown @rollup/plugin-terser
+
+# Request validator and response serializer
+npm i @mapl/stnl stnl
+
 # Start development server
 node scripts/dev.js
 

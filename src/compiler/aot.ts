@@ -1,7 +1,6 @@
 import {
   hydrateDependency,
-  setCompileErrorHandlerHook,
-  setCompileHandlerHook,
+  hooks,
 } from '@mapl/framework';
 import { injectExternalDependency, markExported } from 'runtime-compiler';
 
@@ -11,19 +10,19 @@ import type { HandlerData } from '../core/handler.js';
 import { countParams } from '@mapl/router/path';
 
 export const hydrateRouter = (router: RouterTag): void => {
-  setCompileHandlerHook((handler, _, _1, scope) => {
+  hooks.compileHandler = (handler, _, _1, scope) => {
     const fn = handler[2];
     injectExternalDependency(fn);
     (handler[3] as HandlerData)?.type?.(
       '',
       scope[1] || fn.length > countParams(handler[1]),
     );
-  });
-  setCompileErrorHandlerHook((_, fn, dat, scope) => {
+  };
+  hooks.compileErrorHandler = (_, fn, dat, scope) => {
     injectExternalDependency(fn);
     (dat as HandlerData)?.type?.('', scope[1] || fn.length > 1);
     return '';
-  });
+  };
   hydrateDependency(router as any, [false, false, , '', false], '');
 };
 

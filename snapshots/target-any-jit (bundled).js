@@ -4,9 +4,7 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let compileHandlerHook,
-  compileErrorHandlerHook,
-  compiledDependencies = [],
+let compiledDependencies = [],
   externalDependencies = [],
   cache = {},
   localDeps = '',
@@ -18,19 +16,21 @@ let compileHandlerHook,
   exportedDeps = '',
   exportedDepsCnt = 0,
   injectExternalDependency = (e) => '_' + externalDependencies.push(e),
-  noOp = () => '',
   lazyDependency = (e, v) => {
     let b = Symbol();
     return () => (cache[b] ??= e(v));
   },
-  macro$1 = (f) => [-1, f],
-  JSON_HEADER$1 =
-    (macro$1(noOp),
+  macro = (f) => [-1, f],
+  JSON_HEADER =
+    (macro(() => ''),
     lazyDependency(injectDependency, '["content-type","application/json"]')),
+  JSON_OPTIONS = lazyDependency(
+    injectDependency,
+    '{headers:[' + JSON_HEADER() + ']}',
+  ),
   text =
-    (lazyDependency(injectDependency, '{headers:[' + JSON_HEADER$1() + ']}'),
-    lazyDependency(injectDependency, '["content-type","application/json"]'),
-    lazyDependency(injectDependency, '{headers:[' + JSON_HEADER$1() + ']}'),
+    (lazyDependency(injectDependency, '["content-type","application/json"]'),
+    lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}'),
     (res, hasContext) =>
       'return new Response(' + res + (hasContext ? ',c)' : ')')),
   _ = Symbol.for('@safe-std/error'),
@@ -39,9 +39,10 @@ let compileHandlerHook,
     (u) => Array.isArray(u) && u[0] === _,
   ),
   AsyncFunction = (async () => {}).constructor,
+  hooks = {},
   contextInit = '',
   compileErrorHandler$1 = (input, scope) =>
-    (scope[3] ??= compileErrorHandlerHook(
+    (scope[3] ??= hooks.compileErrorHandler(
       input,
       scope[2][0],
       scope[2][1],
@@ -108,7 +109,7 @@ let compileHandlerHook,
     }
     for (let i = 0, handlers = group[1]; i < handlers.length; i++) {
       let handler = handlers[i];
-      compileHandlerHook(
+      hooks.compileHandler(
         handler,
         content,
         prefix + ('/' === handler[1] || '' !== prefix ? '' : handler[1]),
@@ -129,27 +130,15 @@ let compileHandlerHook,
     list.length > 1
       ? '...' + injectDependency(JSON.stringify(list))
       : injectDependency(JSON.stringify(list[0]));
-macro$1(createContext);
-let macro = (f) => [-1, f],
-  JSON_HEADER =
-    (macro(noOp),
-    lazyDependency(injectDependency, '["content-type","application/json"]')),
-  JSON_OPTIONS = lazyDependency(
-    injectDependency,
-    '{headers:[' + JSON_HEADER() + ']}',
-  ),
-  optimizeDirectCall =
-    (lazyDependency(injectDependency, '["content-type","application/json"]'),
-    lazyDependency(injectDependency, '{headers:[' + JSON_HEADER() + ']}'),
-    macro(createContext),
-    (s) =>
-      'o=>Number.isInteger(o)' === s
-        ? 'Number.isInteger'
-        : 'o=>JSON.stringify(o)' === s
-          ? 'JSON.stringify'
-          : /^o=>d\d+\(o\)$/.test(s)
-            ? s.slice(3, -3)
-            : s),
+macro(createContext);
+let optimizeDirectCall = (s) =>
+    'o=>Number.isInteger(o)' === s
+      ? 'Number.isInteger'
+      : 'o=>JSON.stringify(o)' === s
+        ? 'JSON.stringify'
+        : /^o=>d\d+\(o\)$/.test(s)
+          ? s.slice(3, -3)
+          : s,
   compileLimits = (arr, start, i) => {
     let str = '';
     for (; start < arr.length; ) {
@@ -289,7 +278,7 @@ var handler,
       ((origins, preflightHeaders = [], headers = []) =>
         '*' !== origins &&
         (headers.push(['vary', 'origin']), Array.isArray(origins))
-          ? macro$1((scope) => {
+          ? macro((scope) => {
               let originList = injectDependency(JSON.stringify(origins));
               return (
                 createContext(scope) +
@@ -312,7 +301,7 @@ var handler,
               );
             })
           : (headers.push(['access-control-allow-origin', origins]),
-            macro$1((scope) => {
+            macro((scope) => {
               let pushHeaders =
                 headers.length > 0
                   ? 'h.push(' + injectList(headers) + ');'
@@ -331,7 +320,7 @@ var handler,
               );
             })))('*', [['access-control-max-age', '60000']]),
       ((headers = { 'x-powered-by': '@mapl/web' }),
-      macro$1(
+      macro(
         () =>
           'h.push(' +
           injectList(
@@ -658,9 +647,8 @@ var target_any_jit__built__default = {
     let id =
       ((e = injectDependency(
         (((router) => {
-          var fn;
           (URL_ROUTER = {}),
-            (fn = (handler, prevContent, path, scope) => {
+            (hooks.compileHandler = (handler, prevContent, path, scope) => {
               let fn = handler[2],
                 call = injectExternalDependency(fn) + '(',
                 paramCount = ((path) => {
@@ -705,8 +693,7 @@ var target_any_jit__built__default = {
                         (scope[0] ? '})()' : ''),
                     );
             }),
-            (compileHandlerHook = fn),
-            (compileErrorHandlerHook = compileErrorHandler),
+            (hooks.compileErrorHandler = compileErrorHandler),
             (contextInit = 'let h=[],c={status:200,req:r,headers:h};'),
             compileGroup(router, [!1, !1, , 'return ' + RES400, !1], '', '');
         })(main_default),

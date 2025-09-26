@@ -1,9 +1,4 @@
 {
   "type": "module",
-  "dependencies": {
-    "@mapl/web": "../../lib",
-    "@rollup/plugin-terser": "^0.4.4",
-    "rolldown": "^1.0.0-beta.40",
-    "winter-compat": "^0.1.8"
-  }
+  "dependencies": {}
 }

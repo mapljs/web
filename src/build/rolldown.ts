@@ -1,5 +1,5 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { build, watch, type BuildOptions, type OutputOptions, type RolldownWatcher, type WatcherOptions } from 'rolldown';
+import { build, watch, type BuildOptions, type OutputOptions, type RolldownWatcher} from 'rolldown';
 
 import { compileToExportedDependency as generic } from '../compiler/jit.js';
 import { compileToExportedDependency as bun } from '../compiler/bun/jit.js';
@@ -40,12 +40,7 @@ export interface MaplBuildOptions {
   target?: 'bun';
 }
 
-export interface MaplDevOptions extends Omit<MaplBuildOptions, 'finalizeOptions'> {
-  /**
-   * File watcher option
-   */
-  watcherOptions?: WatcherOptions
-}
+export interface MaplDevOptions extends Omit<MaplBuildOptions, 'finalizeOptions'> {}
 
 export interface MaplAllOptions {
   common: MaplDevOptions & MaplBuildOptions;
@@ -53,10 +48,14 @@ export interface MaplAllOptions {
   build?: Partial<MaplBuildOptions>
 };
 
+// Packages that can be affected by compiling app first
+const EXCLUDE = /^runtime-compiler(?:$|\/.+$)|^@mapl\/(?:framework$|web$)/
+
 export default async (opts: MaplBuildOptions): Promise<void> => {
   const output = opts.output;
+
   const inputFile = resolve(opts.input);
-  const outputFile = join(output.dir, 'server-exports.js');
+  const outputFile = resolve(output.dir, 'server-exports.js');
   const tmpFile = resolve(output.dir, 'tmp.js');
 
   const external = opts.buildOptions?.external;
@@ -68,25 +67,21 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
     output: {
       file: tmpFile,
     },
-
-    // Don't bundle runtime-compiler/config right away
+    treeshake: false,
     external: external == null
-      ? 'runtime-compiler/config'
-      : Array.isArray(external)
-        ? external.concat('runtime-compiler/config')
-        : typeof external === 'function'
-          ? (id, parentId, isResolved) => id === 'runtime-compiler/config' || external(id, parentId, isResolved)
-          : [external, 'runtime-compiler/config']
+      ? EXCLUDE
+        : Array.isArray(external)
+          ? external.concat(EXCLUDE)
+          : typeof external === 'function'
+            ? (id, parentId, isResolved) => EXCLUDE.test(id) || external(id, parentId, isResolved)
+            : [external, EXCLUDE]
   });
 
-  // calculate tmpFile JIT content
-  const appMod = await import(tmpFile);
-  const HANDLER = (opts.target === 'bun' ? bun : generic)(appMod.default);
+  // calculate outputFile JIT content
+  const appMod = (await import(tmpFile)).default;
+  const HANDLER = (opts.target === 'bun' ? bun : generic)(appMod);
 
   // Write JIT content to output
-  try {
-    mkdirSync(output.dir, { recursive: true });
-  } catch {}
   writeFileSync(
     outputFile,
     `
@@ -123,19 +118,10 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
 
 export const dev = (opts: MaplDevOptions): RolldownWatcher => {
   const output = opts.output;
-  const tmpFile = resolve(output.dir, 'tmp.js');
 
-  // Watch input
-  const watcher = watch({
-    ...opts.buildOptions,
-    input: resolve(opts.input),
-    output: {
-      ...output,
-      file: tmpFile,
-      dir: undefined,
-    },
-    watch: opts.watcherOptions
-  });
+  const tmpFile = resolve(output.dir, 'tmp.js');
+  const inputFile = resolve(opts.input);
+  const outputFile = resolve(output.dir, 'server-exports.js');
 
   const compileResult = opts.asynchronous
     ? 'await compileToHandler(app)'
@@ -146,9 +132,9 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
     mkdirSync(output.dir, { recursive: true });
   } catch {}
   writeFileSync(
-    join(output.dir, 'server-exports.js'),
+    tmpFile,
     `
-      import app from ${JSON.stringify(tmpFile)};
+      import app from ${JSON.stringify(inputFile)};
       import { compileToHandler${opts.asynchronous ? '' : 'Sync'} } from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}jit';
 
       ${opts.target === 'bun'
@@ -158,5 +144,14 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
     `,
   );
 
-  return watcher;
+  return watch({
+    ...opts.buildOptions,
+    input: tmpFile,
+    output: {
+      ...output,
+      file: outputFile,
+      dir: undefined,
+    },
+    treeshake: false
+  });
 };

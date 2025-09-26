@@ -1,23 +1,22 @@
 // Currently works with terser
-import app from "./main.js";
-import { compileToExportedDependency } from "@mapl/web_dev/compiler/jit";
-import { compileToExportedDependency as bunCompileToExportedDependency } from "@mapl/web_dev/compiler/bun/jit";
+import app from './main.js';
+import { compileToExportedDependency } from '@mapl/web/compiler/jit';
+import { compileToExportedDependency as bunCompileToExportedDependency } from '@mapl/web/compiler/bun/jit';
 
-import terser from "@rollup/plugin-terser";
+import terser from '@rollup/plugin-terser';
 
-import { evaluateToString } from "runtime-compiler/jit";
-import { minifySync } from "@swc/core";
-import { rolldown } from "rolldown";
-import { clear } from "runtime-compiler";
+import { evaluateToString } from 'runtime-compiler/jit';
+import { rolldown } from 'rolldown';
+import { clear } from 'runtime-compiler';
 
 /**
  * @param {string} target
  * @param {string} content
  */
 const bundle = async (target, content) => {
-  target = import.meta.dir + "/" + target;
+  target = import.meta.dir + '/' + target;
 
-  const aotOutput = target + " (built).js";
+  const aotOutput = target + ' (built).js';
   await Bun.write(aotOutput, content);
 
   const input = await rolldown({
@@ -33,18 +32,16 @@ const bundle = async (target, content) => {
     ],
   });
   const output = await input.write({
-    file: target + " (bundled).js",
+    file: target + ' (bundled).js',
     inlineDynamicImports: true,
   });
 
-  return minifySync(output.output[0].code, {
-    module: true,
-  }).code;
+  return output.output[0].code;
 };
 
 {
   const code = await bundle(
-    "target-any-jit",
+    'target-any-jit',
     `import app from './main.js';
 import { compileToHandlerSync } from '../lib/compiler/jit.js';
 
@@ -53,12 +50,12 @@ export default {
 };`,
   );
 
-  console.log("any jit - minified size:", code.length);
+  console.log('any jit - size:', code.length);
 }
 
 {
   const code = await bundle(
-    "target-bun-jit",
+    'target-bun-jit',
     `import app from './main.js';
 import { compileToHandlerSync } from '../lib/compiler/bun/jit.js';
 
@@ -67,7 +64,7 @@ Bun.serve({
 });`,
   );
 
-  console.log("bun jit - minified size:", code.length);
+  console.log('bun jit - size:', code.length);
 }
 
 {
@@ -75,7 +72,7 @@ Bun.serve({
   const HANDLER = compileToExportedDependency(app);
 
   const code = await bundle(
-    "target-any-aot",
+    'target-any-aot',
     `import 'runtime-compiler/hydrate-loader';
 
 import app from './main.js';
@@ -91,7 +88,7 @@ export default {
 };`,
   );
 
-  console.log("any aot - minified size:", code.length);
+  console.log('any aot - size:', code.length);
 }
 
 {
@@ -99,7 +96,7 @@ export default {
   const HANDLER = bunCompileToExportedDependency(app);
 
   const code = await bundle(
-    "target-bun-aot",
+    'target-bun-aot',
     `import 'runtime-compiler/hydrate-loader';
 
 import app from './main.js';
@@ -115,7 +112,7 @@ Bun.serve({
 });`,
   );
 
-  console.log("bun aot - minified size:", code.length);
+  console.log('bun aot - size:', code.length);
 }
 
 await Bun.$`bun biome format --write ${import.meta.dir}`;

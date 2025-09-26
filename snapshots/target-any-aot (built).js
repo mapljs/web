@@ -51,7 +51,7 @@ import { hydrate } from 'runtime-compiler/hydrate';
         h.push($3);
         return new Response(_1(), c);
       }
-      return $2;
+      return $1;
     };
   _.push($6);
 })(...hydrate());

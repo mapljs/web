@@ -1,5 +1,5 @@
 /// <reference types='bun-types' />
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, rmSync, symlinkSync } from 'node:fs';
 import { transform } from 'oxc-transform';
 
 import pkg from '../package.json';
@@ -70,4 +70,9 @@ Array.fromAsync(new Bun.Glob('**/*.ts').scan(SOURCE))
       Bun.write(LIB + '/package.json', JSON.stringify(pkg)),
       cp(ROOT, LIB, 'README.md'),
     ]);
+
+    // Symlink @mapl/web to local node_modules
+    const MAPL_WEB = ROOT + '/node_modules/@mapl/web';
+    rmSync(MAPL_WEB, { recursive: true });
+    symlinkSync(LIB, MAPL_WEB, 'dir');
   });

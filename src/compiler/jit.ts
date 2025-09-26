@@ -4,10 +4,9 @@ import {
   AsyncFunction,
   contextInit,
   setContextInit,
+  hooks,
   type Hook,
-  type ErrorHandler,
-  setCompileErrorHandlerHook,
-  setCompileHandlerHook,
+  type ErrorHandler
 } from '@mapl/framework';
 
 import compile from '@mapl/router/method/compiler';
@@ -102,7 +101,7 @@ export const compileErrorHandler: Hook<[input: string, ...ErrorHandler]> = (
 const compileToState = (router: RouterTag): void => {
   URL_ROUTER = {}; // Create base router
 
-  setCompileHandlerHook((handler, prevContent, path, scope) => {
+  hooks.compileHandler = (handler, prevContent, path, scope) => {
     const fn = handler[2];
     // String builders
     let call = injectExternalDependency(fn) + '(';
@@ -151,9 +150,8 @@ const compileToState = (router: RouterTag): void => {
         ) +
         (scope[0] ? constants.ASYNC_END : ''),
     );
-  });
-
-  setCompileErrorHandlerHook(compileErrorHandler);
+  };
+  hooks.compileErrorHandler = compileErrorHandler;
 
   // Set context initial statement
   setContextInit(

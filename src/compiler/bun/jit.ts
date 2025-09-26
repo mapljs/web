@@ -3,8 +3,7 @@ import {
   AsyncFunction,
   contextInit,
   setContextInit,
-  setCompileErrorHandlerHook,
-  setCompileHandlerHook,
+  hooks
 } from '@mapl/framework';
 
 import { countParams } from '@mapl/router/path';
@@ -35,7 +34,7 @@ export type BunRoutes = Record<string, Record<string, FetchFn> | FetchFn>;
 const compileToState = (router: RouterTag): void => {
   resetRouter();
 
-  setCompileHandlerHook((handler, prevContent, path, scope) => {
+  hooks.compileHandler = (handler, prevContent, path, scope) => {
     const fn = handler[2];
     // String builders
     let call = injectExternalDependency(fn) + '(';
@@ -82,9 +81,9 @@ const compileToState = (router: RouterTag): void => {
         ) +
         (scope[0] ? constants.ASYNC_END : ''),
     );
-  });
+  };
 
-  setCompileErrorHandlerHook(compileErrorHandler);
+  hooks.compileErrorHandler = compileErrorHandler;
 
   // Set context initial statement
   setContextInit(

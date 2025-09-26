@@ -6,9 +6,7 @@ var core_default = (middlewares, handlers, children) => [
   ,
   children,
 ];
-let compileHandlerHook,
-  compileErrorHandlerHook,
-  compiledDependencies = [],
+let compiledDependencies = [],
   externalDependencies = [],
   cache = {},
   exportedDepsCnt = 0,
@@ -18,8 +16,8 @@ let compileHandlerHook,
     let b = Symbol();
     return () => (cache[b] ??= e(v));
   },
-  macro$1 = (f) => [-1, f],
-  noOpMacro$1 = macro$1(noOp),
+  macro = (f) => [-1, f],
+  noOpMacro = macro(noOp),
   text = noOp,
   _ = Symbol.for('@safe-std/error'),
   IS_ERR_FN = lazyDependency(
@@ -27,8 +25,9 @@ let compileHandlerHook,
     (u) => Array.isArray(u) && u[0] === _,
   ),
   AsyncFunction = (async () => {}).constructor,
+  hooks = {},
   compileErrorHandler = (input, scope) =>
-    (scope[3] ??= compileErrorHandlerHook(
+    (scope[3] ??= hooks.compileErrorHandler(
       input,
       scope[2][0],
       scope[2][1],
@@ -67,7 +66,7 @@ let compileHandlerHook,
     }
     for (let i = 0, handlers = group[1]; i < handlers.length; i++) {
       let handler = handlers[i];
-      compileHandlerHook(
+      hooks.compileHandler(
         handler,
         '',
         prefix + ('/' === handler[1] || '' !== prefix ? '' : handler[1]),
@@ -83,77 +82,73 @@ let compileHandlerHook,
           '/' === childPrefix ? prefix : prefix + childPrefix,
         );
   };
-let createContextMacro$1 = macro$1(createContext),
-  macro = (f) => [-1, f],
-  parserTag = (macro(noOp), macro(createContext), Symbol());
+let createContextMacro = macro(createContext),
+  parserTag = Symbol();
 var u;
 let bodyErr = ((u = parserTag), (d) => [_, d, u])('malformed body'),
   ERROR_DEP = lazyDependency(injectExternalDependency, bodyErr),
   string = [4],
   dict = (required, optional) => [16, required, optional];
-var handler,
-  dat,
-  fn,
-  main_default = core_default(
-    [createContextMacro$1, noOpMacro$1],
-    [
-      ((handler = () => '' + performance.now()),
-      (dat = { type: text }),
-      ['', '/path', handler, dat]),
-    ],
-    {
-      '/api': ((r, f, dat) => ((r[2] = [(err) => err[1], dat]), r))(
-        core_default(
+var handler, dat, router;
+(router = core_default(
+  [createContextMacro, noOpMacro],
+  [
+    ((handler = () => '' + performance.now()),
+    (dat = { type: text }),
+    ['', '/path', handler, dat]),
+  ],
+  {
+    '/api': ((r, f, dat) => ((r[2] = [(err) => err[1], dat]), r))(
+      core_default(
+        [
+          (dict({ name: string, pwd: string }),
+          macro(
+            (p) => (
+              createAsyncScope(p),
+              setTmp(p),
+              ERROR_DEP(),
+              compileErrorHandler('', p),
+              createContext(p),
+              ''
+            ),
+          )),
+        ],
+        [
           [
-            (dict({ name: string, pwd: string }),
-            macro(
-              (p) => (
-                createAsyncScope(p),
-                setTmp(p),
-                ERROR_DEP(),
-                compileErrorHandler('', p),
-                createContext(p),
-                ''
-              ),
-            )),
+            'POST',
+            '/body',
+            (c) => c.body,
+            { type: (dict({ name: string, pwd: string }), noOp) },
           ],
-          [
-            [
-              'POST',
-              '/body',
-              (c) => c.body,
-              { type: (dict({ name: string, pwd: string }), noOp) },
-            ],
-          ],
-        ),
-        0,
-        { type: text },
+        ],
       ),
-    },
-  );
-(fn = (handler, _$1, _1, scope) => {
-  let fn = handler[2];
-  injectExternalDependency(fn),
-    handler[3]?.type?.(
-      '',
-      scope[1] ||
-        fn.length >
-          ((path) => {
-            let cnt = path.endsWith('**') ? 2 : 0;
-            for (
-              let i = path.length - cnt;
-              -1 !== (i = path.lastIndexOf('*', i - 1));
-              cnt++
-            );
-            return cnt;
-          })(handler[1]),
-    );
-}),
-  (compileHandlerHook = fn),
-  (compileErrorHandlerHook = (_$1, fn, dat, scope) => (
+      0,
+      { type: text },
+    ),
+  },
+)),
+  (hooks.compileHandler = (handler, _$1, _1, scope) => {
+    let fn = handler[2];
+    injectExternalDependency(fn),
+      handler[3]?.type?.(
+        '',
+        scope[1] ||
+          fn.length >
+            ((path) => {
+              let cnt = path.endsWith('**') ? 2 : 0;
+              for (
+                let i = path.length - cnt;
+                -1 !== (i = path.lastIndexOf('*', i - 1));
+                cnt++
+              );
+              return cnt;
+            })(handler[1]),
+      );
+  }),
+  (hooks.compileErrorHandler = (_$1, fn, dat, scope) => (
     injectExternalDependency(fn), dat?.type?.('', scope[1] || fn.length > 1), ''
   )),
-  hydrateDependency(main_default, [!1, !1, , '', !1], ''),
+  hydrateDependency(router, [!1, !1, , '', !1], ''),
   exportedDepsCnt++,
   ((_$1, _1, _2, _3, _4) => {
     var $0 = ['access-control-allow-origin', '*'],
@@ -193,7 +188,7 @@ var handler,
           c = { status: 200, req: r, headers: h };
         return $2(r, h), h.push($3), new Response(_1(), c);
       }
-      return $2;
+      return $1;
     });
   })(
     ...(() => {
