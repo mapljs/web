@@ -1,7 +1,7 @@
 // @ts-check
-import { dev } from "@mapl/web/build/rolldown";
-import { restartServer } from "../server/index.js";
-import { buildOptions } from "../mapl.config.js";
+import { dev } from '@mapl/web/build/rolldown';
+import { restartServer } from '../server/index.js';
+import { buildOptions } from '../mapl.config.js';
 
 /**
  * @type {import("node:child_process").ChildProcess}
@@ -9,7 +9,7 @@ import { buildOptions } from "../mapl.config.js";
 dev({
   ...buildOptions.common,
   ...buildOptions.dev,
-}).on("event", (e) => {
+}).on('event', (e) => {
   // Each time bundle ends restart the server
-  if (e.code === "BUNDLE_END") restartServer();
+  if (e.code === 'BUNDLE_END') restartServer();
 });

@@ -3,7 +3,7 @@ import {
   AsyncFunction,
   contextInit,
   setContextInit,
-  hooks
+  hooks,
 } from '@mapl/framework';
 
 import { countParams } from '@mapl/router/path';

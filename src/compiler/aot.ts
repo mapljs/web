@@ -1,7 +1,4 @@
-import {
-  hydrateDependency,
-  hooks,
-} from '@mapl/framework';
+import { hydrateDependency, hooks } from '@mapl/framework';
 import { injectExternalDependency, markExported } from 'runtime-compiler';
 
 import type { RouterTag } from '../core/index.js';

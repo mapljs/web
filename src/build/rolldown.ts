@@ -1,5 +1,11 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { build, watch, type BuildOptions, type OutputOptions, type RolldownWatcher} from 'rolldown';
+import {
+  build,
+  watch,
+  type BuildOptions,
+  type OutputOptions,
+  type RolldownWatcher,
+} from 'rolldown';
 
 import { compileToExportedDependency as generic } from '../compiler/jit.js';
 import { compileToExportedDependency as bun } from '../compiler/bun/jit.js';
@@ -40,16 +46,21 @@ export interface MaplBuildOptions {
   target?: 'bun';
 }
 
-export interface MaplDevOptions extends Omit<MaplBuildOptions, 'finalizeOptions'> {}
+export interface MaplDevOptions
+  extends Omit<MaplBuildOptions, 'finalizeOptions'> {}
 
 export interface MaplAllOptions {
   common: MaplDevOptions & MaplBuildOptions;
-  dev?: Partial<MaplDevOptions>,
-  build?: Partial<MaplBuildOptions>
-};
+  dev?: Partial<MaplDevOptions>;
+  build?: Partial<MaplBuildOptions>;
+}
 
 // Packages that can be affected by compiling app first
-const EXCLUDE = /^runtime-compiler(?:$|\/.+$)|^@mapl\/(?:framework$|web$)/
+const EXCLUDE: (string | RegExp)[] = [
+  'runtime-compiler',
+  '@mapl/framework',
+  '@mapl/web',
+];
 
 export default async (opts: MaplBuildOptions): Promise<void> => {
   const output = opts.output;
@@ -68,20 +79,18 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
       file: tmpFile,
     },
     treeshake: false,
-    external: external == null
-      ? EXCLUDE
-        : Array.isArray(external)
-          ? external.concat(EXCLUDE)
-          : typeof external === 'function'
-            ? (id, parentId, isResolved) => EXCLUDE.test(id) || external(id, parentId, isResolved)
-            : [external, EXCLUDE]
+    external:
+      external == null
+        ? EXCLUDE
+        : typeof external === 'function'
+          ? (id, parentId, isResolved) =>
+              EXCLUDE.includes(id) || external(id, parentId, isResolved)
+          : EXCLUDE.concat(external),
   });
 
   // calculate outputFile JIT content
-  const appMod = (await import(tmpFile)).default;
-  const HANDLER = (opts.target === 'bun' ? bun : generic)(appMod);
-
-  // Write JIT content to output
+  const appMod = await import(tmpFile);
+  const HANDLER = (opts.target === 'bun' ? bun : generic)(appMod.default);
   writeFileSync(
     outputFile,
     `
@@ -95,11 +104,9 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
       import { getDependency } from 'runtime-compiler';
 
       ${opts.asynchronous ? 'await(async' : '('}${evaluateToString()})(...hydrate());
-      ${
-        opts.target === 'bun'
-          ? `export default { routes: getDependency(${HANDLER}) };`
-          : `export default { fetch: getDependency(${HANDLER}) };`
-      }
+      export default {
+        ${opts.target === 'bun' ? 'routes' : 'fetch'}: getDependency(${HANDLER})
+      };
     `,
   );
   clear();
@@ -111,7 +118,7 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
     output: {
       ...output,
       file: outputFile,
-      dir: undefined
+      dir: undefined,
     },
   });
 };
@@ -119,13 +126,9 @@ export default async (opts: MaplBuildOptions): Promise<void> => {
 export const dev = (opts: MaplDevOptions): RolldownWatcher => {
   const output = opts.output;
 
-  const tmpFile = resolve(output.dir, 'tmp.js');
   const inputFile = resolve(opts.input);
+  const tmpFile = resolve(output.dir, 'tmp.js');
   const outputFile = resolve(output.dir, 'server-exports.js');
-
-  const compileResult = opts.asynchronous
-    ? 'await compileToHandler(app)'
-    : 'compileToHandlerSync(app)';
 
   // Write export code to output
   try {
@@ -135,12 +138,14 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
     tmpFile,
     `
       import app from ${JSON.stringify(inputFile)};
-      import { compileToHandler${opts.asynchronous ? '' : 'Sync'} } from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}jit';
+      import { ${opts.asynchronous ? 'compileToHandler' : 'compileToHandlerSync'} } from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}jit';
 
-      ${opts.target === 'bun'
-      ? `export default { routes: ${compileResult} };`
-      : `export default { fetch: ${compileResult} };`
+      export default {
+        ${opts.target === 'bun' ? 'routes' : 'fetch'}: ${opts.asynchronous
+      ? 'await compileToHandler(app)'
+      : 'compileToHandlerSync(app)'
     }
+      };
     `,
   );
 
@@ -151,7 +156,6 @@ export const dev = (opts: MaplDevOptions): RolldownWatcher => {
       ...output,
       file: outputFile,
       dir: undefined,
-    },
-    treeshake: false
+    }
   });
 };

@@ -32,4 +32,4 @@ export default handle.error(
   {
     type: handle.text,
   },
-)
+);

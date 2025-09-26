@@ -2,7 +2,7 @@
 import child_process from "node:child_process";
 
 /**
- * @type {import("node:child_process").ChildProcess | undefined}
+ * @type {import("node:child_process").ChildProcess | undefined | null}
  */
 let proc;
 
@@ -22,13 +22,15 @@ export const restartServer = async () => {
     await latch.promise;
   }
 
+  console.log("Starting server...");
+
   latch = Promise.withResolvers();
   proc = child_process
     .fork("./server/main.js", {
       stdio: "inherit",
     })
     .once("exit", (code, sig) => {
-      proc = undefined;
+      proc = null;
       latch.resolve();
 
       // Don't log for sigint

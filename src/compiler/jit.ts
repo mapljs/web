@@ -6,7 +6,7 @@ import {
   setContextInit,
   hooks,
   type Hook,
-  type ErrorHandler
+  type ErrorHandler,
 } from '@mapl/framework';
 
 import compile from '@mapl/router/method/compiler';
