@@ -13,6 +13,9 @@
 # Install build dependencies
 npm i @mapl/web rolldown @rollup/plugin-terser
 
+# Run server on Node
+npm i winter-compat
+
 # Request validator and response serializer
 npm i @mapl/stnl stnl
 
