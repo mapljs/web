@@ -18,7 +18,7 @@ import { resolve } from 'node:path';
 import { EXTERNALS } from './utils.js';
 
 export interface MaplBuildOptions extends Omit<BuildOptions, 'input' | 'output'> {
-  output: Omit<OutputOptions, 'file' | 'dir'>;
+  output?: Omit<OutputOptions, 'file' | 'dir'>;
 }
 
 export interface MaplOptions {

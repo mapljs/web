@@ -11,7 +11,7 @@
 
 ```sh
 # Install build dependencies
-npm i @mapl/web rolldown rollup-plugin-swc3
+npm i @mapl/web rolldown
 
 # Run server on Node if you need to
 npm i srvx

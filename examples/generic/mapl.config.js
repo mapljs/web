@@ -1,21 +1,12 @@
-import { minify } from "rollup-plugin-swc3";
-
+// @ts-check
 /**
  * @type {import("@mapl/web/build/rolldown").MaplOptions}
  */
-export const buildOptions = {
+export default {
   main: "./src/index.ts",
   outputDir: "./build",
-  hydrate: {
-    plugins: [
-      minify({
-        module: true,
-        mangle: false,
 
-        compress: {
-          passes: 4,
-        },
-      }),
-    ],
+  hydrate: {
+    // Need a minifier
   },
 };
