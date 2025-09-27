@@ -1,9 +1,8 @@
 // @ts-check
 import options from "../build/server-exports.js";
-import { serve } from "winter-compat";
+import { serve } from "srvx";
 
-serve(options.fetch, {
+serve({
+  ...options,
   port: 3000,
-}).then(() => {
-  console.log("Server started at port 3000");
 });
