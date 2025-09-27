@@ -11,10 +11,10 @@
 
 ```sh
 # Install build dependencies
-npm i @mapl/web rolldown @rollup/plugin-terser
+npm i @mapl/web rolldown rollup-plugin-swc3
 
-# Run server on Node
-npm i winter-compat
+# Run server on Node if you need to
+npm i srvx
 
 # Request validator and response serializer
 npm i @mapl/stnl stnl

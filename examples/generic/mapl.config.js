@@ -1,25 +1,25 @@
-import terser from "@rollup/plugin-terser";
+import { minify } from "rollup-plugin-swc3";
 
 /**
- * @type {import("@mapl/web/build/rolldown").MaplAllOptions}
+ * @type {import("@mapl/web/build/rolldown").MaplOptions}
  */
 export const buildOptions = {
-  common: {
+  build: {
     input: "./src/index.ts",
     output: {
       dir: "./build",
     },
   },
+  hydrate: {
+    plugins: [
+      minify({
+        module: true,
+        mangle: false,
 
-  // Use terser for production build
-  build: {
-    finalizeOptions: {
-      plugins: terser({
         compress: {
           passes: 3,
         },
-        toplevel: true,
       }),
-    },
+    ],
   },
 };
