@@ -4,12 +4,8 @@ import { minify } from "rollup-plugin-swc3";
  * @type {import("@mapl/web/build/rolldown").MaplOptions}
  */
 export const buildOptions = {
-  build: {
-    input: "./src/index.ts",
-    output: {
-      dir: "./build",
-    },
-  },
+  main: "./src/index.ts",
+  outputDir: "./build",
   hydrate: {
     plugins: [
       minify({
@@ -17,7 +13,7 @@ export const buildOptions = {
         mangle: false,
 
         compress: {
-          passes: 3,
+          passes: 4,
         },
       }),
     ],

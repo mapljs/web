@@ -17,21 +17,25 @@ import { clear } from 'runtime-compiler';
 import { resolve } from 'node:path';
 import { EXTERNALS } from './utils.js';
 
+export interface MaplBuildOptions extends Omit<BuildOptions, 'input' | 'output'> {
+  output: Omit<OutputOptions, 'file' | 'dir'>;
+}
+
 export interface MaplOptions {
+  /**
+   * App entry point
+   */
+  main: string;
+
+  /**
+   * Output directory
+   */
+  outputDir: string;
+
   /**
    * Build options
    */
-  build: Omit<BuildOptions, 'input' | 'output'> & {
-    /**
-     * App entry point
-     */
-    input: string;
-
-    /**
-     * Output options
-     */
-    output: Omit<OutputOptions, 'file'> & { dir: string };
-  };
+  build?: MaplBuildOptions;
 
   /**
    * Whether to emit asynchronous output
@@ -46,9 +50,7 @@ export interface MaplOptions {
   /**
    * Hydrate specific options
    */
-  hydrate: Omit<BuildOptions, 'input' | 'output'> & {
-    output: Omit<OutputOptions, 'file' | 'dir'>;
-  };
+  hydrate?: MaplBuildOptions;
 }
 
 // Plugins to manipulate imports
@@ -75,11 +77,11 @@ export default async (options: MaplOptions): Promise<void> => {
   const targetOption = options.target;
   const asyncOption = options.asynchronous;
 
-  const outputOptions = buildOptions.output;
+  const outputOptions = buildOptions?.output;
 
-  const inputFile = resolve(buildOptions.input);
-  const outputFile = resolve(outputOptions.dir, 'server-exports.js');
-  const tmpFile = resolve(outputOptions.dir, 'tmp.js');
+  const inputFile = resolve(options.main);
+  const outputFile = resolve(options.outputDir, 'server-exports.js');
+  const tmpFile = resolve(options.outputDir, 'tmp.js');
 
   // Bundle input to tmpFile
   await build({
@@ -88,10 +90,9 @@ export default async (options: MaplOptions): Promise<void> => {
     output: {
       ...outputOptions,
       file: tmpFile,
-      dir: undefined,
     },
     treeshake: false,
-    external: loadExternals(buildOptions.external)
+    external: loadExternals(buildOptions?.external)
   });
 
   // calculate outputFile JIT content
@@ -117,14 +118,13 @@ export default async (options: MaplOptions): Promise<void> => {
   clear();
 
   // Bundle output
-  const currentPlugins = hydrateOptions.plugins;
+  const currentPlugins = hydrateOptions?.plugins;
   await build({
     ...hydrateOptions,
     input: outputFile,
     output: {
-      ...hydrateOptions.output,
-      file: outputFile,
-      dir: undefined,
+      ...hydrateOptions?.output,
+      file: outputFile
     },
 
     // replace runtime-compiler/config with runtime-compiler/hydrate-config
@@ -142,15 +142,15 @@ export const dev = (options: MaplOptions): RolldownWatcher => {
   const targetOption = options.target;
   const asyncOption = options.asynchronous;
 
-  const outputOptions = buildOptions.output;
+  const outputOptions = buildOptions?.output;
 
-  const inputFile = resolve(buildOptions.input);
-  const outputFile = resolve(outputOptions.dir, 'server-exports.js');
-  const tmpFile = resolve(outputOptions.dir, 'tmp.js');
+  const inputFile = resolve(options.main);
+  const outputFile = resolve(options.outputDir, 'server-exports.js');
+  const tmpFile = resolve(options.outputDir, 'tmp.js');
 
   // Write export code to output
   try {
-    mkdirSync(outputOptions.dir, { recursive: true });
+    mkdirSync(options.outputDir, { recursive: true });
   } catch {}
   writeFileSync(
     tmpFile,
@@ -172,10 +172,9 @@ export const dev = (options: MaplOptions): RolldownWatcher => {
     input: tmpFile,
     output: {
       ...outputOptions,
-      file: outputFile,
-      dir: undefined,
+      file: outputFile
     },
     treeshake: false,
-    external: loadExternals(buildOptions.external)
+    external: loadExternals(buildOptions?.external)
   });
 };
