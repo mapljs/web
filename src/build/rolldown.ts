@@ -5,6 +5,8 @@ import {
   type BuildOptions,
   type OutputOptions,
   type RolldownWatcher,
+  type RolldownPluginOption,
+  type ExternalOption
 } from 'rolldown';
 
 import { compileToExportedDependency as generic } from '../compiler/jit.js';
@@ -12,28 +14,24 @@ import { compileToExportedDependency as bun } from '../compiler/bun/jit.js';
 
 import { evaluateToString } from 'runtime-compiler/jit';
 import { clear } from 'runtime-compiler';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
+import { EXTERNALS } from './utils.js';
 
-export interface MaplBuildOptions {
+export interface MaplOptions {
   /**
-   * App entry point
+   * Build options
    */
-  input: string;
+  build: Omit<BuildOptions, 'input' | 'output'> & {
+    /**
+     * App entry point
+     */
+    input: string;
 
-  /**
-   * Output options
-   */
-  output: Omit<OutputOptions, 'file'> & { dir: string };
-
-  /**
-   * App build options
-   */
-  buildOptions?: Omit<BuildOptions, 'input' | 'output'>;
-
-  /**
-   * App finalize options
-   */
-  finalizeOptions?: Omit<BuildOptions, 'input' | 'output'>;
+    /**
+     * Output options
+     */
+    output: Omit<OutputOptions, 'file'> & { dir: string };
+  };
 
   /**
    * Whether to emit asynchronous output
@@ -44,119 +42,140 @@ export interface MaplBuildOptions {
    * Build target
    */
   target?: 'bun';
+
+  /**
+   * Hydrate specific options
+   */
+  hydrate: Omit<BuildOptions, 'input' | 'output'> & {
+    output: Omit<OutputOptions, 'file' | 'dir'>;
+  };
 }
 
-export interface MaplDevOptions
-  extends Omit<MaplBuildOptions, 'finalizeOptions'> {}
-
-export interface MaplAllOptions {
-  common: MaplDevOptions & MaplBuildOptions;
-  dev?: Partial<MaplDevOptions>;
-  build?: Partial<MaplBuildOptions>;
+// Plugins to manipulate imports
+export const hydrateImportsPlugin: RolldownPluginOption = {
+  name: 'mapl-web-hydrate-config-replacer',
+  resolveId(source) {
+    return source === 'runtime-compiler/config'
+      ? this.resolve('runtime-compiler/hydrate-config')
+      : null;
+  }
 }
 
-// Packages that can be affected by compiling app first
-const EXCLUDE: (string | RegExp)[] = [
-  'runtime-compiler',
-  '@mapl/framework',
-  '@mapl/web',
-];
+export const loadExternals = (currentExternals: ExternalOption | undefined): ExternalOption =>
+  currentExternals == null
+    ? EXTERNALS
+    : typeof currentExternals === 'function'
+      ? (id, ...args) => EXTERNALS.includes(id) || currentExternals(id, ...args)
+      : (EXTERNALS as (string | RegExp)[]).concat(currentExternals)
 
-export default async (opts: MaplBuildOptions): Promise<void> => {
-  const output = opts.output;
+export default async (options: MaplOptions): Promise<void> => {
+  const buildOptions = options.build;
+  const hydrateOptions = options.hydrate;
 
-  const inputFile = resolve(opts.input);
-  const outputFile = resolve(output.dir, 'server-exports.js');
-  const tmpFile = resolve(output.dir, 'tmp.js');
+  const targetOption = options.target;
+  const asyncOption = options.asynchronous;
 
-  const external = opts.buildOptions?.external;
+  const outputOptions = buildOptions.output;
+
+  const inputFile = resolve(buildOptions.input);
+  const outputFile = resolve(outputOptions.dir, 'server-exports.js');
+  const tmpFile = resolve(outputOptions.dir, 'tmp.js');
 
   // Bundle input to tmpFile
   await build({
-    ...opts.buildOptions,
+    ...buildOptions,
     input: inputFile,
     output: {
+      ...outputOptions,
       file: tmpFile,
+      dir: undefined,
     },
     treeshake: false,
-    external:
-      external == null
-        ? EXCLUDE
-        : typeof external === 'function'
-          ? (id, parentId, isResolved) =>
-              EXCLUDE.includes(id) || external(id, parentId, isResolved)
-          : EXCLUDE.concat(external),
+    external: loadExternals(buildOptions.external)
   });
 
   // calculate outputFile JIT content
   const appMod = await import(tmpFile);
-  const HANDLER = (opts.target === 'bun' ? bun : generic)(appMod.default);
+  const HANDLER = (targetOption === 'bun' ? bun : generic)(appMod.default);
+
   writeFileSync(
     outputFile,
     `
-      import 'runtime-compiler/hydrate-loader';
-
       import app from ${JSON.stringify(tmpFile)};
-      import hydrateRouter from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}aot';
+      import hydrateRouter from '@mapl/web/compiler/${targetOption === 'bun' ? 'bun/' : ''}aot';
       hydrateRouter(app);
 
       import { hydrate } from 'runtime-compiler/hydrate';
       import { getDependency } from 'runtime-compiler';
 
-      ${opts.asynchronous ? 'await(async' : '('}${evaluateToString()})(...hydrate());
+      ${asyncOption ? 'await(async' : '('}${evaluateToString()})(...hydrate());
       export default {
-        ${opts.target === 'bun' ? 'routes' : 'fetch'}: getDependency(${HANDLER})
+        ${targetOption === 'bun' ? 'routes' : 'fetch'}: getDependency(${HANDLER})
       };
     `,
   );
   clear();
 
   // Bundle output
+  const currentPlugins = hydrateOptions.plugins;
   await build({
-    ...(opts.finalizeOptions ?? opts.buildOptions),
+    ...hydrateOptions,
     input: outputFile,
     output: {
-      ...output,
+      ...hydrateOptions.output,
       file: outputFile,
       dir: undefined,
     },
+
+    // replace runtime-compiler/config with runtime-compiler/hydrate-config
+    plugins: !currentPlugins
+      ? hydrateImportsPlugin
+      : Array.isArray(currentPlugins)
+        ? [hydrateImportsPlugin].concat(currentPlugins as any)
+        : [hydrateImportsPlugin, currentPlugins]
   });
 };
 
-export const dev = (opts: MaplDevOptions): RolldownWatcher => {
-  const output = opts.output;
+export const dev = (options: MaplOptions): RolldownWatcher => {
+  const buildOptions = options.build;
 
-  const inputFile = resolve(opts.input);
-  const tmpFile = resolve(output.dir, 'tmp.js');
-  const outputFile = resolve(output.dir, 'server-exports.js');
+  const targetOption = options.target;
+  const asyncOption = options.asynchronous;
+
+  const outputOptions = buildOptions.output;
+
+  const inputFile = resolve(buildOptions.input);
+  const outputFile = resolve(outputOptions.dir, 'server-exports.js');
+  const tmpFile = resolve(outputOptions.dir, 'tmp.js');
 
   // Write export code to output
   try {
-    mkdirSync(output.dir, { recursive: true });
+    mkdirSync(outputOptions.dir, { recursive: true });
   } catch {}
   writeFileSync(
     tmpFile,
     `
       import app from ${JSON.stringify(inputFile)};
-      import { ${opts.asynchronous ? 'compileToHandler' : 'compileToHandlerSync'} } from '@mapl/web/compiler/${opts.target === 'bun' ? 'bun/' : ''}jit';
+      import { ${asyncOption ? 'compileToHandler' : 'compileToHandlerSync'} } from '@mapl/web/compiler/${targetOption === 'bun' ? 'bun/' : ''}jit';
 
       export default {
-        ${opts.target === 'bun' ? 'routes' : 'fetch'}: ${
-          opts.asynchronous
-            ? 'await compileToHandler(app)'
-            : 'compileToHandlerSync(app)'
-        }
+        ${targetOption === 'bun' ? 'routes' : 'fetch'}: ${
+        asyncOption
+            ? 'await compileToHandler'
+            : 'compileToHandlerSync'
+        }(app)
       };
     `,
   );
 
   return watch({
-    ...opts.buildOptions,
     input: tmpFile,
     output: {
-      ...output,
+      ...outputOptions,
       file: outputFile,
       dir: undefined,
     },
+    treeshake: false,
+    external: loadExternals(buildOptions.external)
   });
 };
