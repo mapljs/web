@@ -13,7 +13,6 @@ import { compileToExportedDependency as generic } from '../compiler/jit.js';
 import { compileToExportedDependency as bun } from '../compiler/bun/jit.js';
 
 import { evaluateToString } from 'runtime-compiler/jit';
-import { clear } from 'runtime-compiler';
 import { resolve } from 'node:path';
 import { EXTERNALS } from './utils.js';
 
@@ -61,13 +60,6 @@ export const hydrateImportsPlugin: RolldownPluginOption = {
   }
 }
 
-export const loadExternals = (currentExternals: ExternalOption | undefined): ExternalOption =>
-  currentExternals == null
-    ? EXTERNALS
-    : typeof currentExternals === 'function'
-      ? (id, ...args) => EXTERNALS.includes(id) || currentExternals(id, ...args)
-      : (EXTERNALS as (string | RegExp)[]).concat(currentExternals)
-
 export default async (options: MaplOptions): Promise<void> => {
   const buildOptions = options.build;
   const hydrateOptions = options.hydrate;
@@ -82,6 +74,7 @@ export default async (options: MaplOptions): Promise<void> => {
   const tmpFile = resolve(options.outputDir, 'tmp.js');
 
   // Bundle input to tmpFile
+  const currentExternals = buildOptions?.external;
   await build({
     ...buildOptions,
     input: inputFile,
@@ -89,8 +82,11 @@ export default async (options: MaplOptions): Promise<void> => {
       ...outputOptions,
       file: tmpFile,
     },
-    treeshake: false,
-    external: loadExternals(buildOptions?.external)
+    external: currentExternals == null
+      ? EXTERNALS
+      : typeof currentExternals === 'function'
+        ? (id, ...args) => EXTERNALS.includes(id) || currentExternals(id, ...args)
+        : (EXTERNALS as (string | RegExp)[]).concat(currentExternals)
   });
 
   // calculate outputFile JIT content
@@ -113,7 +109,6 @@ export default async (options: MaplOptions): Promise<void> => {
       };
     `,
   );
-  clear();
 
   // Bundle output
   const currentPlugins = hydrateOptions?.plugins;
@@ -167,12 +162,11 @@ export const dev = (options: MaplOptions): RolldownWatcher => {
   );
 
   return watch({
+    ...buildOptions,
     input: tmpFile,
     output: {
       ...outputOptions,
-      file: outputFile
-    },
-    treeshake: false,
-    external: loadExternals(buildOptions?.external)
+      file: outputFile,
+    }
   });
 };

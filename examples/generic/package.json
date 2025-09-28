@@ -1,4 +1,7 @@
 {
   "type": "module",
-  "dependencies": {}
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "build": "node scripts/build.js"
+  }
 }
