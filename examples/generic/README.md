@@ -13,6 +13,9 @@
 # Install build dependencies
 npm i @mapl/web rolldown
 
+# Install minifier plugin for rolldown
+npm i @rollup/plugin-terser
+
 # Run server on Node if you need to
 npm i srvx
 

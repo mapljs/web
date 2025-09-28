@@ -1,3 +1,5 @@
+import terser from "@rollup/plugin-terser";
+
 // @ts-check
 /**
  * @type {import("@mapl/web/build/rolldown").MaplOptions}
@@ -7,6 +9,10 @@ export default {
   outputDir: "./build",
 
   hydrate: {
-    // Need a minifier
+    plugins: [
+      terser({
+        module: true,
+      }),
+    ],
   },
 };
