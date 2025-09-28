@@ -57,9 +57,7 @@ export interface MaplOptions {
 export const hydrateImportsPlugin: RolldownPluginOption = {
   name: 'mapl-web-hydrate-config-replacer',
   resolveId(source) {
-    return source === 'runtime-compiler/config'
-      ? this.resolve('runtime-compiler/hydrate-config')
-      : null;
+    return this.resolve(source === 'runtime-compiler/config' ? 'runtime-compiler/hydrate-config' : source);
   }
 }
 
