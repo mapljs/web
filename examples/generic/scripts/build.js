@@ -1,7 +1,10 @@
 // @ts-check
-import build from "@mapl/web/build/rolldown";
+import build from '@mapl/web/build/rolldown';
+import child_process from 'node:child_process';
 
-import { restartServer } from "../server/index.js";
-import buildOptions from "../mapl.config.js";
+import buildOptions from '../mapl.config.js';
 
-build(buildOptions).then(restartServer);
+await build(buildOptions);
+child_process.fork('./server.js', {
+  stdio: 'inherit',
+});

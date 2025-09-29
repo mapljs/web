@@ -1,5 +1,5 @@
 // @ts-check
-import options from "../build/server-exports.js";
+import options from "./build/index.js";
 import { serve } from "srvx";
 
 serve({

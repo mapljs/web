@@ -14,6 +14,6 @@ export default router(
     }),
   ],
   {
-    '/api': api
+    '/api': api,
   },
 );

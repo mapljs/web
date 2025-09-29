@@ -16,10 +16,10 @@ npm i @mapl/web rolldown
 # Install minifier plugin for rolldown
 npm i @rollup/plugin-terser
 
-# Run server on Node if you need to
+# Run server on Node (optional)
 npm i srvx
 
-# Request validator and response serializer
+# Request validator and response serializer (optional)
 npm i @mapl/stnl stnl
 
 # Start development server

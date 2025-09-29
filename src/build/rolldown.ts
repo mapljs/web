@@ -1,12 +1,11 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import {
   build,
-  watch,
+  watch as _watch,
   type BuildOptions,
   type OutputOptions,
   type RolldownWatcher,
   type RolldownPluginOption,
-  type ExternalOption
 } from 'rolldown';
 
 import { compileToExportedDependency as generic } from '../compiler/jit.js';
@@ -16,7 +15,8 @@ import { evaluateToString } from 'runtime-compiler/jit';
 import { resolve } from 'node:path';
 import { EXTERNALS } from './utils.js';
 
-export interface MaplBuildOptions extends Omit<BuildOptions, 'input' | 'output'> {
+export interface MaplBuildOptions
+  extends Omit<BuildOptions, 'input' | 'output'> {
   output?: Omit<OutputOptions, 'file' | 'dir'>;
 }
 
@@ -56,9 +56,21 @@ export interface MaplOptions {
 export const hydrateImportsPlugin: RolldownPluginOption = {
   name: 'mapl-web-hydrate-config-replacer',
   resolveId(source) {
-    return this.resolve(source === 'runtime-compiler/config' ? 'runtime-compiler/hydrate-config' : source);
-  }
-}
+    return this.resolve(
+      source === 'runtime-compiler/config'
+        ? 'runtime-compiler/hydrate-config'
+        : source,
+    );
+  },
+};
+
+export const SERVER_ENTRY = 'index.js';
+
+const mkdirSafe = (dir: string) => {
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch {}
+};
 
 export default async (options: MaplOptions): Promise<void> => {
   const buildOptions = options.build;
@@ -67,32 +79,40 @@ export default async (options: MaplOptions): Promise<void> => {
   const targetOption = options.target;
   const asyncOption = options.asynchronous;
 
-  const outputOptions = buildOptions?.output;
-
   const inputFile = resolve(options.main);
-  const outputFile = resolve(options.outputDir, 'server-exports.js');
-  const tmpFile = resolve(options.outputDir, 'tmp.js');
 
-  // Bundle input to tmpFile
-  const currentExternals = buildOptions?.external;
-  await build({
-    ...buildOptions,
-    input: inputFile,
-    output: {
-      ...outputOptions,
-      file: tmpFile,
-    },
-    external: currentExternals == null
-      ? EXTERNALS
-      : typeof currentExternals === 'function'
-        ? (id, ...args) => EXTERNALS.includes(id) || currentExternals(id, ...args)
-        : (EXTERNALS as (string | RegExp)[]).concat(currentExternals)
-  });
+  let tmpFile: string;
+  if (buildOptions == null) {
+    tmpFile = inputFile;
+    mkdirSafe(options.outputDir);
+  } else {
+    tmpFile = resolve(options.outputDir, 'tmp.js');
+
+    const outputOptions = buildOptions?.output;
+    // Bundle input to tmpFile
+    const currentExternals = buildOptions?.external;
+    await build({
+      ...buildOptions,
+      input: inputFile,
+      output: {
+        ...outputOptions,
+        file: tmpFile,
+      },
+      external:
+        currentExternals == null
+          ? EXTERNALS
+          : typeof currentExternals === 'function'
+            ? (id, ...args) =>
+                EXTERNALS.includes(id) || currentExternals(id, ...args)
+            : (EXTERNALS as (string | RegExp)[]).concat(currentExternals),
+    });
+  }
 
   // calculate outputFile JIT content
   const appMod = await import(tmpFile);
   const HANDLER = (targetOption === 'bun' ? bun : generic)(appMod.default);
 
+  const outputFile = resolve(options.outputDir, SERVER_ENTRY);
   writeFileSync(
     outputFile,
     `
@@ -117,7 +137,7 @@ export default async (options: MaplOptions): Promise<void> => {
     input: outputFile,
     output: {
       ...hydrateOptions?.output,
-      file: outputFile
+      file: outputFile,
     },
 
     // replace runtime-compiler/config with runtime-compiler/hydrate-config
@@ -125,48 +145,60 @@ export default async (options: MaplOptions): Promise<void> => {
       ? hydrateImportsPlugin
       : Array.isArray(currentPlugins)
         ? [hydrateImportsPlugin].concat(currentPlugins as any)
-        : [hydrateImportsPlugin, currentPlugins]
+        : [hydrateImportsPlugin, currentPlugins],
   });
 };
 
-export const dev = (options: MaplOptions): RolldownWatcher => {
-  const buildOptions = options.build;
-
+const jitContent = (inputFile: string, options: MaplOptions) => {
+  const asyncOption = options.asynchronous === true;
   const targetOption = options.target;
-  const asyncOption = options.asynchronous;
+
+  return `
+    import app from ${JSON.stringify(inputFile)};
+    import { ${asyncOption ? 'compileToHandler' : 'compileToHandlerSync'} } from '@mapl/web/compiler/${targetOption === 'bun' ? 'bun/' : ''}jit';
+
+    export default {
+      ${targetOption === 'bun' ? 'routes' : 'fetch'}: ${
+        asyncOption ? 'await compileToHandler' : 'compileToHandlerSync'
+      }(app)
+    };
+  `;
+};
+
+export const watch = (options: MaplOptions): RolldownWatcher => {
+  const buildOptions = options.build;
 
   const outputOptions = buildOptions?.output;
 
-  const inputFile = resolve(options.main);
-  const outputFile = resolve(options.outputDir, 'server-exports.js');
   const tmpFile = resolve(options.outputDir, 'tmp.js');
+  const outputFile = resolve(options.outputDir, SERVER_ENTRY);
 
   // Write export code to output
-  try {
-    mkdirSync(options.outputDir, { recursive: true });
-  } catch {}
-  writeFileSync(
-    tmpFile,
-    `
-      import app from ${JSON.stringify(inputFile)};
-      import { ${asyncOption ? 'compileToHandler' : 'compileToHandlerSync'} } from '@mapl/web/compiler/${targetOption === 'bun' ? 'bun/' : ''}jit';
+  mkdirSafe(options.outputDir);
+  writeFileSync(tmpFile, jitContent(resolve(options.main), options));
 
-      export default {
-        ${targetOption === 'bun' ? 'routes' : 'fetch'}: ${
-        asyncOption
-            ? 'await compileToHandler'
-            : 'compileToHandlerSync'
-        }(app)
-      };
-    `,
-  );
-
-  return watch({
+  return _watch({
     ...buildOptions,
     input: tmpFile,
     output: {
       ...outputOptions,
       file: outputFile,
-    }
+    },
   });
+};
+
+export const dev = (options: MaplOptions): void => {
+  if (options.build != null)
+    throw new Error(
+      'App requires building! use watch(options) instead of buildDev()',
+    );
+
+  const targetOption = options.target;
+  const asyncOption = options.asynchronous;
+
+  const outputFile = resolve(options.outputDir, SERVER_ENTRY);
+
+  // Write export code to output
+  mkdirSafe(options.outputDir);
+  writeFileSync(outputFile, jitContent(resolve(options.main), options));
 };
