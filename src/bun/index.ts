@@ -1,15 +1,23 @@
-import type { BunRequest, Server } from "bun";
-import { type ChildRouters, type InferHandlers, type InferRouter, routerImpl } from "../core/index.js";
-import type { AnyMiddlewareTypes } from "../core/middleware.js";
+import type { BunRequest, Server } from 'bun';
+import {
+  type ChildRouters,
+  type InferHandlers,
+  type InferRouter,
+  routerImpl,
+} from '../core/index.js';
+import type { MiddlewareTypes } from '../core/middleware.js';
 
-export default routerImpl as <
-  const T extends AnyMiddlewareTypes[],
-  const S extends ChildRouters = {},
+export interface BunContext {
+  readonly req: BunRequest;
+  readonly server: Server;
+}
+
+export const router: <
+  // TODO: Type middleware as well
+  const T extends MiddlewareTypes<BunContext, any, any>[],
+  const S extends ChildRouters<BunContext> = {},
 >(
   middlewares: T,
-  handlers: InferHandlers<{
-    req: BunRequest,
-    server: Server
-  }, T>,
+  handlers: InferHandlers<BunContext, T>,
   children?: S,
-) => InferRouter<T, S>;
+) => InferRouter<BunContext, T, S> = routerImpl;

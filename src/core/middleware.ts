@@ -5,32 +5,48 @@ import type { AwaitedReturn } from './utils.js';
 import type { Context } from './context.js';
 import { noOp } from 'runtime-compiler';
 
-export type MiddlewareHandler = (c: Context) => any;
-export type MiddlewareTypes<E, S> = [err: E, state: S];
-export type AnyMiddlewareTypes = MiddlewareTypes<any, any>;
+declare const _: unique symbol;
+export type MiddlewareHandler<C> = (c: Context & C) => any;
 
-export const macro = <E = never, S = {}>(
+export interface MiddlewareTypes<Context, Err, State> {
+  [_]: [Context, Err, State];
+}
+export type AnyMiddlewareTypes = MiddlewareTypes<any, any, any>;
+export type InferMiddlewareState<T extends AnyMiddlewareTypes> = T[typeof _][1];
+export type InferMiddlewareErr<T extends AnyMiddlewareTypes> = T[typeof _][1];
+
+export const macro = <C, E = never, S = {}>(
   f: (scope: ScopeState) => string,
-): MiddlewareTypes<E, S> => [-1, f] as any;
-export const noOpMacro: MiddlewareTypes<never, {}> = macro(noOp);
+): MiddlewareTypes<C, E, S> => [-1, f] as any;
+export const noOpMacro: MiddlewareTypes<any, never, {}> = macro(noOp);
 
-export const tap = (f: MiddlewareHandler): MiddlewareTypes<never, {}> =>
-  [0, f] as any;
+export const tap = <C>(
+  f: MiddlewareHandler<C>,
+): MiddlewareTypes<C, never, {}> => [0, f] as any;
 
-export const attach = <Prop extends string, const T extends MiddlewareHandler>(
+export const attach = <
+  C,
+  Prop extends string,
+  const T extends MiddlewareHandler<C>,
+>(
   prop: Prop,
   f: T,
-): MiddlewareTypes<never, Record<Prop, AwaitedReturn<T>>> =>
+): MiddlewareTypes<C, never, Record<Prop, AwaitedReturn<T>>> =>
   [1, f, prop] as any;
 
-export const validate = <const T extends MiddlewareHandler>(
+export const validate = <C, const T extends MiddlewareHandler<C>>(
   f: T,
-): MiddlewareTypes<InferErr<AwaitedReturn<T>>, {}> => [2, f] as any;
+): MiddlewareTypes<C, InferErr<AwaitedReturn<T>>, {}> => [2, f] as any;
 
-export const parse = <Prop extends string, const T extends MiddlewareHandler>(
+export const parse = <
+  C,
+  Prop extends string,
+  const T extends MiddlewareHandler<C>,
+>(
   prop: Prop,
   f: T,
 ): MiddlewareTypes<
+  C,
   InferErr<AwaitedReturn<T>>,
   Record<Prop, InferResult<AwaitedReturn<T>>>
 > => [3, f, prop] as any;

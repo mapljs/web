@@ -25,6 +25,7 @@ import {
 } from 'runtime-compiler';
 import { evaluate, evaluateSync } from 'runtime-compiler/jit';
 import type { FetchFn } from '../core/utils.js';
+import type { GenericContext } from '../index.js';
 
 // Compiled values are loaded to the URL router
 let URL_ROUTER: Router<string>;
@@ -98,7 +99,7 @@ export const compileErrorHandler: Hook<[input: string, ...ErrorHandler]> = (
   );
 };
 
-const compileToState = (router: RouterTag): void => {
+const compileToState = (router: RouterTag<GenericContext>): void => {
   URL_ROUTER = {}; // Create base router
 
   hooks.compileHandler = (handler, prevContent, path, scope) => {
@@ -174,7 +175,7 @@ const compileToState = (router: RouterTag): void => {
   );
 };
 
-export const compileToString = (router: RouterTag): string => {
+export const compileToString = (router: RouterTag<GenericContext>): string => {
   compileToState(router);
   return (
     '(' +
@@ -188,17 +189,21 @@ export const compileToString = (router: RouterTag): string => {
 };
 
 export const compileToExportedDependency = (
-  router: RouterTag,
+  router: RouterTag<GenericContext>,
 ): CompiledDependency<FetchFn> =>
   exportDependency(injectDependency(compileToString(router)));
 
-export const compileToHandler = async (router: RouterTag): Promise<FetchFn> => {
+export const compileToHandler = async (
+  router: RouterTag<GenericContext>,
+): Promise<FetchFn> => {
   const id = compileToExportedDependency(router);
   await evaluate();
   return getDependency(id);
 };
 
-export const compileToHandlerSync = (router: RouterTag): FetchFn => {
+export const compileToHandlerSync = (
+  router: RouterTag<GenericContext>,
+): FetchFn => {
   const id = compileToExportedDependency(router);
   evaluateSync();
   return getDependency(id);

@@ -1,4 +1,5 @@
-import { router, handle } from '@mapl/web';
+import { handle } from '@mapl/web';
+import { router } from '@mapl/web/bun';
 
 import * as bodyParser from '@mapl/stnl/body-parser';
 import * as stringifier from '@mapl/stnl/stringifier';

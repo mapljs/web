@@ -1,31 +1,33 @@
 import type { HandlerTag } from './handler.js';
-import type { AnyMiddlewareTypes } from './middleware.js';
+import type {
+  AnyMiddlewareTypes,
+  InferMiddlewareState,
+  InferMiddlewareErr,
+} from './middleware.js';
 import type { UnionToIntersection } from './utils.js';
 
 declare const _: unique symbol;
-export interface RouterTag<out E = any> {
-  [_]: E;
+export interface RouterTag<in out C, out E = any> {
+  [_]: [E, C];
 }
-export type ChildRouters = Record<string, RouterTag>;
+export type ChildRouters<C> = Record<string, RouterTag<C, any>>;
 
-export type InferHandlers<C, T extends AnyMiddlewareTypes[]> = HandlerTag<T extends [] ? C : C & UnionToIntersection<T[number][1]>>[];
-export type InferRouter<T extends AnyMiddlewareTypes[], S extends ChildRouters> = RouterTag<S[keyof S][typeof _] | T[number][0]>;
+export type InferHandlers<C, T extends AnyMiddlewareTypes[]> = HandlerTag<
+  T extends [] ? C : C & UnionToIntersection<InferMiddlewareState<T[number]>>
+>[];
+export type InferRouterErr<T extends RouterTag<any>> = T[typeof _][0];
+export type InferRouter<
+  C,
+  T extends AnyMiddlewareTypes[],
+  S extends ChildRouters<C>,
+> = RouterTag<C, InferRouterErr<S[keyof S]> | InferMiddlewareErr<T[number]>>;
 
 // Untyped router
 /**
  * @internal
  */
-export const routerImpl = (middlewares: any[], handlers: any[], children: Record<string, any>): any => [
-  middlewares, handlers,, children
-]
-
-export default routerImpl as <
-  const T extends AnyMiddlewareTypes[],
-  const S extends ChildRouters = {},
->(
-  middlewares: T,
-  handlers: InferHandlers<{
-    req: Request
-  }, T>,
-  children?: S,
-) => InferRouter<T, S>;
+export const routerImpl = (
+  middlewares: any[],
+  handlers: any[],
+  children: any,
+): any => [middlewares, handlers, , children];

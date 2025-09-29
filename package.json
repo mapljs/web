@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "A compiled web framework for all runtimes",
   "keywords": [
     "fast",

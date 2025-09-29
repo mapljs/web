@@ -75,7 +75,10 @@ const mkdirSafe = (dir: string) => {
 };
 
 // Get compiler module from target
-const getTargetCompilerMod = (targetOption: MaplOptions['target']) => targetOption == null ? '@mapl/web/compiler/' : '@mapl/web/' + targetOption + '/compiler/';
+const getTargetCompilerMod = (targetOption: MaplOptions['target']) =>
+  targetOption == null
+    ? '@mapl/web/compiler/'
+    : '@mapl/web/' + targetOption + '/compiler/';
 
 export const hydrate = async (options: MaplOptions): Promise<void> => {
   const buildOptions = options.build;

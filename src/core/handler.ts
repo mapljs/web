@@ -124,13 +124,14 @@ export const text: HandlerResponse<BodyInit> = isHydrating
  * @param f
  */
 export const error = <
+  C,
   const E extends Err,
   const D extends HandlerData | undefined = undefined,
 >(
-  r: RouterTag<E>,
-  f: NoInfer<(err: E, c: Context) => InferReturn<D>>,
+  r: RouterTag<C, E>,
+  f: NoInfer<(err: E, c: Context & C) => InferReturn<D>>,
   dat?: D,
-): RouterTag<never> => {
+): RouterTag<C, never> => {
   // @ts-ignore
   r[2] = [f, dat];
   return r as any;

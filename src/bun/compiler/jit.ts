@@ -28,10 +28,11 @@ import {
 } from '../../compiler/jit.js';
 import { insertRoute, resetRouter, routerToString } from './router.js';
 import type { FetchFn } from '../../core/utils.js';
+import type { BunContext } from '../index.js';
 
 export type BunRoutes = Record<string, Record<string, FetchFn> | FetchFn>;
 
-const compileToState = (router: RouterTag): void => {
+const compileToState = (router: RouterTag<BunContext>): void => {
   resetRouter();
 
   hooks.compileHandler = (handler, prevContent, path, scope) => {
@@ -108,25 +109,27 @@ const compileToState = (router: RouterTag): void => {
   );
 };
 
-export const compileToString = (router: RouterTag): string => {
+export const compileToString = (router: RouterTag<BunContext>): string => {
   compileToState(router);
   return routerToString();
 };
 
 export const compileToExportedDependency = (
-  router: RouterTag,
+  router: RouterTag<BunContext>,
 ): CompiledDependency<BunRoutes> =>
   exportDependency(injectDependency(compileToString(router)));
 
 export const compileToHandler = async (
-  router: RouterTag,
+  router: RouterTag<BunContext>,
 ): Promise<BunRoutes> => {
   const id = compileToExportedDependency(router);
   await evaluate();
   return getDependency(id);
 };
 
-export const compileToHandlerSync = (router: RouterTag): BunRoutes => {
+export const compileToHandlerSync = (
+  router: RouterTag<BunContext>,
+): BunRoutes => {
   const id = compileToExportedDependency(router);
   evaluateSync();
   return getDependency(id);

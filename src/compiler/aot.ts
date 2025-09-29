@@ -5,8 +5,12 @@ import type { RouterTag } from '../core/index.js';
 import '../core/context.js';
 import type { HandlerData } from '../core/handler.js';
 import { countParams } from '@mapl/router/path';
+import type { GenericContext } from '../index.js';
+import type { BunContext } from '../bun/index.js';
 
-export const hydrateRouter = (router: RouterTag): void => {
+export const hydrateRouter = (
+  router: RouterTag<GenericContext> | RouterTag<BunContext>,
+): void => {
   hooks.compileHandler = (handler, _, _1, scope) => {
     const fn = handler[2];
     injectExternalDependency(fn);
@@ -23,7 +27,9 @@ export const hydrateRouter = (router: RouterTag): void => {
   hydrateDependency(router as any, [false, false, , '', false], '');
 };
 
-export default (router: RouterTag): void => {
+export default (
+  router: RouterTag<GenericContext> | RouterTag<BunContext>,
+): void => {
   hydrateRouter(router);
   // Mark the export slot for the final handler
   markExported();

@@ -1,4 +1,5 @@
-import { cors, handle, router, staticHeaders } from '@mapl/web';
+import { cors, handle, staticHeaders } from '@mapl/web';
+import { router } from '@mapl/web/bun';
 import api from './api.ts';
 
 export default router(
