@@ -38,4 +38,3 @@ Try it out using:
 npm install -g degit
 degit github:mapljs/web/examples/generic
 ```
-And change `@mapl/web` version in `package.json`.
