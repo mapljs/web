@@ -1,21 +1,14 @@
 // @ts-check
-import { dev, watch } from '@mapl/web/build/rolldown';
+import { dev, watcherReady } from '@mapl/web/build/rolldown';
 import buildOptions from '../mapl.config.js';
 import child_process from 'node:child_process';
 
-let proc;
-const startDevServer = () =>
-  (proc ??= child_process.fork('./server.js', {
-    stdio: 'inherit',
-    execArgv: ['--watch'],
-  }));
+// Watch built output if necessary
+const watcher = dev(buildOptions);
+watcher && await watcherReady(watcher);
 
-if (buildOptions.build == null) {
-  dev(buildOptions);
-  startDevServer();
-} else {
-  // Watch the bundle when needed to
-  watch(buildOptions).on('event', (e) => {
-    if (e.code === 'BUNDLE_END') startDevServer();
-  });
-}
+// node --watch server.js
+child_process.fork('./server.js', {
+  stdio: 'inherit',
+  execArgv: ['--watch'],
+});

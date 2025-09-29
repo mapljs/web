@@ -1,11 +1,12 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import {
   build,
-  watch as _watch,
+  watch,
   type BuildOptions,
   type OutputOptions,
   type RolldownWatcher,
   type RolldownPluginOption,
+  type RolldownWatcherEvent
 } from 'rolldown';
 
 import { compileToExportedDependency as generic } from '../compiler/jit.js';
@@ -165,40 +166,42 @@ const jitContent = (inputFile: string, options: MaplOptions) => {
   `;
 };
 
-export const watch = (options: MaplOptions): RolldownWatcher => {
-  const buildOptions = options.build;
+export const watcherReady = (watcher: RolldownWatcher): Promise<void> => new Promise((res, rej) => {
+  const listener = (e: RolldownWatcherEvent) => {
+    if (e.code === 'ERROR')
+      rej(e.error);
+    else if (e.code === 'BUNDLE_END')
+      res();
+    watcher.off('event', listener);
+  }
+  watcher.on('event', listener);
+});
 
-  const outputOptions = buildOptions?.output;
-
-  const tmpFile = resolve(options.outputDir, 'tmp.js');
+export const dev = (options: MaplOptions): RolldownWatcher | void => {
   const outputFile = resolve(options.outputDir, SERVER_ENTRY);
+  mkdirSafe(options.outputDir);
+  const content = jitContent(resolve(options.main), options);
+
+  if (options.build != null) {
+    const buildOptions = options.build;
+    const outputOptions = buildOptions?.output;
+
+    const tmpFile = resolve(options.outputDir, 'tmp.js');
+
+    // Write export code to output
+    mkdirSafe(options.outputDir);
+    writeFileSync(tmpFile, content);
+
+    return watch({
+      ...buildOptions,
+      input: tmpFile,
+      output: {
+        ...outputOptions,
+        file: outputFile,
+      },
+    });
+  }
 
   // Write export code to output
-  mkdirSafe(options.outputDir);
-  writeFileSync(tmpFile, jitContent(resolve(options.main), options));
-
-  return _watch({
-    ...buildOptions,
-    input: tmpFile,
-    output: {
-      ...outputOptions,
-      file: outputFile,
-    },
-  });
-};
-
-export const dev = (options: MaplOptions): void => {
-  if (options.build != null)
-    throw new Error(
-      'App requires building! use watch(options) instead of buildDev()',
-    );
-
-  const targetOption = options.target;
-  const asyncOption = options.asynchronous;
-
-  const outputFile = resolve(options.outputDir, SERVER_ENTRY);
-
-  // Write export code to output
-  mkdirSafe(options.outputDir);
-  writeFileSync(outputFile, jitContent(resolve(options.main), options));
+  writeFileSync(outputFile, content);
 };
