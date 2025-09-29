@@ -37,4 +37,6 @@ Try it out using:
 ```sh
 npm install -g degit
 degit github:mapljs/web/examples/generic
+# or with Bun
+degit github:mapljs/web/examples/bun
 ```
