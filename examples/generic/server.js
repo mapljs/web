@@ -3,6 +3,6 @@ import options from "./build/index.js";
 import { serve } from "srvx";
 
 serve({
-  ...options,
+  fetch: options,
   port: 3000,
 });

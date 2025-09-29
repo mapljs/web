@@ -1,5 +1,5 @@
 import { injectDependency } from 'runtime-compiler';
-import { RES404 } from '../jit.js';
+import { RES404 } from '../../compiler/jit.js';
 
 let ROUTES: Record<string, Record<string, string>>;
 

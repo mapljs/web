@@ -6,13 +6,26 @@ declare const _: unique symbol;
 export interface RouterTag<out E = any> {
   [_]: E;
 }
+export type ChildRouters = Record<string, RouterTag>;
 
-export default <
+export type InferHandlers<C, T extends AnyMiddlewareTypes[]> = HandlerTag<T extends [] ? C : C & UnionToIntersection<T[number][1]>>[];
+export type InferRouter<T extends AnyMiddlewareTypes[], S extends ChildRouters> = RouterTag<S[keyof S][typeof _] | T[number][0]>;
+
+// Untyped router
+/**
+ * @internal
+ */
+export const routerImpl = (middlewares: any[], handlers: any[], children: Record<string, any>): any => [
+  middlewares, handlers,, children
+]
+
+export default routerImpl as <
   const T extends AnyMiddlewareTypes[],
-  const S extends Record<string, RouterTag> = {},
+  const S extends ChildRouters = {},
 >(
   middlewares: T,
-  handlers: HandlerTag<T extends [] ? {} : UnionToIntersection<T[number][1]>>[],
+  handlers: InferHandlers<{
+    req: Request
+  }, T>,
   children?: S,
-): RouterTag<S[keyof S][typeof _] | T[number][0]> =>
-  [middlewares, handlers, , children] as any;
+) => InferRouter<T, S>;

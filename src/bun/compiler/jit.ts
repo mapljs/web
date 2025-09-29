@@ -25,7 +25,7 @@ import {
   compileReturn,
   paramArgs,
   RES400,
-} from '../jit.js';
+} from '../../compiler/jit.js';
 import { insertRoute, resetRouter, routerToString } from './router.js';
 import type { FetchFn } from '../../core/utils.js';
 

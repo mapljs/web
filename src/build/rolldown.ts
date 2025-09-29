@@ -6,11 +6,11 @@ import {
   type OutputOptions,
   type RolldownWatcher,
   type RolldownPluginOption,
-  type RolldownWatcherEvent
+  type RolldownWatcherEvent,
 } from 'rolldown';
 
 import { compileToExportedDependency as generic } from '../compiler/jit.js';
-import { compileToExportedDependency as bun } from '../compiler/bun/jit.js';
+import { compileToExportedDependency as bun } from '../bun/compiler/jit.js';
 
 import { evaluateToString } from 'runtime-compiler/jit';
 import { resolve } from 'node:path';
@@ -43,7 +43,7 @@ export interface MaplOptions {
   asynchronous?: boolean;
 
   /**
-   * Build target
+   * Compiler module to use
    */
   target?: 'bun';
 
@@ -67,20 +67,24 @@ export const hydrateImportsPlugin: RolldownPluginOption = {
 
 export const SERVER_ENTRY = 'index.js';
 
+// mkdir if not exists
 const mkdirSafe = (dir: string) => {
   try {
     mkdirSync(dir, { recursive: true });
   } catch {}
 };
 
-export default async (options: MaplOptions): Promise<void> => {
+// Get compiler module from target
+const getTargetCompilerMod = (targetOption: MaplOptions['target']) => targetOption == null ? '@mapl/web/compiler/' : '@mapl/web/' + targetOption + '/compiler/';
+
+export const hydrate = async (options: MaplOptions): Promise<void> => {
   const buildOptions = options.build;
   const hydrateOptions = options.hydrate;
 
-  const targetOption = options.target;
   const asyncOption = options.asynchronous;
 
   const inputFile = resolve(options.main);
+  const compilerPrefix = getTargetCompilerMod(options.target);
 
   let tmpFile: string;
   if (buildOptions == null) {
@@ -111,23 +115,22 @@ export default async (options: MaplOptions): Promise<void> => {
 
   // calculate outputFile JIT content
   const appMod = await import(tmpFile);
-  const HANDLER = (targetOption === 'bun' ? bun : generic)(appMod.default);
+  const { compileToExportedDependency } = await import(compilerPrefix + 'jit');
+  const HANDLER = compileToExportedDependency(appMod.default);
 
   const outputFile = resolve(options.outputDir, SERVER_ENTRY);
   writeFileSync(
     outputFile,
     `
       import app from ${JSON.stringify(tmpFile)};
-      import hydrateRouter from '@mapl/web/compiler/${targetOption === 'bun' ? 'bun/' : ''}aot';
+      import hydrateRouter from '${compilerPrefix}aot';
       hydrateRouter(app);
 
       import { hydrate } from 'runtime-compiler/hydrate';
       import { getDependency } from 'runtime-compiler';
 
       ${asyncOption ? 'await(async' : '('}${evaluateToString()})(...hydrate());
-      export default {
-        ${targetOption === 'bun' ? 'routes' : 'fetch'}: getDependency(${HANDLER})
-      };
+      export default getDependency(${HANDLER});
     `,
   );
 
@@ -152,30 +155,21 @@ export default async (options: MaplOptions): Promise<void> => {
 
 const jitContent = (inputFile: string, options: MaplOptions) => {
   const asyncOption = options.asynchronous === true;
-  const targetOption = options.target;
-
   return `
     import app from ${JSON.stringify(inputFile)};
-    import { ${asyncOption ? 'compileToHandler' : 'compileToHandlerSync'} } from '@mapl/web/compiler/${targetOption === 'bun' ? 'bun/' : ''}jit';
-
-    export default {
-      ${targetOption === 'bun' ? 'routes' : 'fetch'}: ${
-        asyncOption ? 'await compileToHandler' : 'compileToHandlerSync'
-      }(app)
-    };
+    import { ${asyncOption ? 'compileToHandler' : 'compileToHandlerSync'} } from '${getTargetCompilerMod(options.target)}jit';
+    export default ${asyncOption ? 'await compileToHandler' : 'compileToHandlerSync'}(app);
   `;
 };
 
-export const watcherReady = (watcher: RolldownWatcher): Promise<void> => new Promise((res, rej) => {
-  const listener = (e: RolldownWatcherEvent) => {
-    if (e.code === 'ERROR')
-      rej(e.error);
-    else if (e.code === 'BUNDLE_END')
-      res();
-    watcher.off('event', listener);
-  }
-  watcher.on('event', listener);
-});
+export const onceBundled = (watcher: RolldownWatcher): Promise<void> =>
+  new Promise((res, rej) =>
+    watcher.on('event', function f(e: RolldownWatcherEvent) {
+      if (e.code === 'ERROR') rej(e.error);
+      else if (e.code === 'BUNDLE_END') res();
+      watcher.off('event', f);
+    }),
+  );
 
 export const dev = (options: MaplOptions): RolldownWatcher | void => {
   const outputFile = resolve(options.outputDir, SERVER_ENTRY);
