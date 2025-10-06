@@ -10,7 +10,7 @@ function start<T>(
   this.controller = controller;
 }
 
-export const init = <R>(
+export const source = <R>(
   queueingStrategy?: QueuingStrategy<R>,
 ): StreamSource<R> => {
   const source: StreamSource<R> = {
