@@ -27,10 +27,13 @@ import {
   RES400,
 } from '../../compiler/jit.js';
 import { insertRoute, resetRouter, routerToString } from './router.js';
-import type { FetchFn } from '../../core/utils.js';
 import type { BunContext } from '../index.js';
+import type { RouterTypes } from 'bun';
 
-export type BunRoutes = Record<string, Record<string, FetchFn> | FetchFn>;
+export type BunRoutes<T extends string = string> = Record<
+  T,
+  RouterTypes.RouteValue<T>
+>;
 
 const compileToState = (router: RouterTag<BunContext>): void => {
   resetRouter();
