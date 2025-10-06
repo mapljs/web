@@ -25,4 +25,4 @@ export default (isHydrating
           ');',
       )) as (
   headers: Headers | Header[] | Record<string, any>,
-) => MiddlewareTypes<never, {}>;
+) => MiddlewareTypes<any, never, {}>;

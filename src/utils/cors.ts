@@ -38,7 +38,7 @@ export const init: (
   origins: HeaderValue,
   preflightHeaders?: PreflightHeader[],
   headers?: Header[],
-) => MiddlewareTypes<never, {}> = isHydrating
+) => MiddlewareTypes<any, never, {}> = isHydrating
   ? () => createContextMacro
   : (origins, preflightHeaders = [], headers = []) => {
       if (origins !== '*') {
