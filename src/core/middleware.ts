@@ -8,7 +8,7 @@ import type { InferErr, InferResult } from '@safe-std/error';
 declare const _: unique symbol;
 export type MiddlewareHandler<C> = (c: Context & C) => any;
 
-export interface MiddlewareTypes<Context, Err, State> {
+export interface MiddlewareTypes<out Context, in out Err, in out State> {
   [_]: [Context, Err, State];
 }
 export type AnyMiddlewareTypes = MiddlewareTypes<any, any, any>;
