@@ -6,14 +6,15 @@ import { noOp } from 'runtime-compiler';
 import type { InferErr, InferResult } from '@safe-std/error';
 
 declare const _: unique symbol;
-export type MiddlewareHandler<C> = (c: Context & C) => any;
-
 export interface MiddlewareTypes<out Context, in out Err, in out State> {
   [_]: [Context, Err, State];
 }
 export type AnyMiddlewareTypes = MiddlewareTypes<any, any, any>;
+
 export type InferMiddlewareState<T extends AnyMiddlewareTypes> = T[typeof _][2];
 export type InferMiddlewareErr<T extends AnyMiddlewareTypes> = T[typeof _][1];
+
+export type MiddlewareHandler<C> = (c: Context & C) => any;
 
 export const macro = <C, E = never, S = {}>(
   f: (scope: ScopeState) => string,

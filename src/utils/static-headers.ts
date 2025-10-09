@@ -4,7 +4,7 @@ import { macro, noOpMacro, type MiddlewareTypes } from '../core/middleware.js';
 import { injectDependency } from 'runtime-compiler';
 
 export const injectList = (list: any[]): string =>
-  list.length > 1
+  list.length !== 1
     ? '...' + injectDependency(JSON.stringify(list))
     : injectDependency(JSON.stringify(list[0]));
 

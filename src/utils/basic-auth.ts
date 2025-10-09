@@ -7,7 +7,7 @@ export const extract = (
     }
   | undefined => {
   const header = req.headers.get('authorization');
-  if (header !== null && header.startsWith('Basic '))
+  if (header?.startsWith('Basic '))
     try {
       const sliced = atob(header.slice(6));
 

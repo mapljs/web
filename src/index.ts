@@ -6,10 +6,16 @@ import {
 } from './core/index.js';
 import type { MiddlewareTypes } from './core/middleware.js';
 
+/**
+ * Generic context
+ */
 export interface GenericContext {
   readonly req: Request;
 }
 
+/**
+ * Generic router
+ */
 export const router: <
   // TODO: Type middleware as well
   const T extends MiddlewareTypes<GenericContext, any, any>[],

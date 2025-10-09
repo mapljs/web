@@ -16,7 +16,6 @@ export type InferHandlers<C, T extends AnyMiddlewareTypes[]> = HandlerTag<
   T extends [] ? C : C & UnionToIntersection<InferMiddlewareState<T[number]>>
 >[];
 export type InferRouterErr<T extends RouterTag<any>> = T[typeof _][0];
-
 export type InferRouter<
   C,
   T extends AnyMiddlewareTypes[],
