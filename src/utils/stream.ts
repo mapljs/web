@@ -3,7 +3,7 @@ export interface StreamSource<R> extends UnderlyingSource<R> {
   stream: ReadableStream<R>;
 }
 
-function start<T>(
+function start(
   this: StreamSource<any>,
   controller: ReadableStreamDefaultController<any>,
 ) {

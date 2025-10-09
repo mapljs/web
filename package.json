@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "description": "A compiled web framework for all runtimes",
   "keywords": [
     "fast",
@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@mapl/stnl": "^0.2.1",
+    "@mapl/stnl": "^0.2.3",
     "@types/bun": "^1.2.10",
     "mitata": "^1.0.34",
     "oxc-minify": "^0.87.0",
@@ -46,7 +46,7 @@
     "@mapl/framework": "^0.5.3",
     "@mapl/router": "^0.6.2",
     "@rollup/plugin-terser": "^0.4.4",
-    "@safe-std/error": "^1.0.1",
+    "@safe-std/error": "^2.0.3",
     "runtime-compiler": "^1.2.6"
   }
 }

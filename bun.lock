@@ -7,12 +7,12 @@
         "@mapl/framework": "^0.5.3",
         "@mapl/router": "^0.6.2",
         "@rollup/plugin-terser": "^0.4.4",
-        "@safe-std/error": "^1.0.1",
+        "@safe-std/error": "^2.0.3",
         "runtime-compiler": "^1.2.6",
       },
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
-        "@mapl/stnl": "^0.2.1",
+        "@mapl/stnl": "^0.2.3",
         "@types/bun": "^1.2.10",
         "mitata": "^1.0.34",
         "oxc-minify": "^0.87.0",
@@ -120,7 +120,7 @@
 
     "@mapl/router": ["@mapl/router@0.6.2", "", {}, "sha512-qzGQnuVeapwNZxRcAH9zB4+cr3Q1AOLHjyhqeMVBfeJB6lYly2LHf7UsNEnT4KX4/KcxdNK7Te3ka/s327tmow=="],
 
-    "@mapl/stnl": ["@mapl/stnl@0.2.1", "", {}, "sha512-HLoVAPW1RL3ph7UGs7JrT+CbhL/LBrqSkeNQ3uCqNtXVm8vED628C9bgQCQY8MWJL2G6yOv4LUxZnn7ydoSjEw=="],
+    "@mapl/stnl": ["@mapl/stnl@0.2.3", "", {}, "sha512-t5UGkytk6Qge06oxFJiJIc4sHYIdo86EtMz6xNZKg3XmTqpFuWjNuFdAoCdumcIttte++K4d8PVP/7qLUJXbzA=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.0.5", "", { "dependencies": { "@emnapi/core": "^1.5.0", "@emnapi/runtime": "^1.5.0", "@tybys/wasm-util": "^0.10.1" } }, "sha512-TBr9Cf9onSAS2LQ2+QHx6XcC6h9+RIzJgbqG3++9TUZSH204AwEy5jg3BTQ0VATsyoGj4ee49tN/y6rvaOOtcg=="],
 
@@ -206,7 +206,7 @@
 
     "@rollup/plugin-terser": ["@rollup/plugin-terser@0.4.4", "", { "dependencies": { "serialize-javascript": "^6.0.1", "smob": "^1.0.0", "terser": "^5.17.4" }, "peerDependencies": { "rollup": "^2.0.0||^3.0.0||^4.0.0" }, "optionalPeers": ["rollup"] }, "sha512-XHeJC5Bgvs8LfukDwWZp7yeqin6ns8RTl2B9avbejt6tZqsqvVoWI7ZTQrcNsfKEDWBTnTxM8nMDkO2IFFbd0A=="],
 
-    "@safe-std/error": ["@safe-std/error@1.0.1", "", {}, "sha512-zEqlQHnETbvZcFNpmtBHbbCTW66qcDcnq4ow56rFlRvBtS4DxoAsfg72rtebZolMV9LCE+CJTCk2BVXXz7miwg=="],
+    "@safe-std/error": ["@safe-std/error@2.0.3", "", {}, "sha512-3Z9zTX7mYK7ZpaW0hpxsL1joLlX/Sc5J7kNK4Ndp4OFSX2+bRjcRI1aECTfkDhFb0fvegnQ11GoYgdFTbguYVw=="],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.0.0", "", {}, "sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA=="],
 

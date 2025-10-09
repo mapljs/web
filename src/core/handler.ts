@@ -1,4 +1,4 @@
-import type { Err } from '@safe-std/error';
+import type { AnyErr } from '@safe-std/error';
 import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
 import type { RequestMethod } from './utils.js';
@@ -125,7 +125,7 @@ export const text: HandlerResponse<BodyInit> = isHydrating
  */
 export const error = <
   C,
-  const E extends Err,
+  const E extends AnyErr,
   const D extends HandlerData | undefined = undefined,
 >(
   r: RouterTag<C, E>,

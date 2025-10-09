@@ -1,9 +1,9 @@
 import type { ScopeState } from '@mapl/framework';
-import type { InferErr, InferResult } from '@safe-std/error';
 
 import type { AwaitedReturn } from './utils.js';
 import type { Context } from './context.js';
 import { noOp } from 'runtime-compiler';
+import type { InferErr, InferResult } from '@safe-std/error';
 
 declare const _: unique symbol;
 export type MiddlewareHandler<C> = (c: Context & C) => any;
@@ -12,7 +12,7 @@ export interface MiddlewareTypes<Context, Err, State> {
   [_]: [Context, Err, State];
 }
 export type AnyMiddlewareTypes = MiddlewareTypes<any, any, any>;
-export type InferMiddlewareState<T extends AnyMiddlewareTypes> = T[typeof _][1];
+export type InferMiddlewareState<T extends AnyMiddlewareTypes> = T[typeof _][2];
 export type InferMiddlewareErr<T extends AnyMiddlewareTypes> = T[typeof _][1];
 
 export const macro = <C, E = never, S = {}>(
