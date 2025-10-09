@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "description": "A compiled web framework for all runtimes",
   "keywords": [
     "fast",
@@ -43,7 +43,7 @@
     "esbuild"
   ],
   "dependencies": {
-    "@mapl/framework": "^0.6.1",
+    "@mapl/framework": "^0.6.2",
     "@mapl/router": "^0.6.4",
     "@safe-std/error": "^2.0.3",
     "runtime-compiler": "^1.2.6"
