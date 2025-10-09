@@ -2,6 +2,7 @@ import type { AnyErr } from '@safe-std/error';
 import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
 import type { RequestMethod } from './utils.js';
+
 import { isHydrating } from 'runtime-compiler/config';
 import { injectDependency, lazyDependency, noOp } from 'runtime-compiler';
 
