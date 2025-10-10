@@ -35,5 +35,5 @@ export const size: (bytes: number) => MiddlewareTypes<any, typeof err, {}> =
             bytes +
             '){' +
             compileErrorHandler(ERR_DEP(), scope) +
-            '};i=await r.read()}}',
+            '}i=await r.read()}}',
         );
