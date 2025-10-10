@@ -1,3 +1,5 @@
+import type { Header } from '../core/context.js';
+
 export const extract = (
   req: Request,
 ):
@@ -19,3 +21,13 @@ export const extract = (
         };
     } catch {}
 };
+
+export const realm = (val: string): Header => [
+  'www-authenticate',
+  'Basic realm=' + JSON.stringify(val),
+];
+
+export const error = (val: string): Header => [
+  'www-authenticate',
+  'Basic error=' + JSON.stringify(val),
+];
