@@ -1,39 +1,38 @@
-import { err as createErr, type Err } from '@safe-std/error';
 import { macro, type MiddlewareTypes } from '../core/middleware.js';
 import { isHydrating } from 'runtime-compiler/config';
-import { compileErrorHandler, createAsyncScope } from '@mapl/framework';
-import { injectExternalDependency, lazyDependency } from 'runtime-compiler';
+import { createAsyncScope } from '@mapl/framework';
+import { injectDependency, lazyDependency, noOp } from 'runtime-compiler';
 
-const errSymbol: unique symbol = Symbol();
-export const err: Err<typeof errSymbol> = createErr(errSymbol);
-export const ERR_DEP: () => string = lazyDependency(
-  injectExternalDependency,
-  err,
-);
+export const RES413: () => string = isHydrating
+  ? noOp
+  : lazyDependency(injectDependency, 'new Response(null,{status:413})');
 
 /**
  * Set size limit for body.
- * If you use Bun, use their maxRequestBodySize option instead.
+ * If you use Bun, use their `maxRequestBodySize` option instead.
  */
-export const size: (bytes: number) => MiddlewareTypes<any, typeof err, {}> =
+export const size: (bytes: number) => MiddlewareTypes<any, never, {}> =
   isHydrating
-    ? () =>
-        macro((scope) => {
-          createAsyncScope(scope);
-          compileErrorHandler(ERR_DEP(), scope);
-          return '';
-        })
+    ? () => macro(createAsyncScope)
     : (bytes) =>
         macro(
           (scope) =>
             createAsyncScope(scope) +
             'if(' +
             constants.REQ +
-            '.body!==null){let r=' +
+            '.body!==null){let l=' +
             constants.REQ +
-            '.clone().body.getReader(),i=await r.read(),s=0;while(!i.done){s+=i.value.byteLength;if(s>' +
+            '.headers.get("content-length");if(l===null||' +
+            constants.REQ +
+            '.headers.has("transfer-encoding")){let g=' +
+            constants.REQ +
+            '.clone().body.getReader(),i=await g.read(),s=0;while(!i.done){s+=i.value.byteLength;if(s>' +
             bytes +
-            '){' +
-            compileErrorHandler(ERR_DEP(), scope) +
-            '}i=await r.read()}}',
+            ')return ' +
+            RES413() +
+            ';i=await g.read()}}else if(l>' +
+            bytes +
+            ')return ' +
+            RES413() +
+            '}',
         );

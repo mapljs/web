@@ -1,7 +1,6 @@
 import {
   compileGroup,
   createArgSet,
-  AsyncFunction,
   contextInit,
   setContextInit,
   hooks,
@@ -17,23 +16,27 @@ import type { RouterTag } from '../core/index.js';
 import type { HandlerData } from '../core/handler.js';
 
 import {
+    AsyncFunction,
   exportDependency,
   getDependency,
   injectDependency,
   injectExternalDependency,
+  lazyDependency,
+  noOp,
   type CompiledDependency,
 } from 'runtime-compiler';
 import { evaluate, evaluateSync } from 'runtime-compiler/jit';
 import type { FetchFn } from '../core/utils.js';
 import type { GenericContext } from '../index.js';
+import { isHydrating } from 'runtime-compiler/config';
 
 // Compiled values are loaded to the URL router
 let URL_ROUTER: Router<string>;
-export const RES404: string = injectDependency(
+export const RES404: () => string = isHydrating ? noOp : lazyDependency(injectDependency,
   'new Response(null,{status:404})',
 );
-export const RES400: string = injectDependency(
-  'new Response(null,{status:400})',
+export const RES400: () => string = isHydrating ? noOp : lazyDependency(injectDependency,
+  'new Response(null,{status:400})'
 );
 
 export const paramArgs: string[] = createArgSet(
