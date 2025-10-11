@@ -48,15 +48,19 @@ export const init: (
 
         if (Array.isArray(origins))
           return macro((scope) => {
-            const originList = injectDependency(JSON.stringify(origins));
+            let str =
+              '(r,h)=>{let o=r.headers.get("origin");h.push(["access-control-allow-origin",typeof o==="string"&&o===' +
+              JSON.stringify(origins[1]);
+            for (let i = 2; i < origins.length; i++)
+              str += '||o===' + JSON.stringify(origins[i]);
+
             return (
               createContext(scope) +
               (injectDependency(
-                '(r,h)=>{let o=r.headers.get("origin");h.push(["access-control-allow-origin",typeof o==="string"&&' +
-                  originList +
-                  '.includes(o)?o:' +
-                  originList +
-                  '[0]]);' +
+                str +
+                  '?o:' +
+                  JSON.stringify(origins[0]) +
+                  ']);' +
                   (headers.length > 0
                     ? 'h.push(' + injectList(headers) + ');'
                     : '') +
