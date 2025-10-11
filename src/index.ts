@@ -30,7 +30,7 @@ export * as layer from './core/middleware.js';
 export * as handle from './core/handler.js';
 
 export * as cors from './utils/cors.js';
-export * as stream from './utils/stream.js';
+export * as bearerAuth from './utils/bearer-auth.js';
 export * as basicAuth from './utils/basic-auth.js';
 export * as bodyLimit from './utils/body-limit.js';
 
