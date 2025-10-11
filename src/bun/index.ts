@@ -9,7 +9,7 @@ import type { MiddlewareTypes } from '../core/middleware.js';
 
 export interface BunContext {
   readonly req: BunRequest;
-  readonly server: Server;
+  readonly server: Server<any>;
 }
 
 export const router: <
