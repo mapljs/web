@@ -4,7 +4,6 @@ import { router } from '@mapl/web/bun';
 import * as bodyParser from '@mapl/stnl/body-parser';
 import * as stringifier from '@mapl/stnl/stringifier';
 
-import { payload } from '@safe-std/error';
 import { t } from 'stnl';
 
 export default handle.error(
@@ -29,7 +28,7 @@ export default handle.error(
       }),
     ],
   ),
-  (err) => payload(err),
+  (err) => err.payload,
   {
     type: handle.text,
   },
