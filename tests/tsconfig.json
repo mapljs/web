@@ -12,6 +12,7 @@
     // Best practices
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true
   }
 }

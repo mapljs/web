@@ -18,7 +18,7 @@ export type CORSPreflightHeader = Header & {
 };
 
 export const allowMethods = (
-  v: [RequestMethod, RequestMethod, ...RequestMethod[]]| RequestMethod | '*',
+  v: [RequestMethod, RequestMethod, ...RequestMethod[]] | RequestMethod | '*',
 ): CORSPreflightHeader => ['access-control-allow-methods', '' + v] as any;
 export const allowHeaders = (v: string[] | string): CORSPreflightHeader =>
   ['access-control-allow-headers', '' + v] as any;
@@ -29,8 +29,9 @@ export const allowCredentials: CORSHeader = [
   'access-control-allow-credentials',
   'true',
 ] as any;
-export const exposeHeaders = (v: '*' | (string & {}) | [string, string, ...string[]]): CORSHeader =>
-  ['access-control-expose-headers', '' + v] as any;
+export const exposeHeaders = (
+  v: '*' | (string & {}) | [string, string, ...string[]],
+): CORSHeader => ['access-control-expose-headers', '' + v] as any;
 
 // Need to create context
 const createContextMacro = macro(createContext);

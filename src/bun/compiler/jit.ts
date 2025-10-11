@@ -1,6 +1,5 @@
 import {
   compileGroup,
-  AsyncFunction,
   contextInit,
   setContextInit,
   hooks,
@@ -12,6 +11,7 @@ import type { RouterTag } from '../../core/index.js';
 import type { HandlerData } from '../../core/handler.js';
 
 import {
+  AsyncFunction,
   exportDependency,
   getDependency,
   injectDependency,
@@ -28,12 +28,7 @@ import {
 } from '../../compiler/jit.js';
 import { insertRoute, resetRouter, routerToString } from './router.js';
 import type { BunContext } from '../index.js';
-import type { RouterTypes } from 'bun';
-
-export type BunRoutes<T extends string = string> = Record<
-  T,
-  RouterTypes.RouteValue<T>
->;
+import type { Serve } from 'bun';
 
 const compileToState = (router: RouterTag<BunContext>): void => {
   resetRouter();
@@ -106,7 +101,7 @@ const compileToState = (router: RouterTag<BunContext>): void => {
 
   compileGroup(
     router as any,
-    [false, false, , 'return ' + RES400, false],
+    [false, false, , 'return ' + RES400(), false],
     '',
     '',
   );
@@ -119,12 +114,12 @@ export const compileToString = (router: RouterTag<BunContext>): string => {
 
 export const compileToExportedDependency = (
   router: RouterTag<BunContext>,
-): CompiledDependency<BunRoutes> =>
+): CompiledDependency<Serve.Routes<any, any>> =>
   exportDependency(injectDependency(compileToString(router)));
 
 export const compileToHandler = async (
   router: RouterTag<BunContext>,
-): Promise<BunRoutes> => {
+): Promise<Serve.Routes<any, any>> => {
   const id = compileToExportedDependency(router);
   await evaluate();
   return getDependency(id);
@@ -132,7 +127,7 @@ export const compileToHandler = async (
 
 export const compileToHandlerSync = (
   router: RouterTag<BunContext>,
-): BunRoutes => {
+): Serve.Routes<any, any> => {
   const id = compileToExportedDependency(router);
   evaluateSync();
   return getDependency(id);

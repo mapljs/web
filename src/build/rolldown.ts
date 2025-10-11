@@ -9,9 +9,6 @@ import {
   type RolldownWatcherEvent,
 } from 'rolldown';
 
-import { compileToExportedDependency as generic } from '../compiler/jit.js';
-import { compileToExportedDependency as bun } from '../bun/compiler/jit.js';
-
 import { evaluateToString } from 'runtime-compiler/jit';
 import { resolve } from 'node:path';
 import { EXTERNALS } from './utils.js';

@@ -1,7 +1,7 @@
 import type { AnyErr } from '@safe-std/error';
 import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
-import type { RequestMethod } from './utils.js';
+import type { MaybePromise, RequestMethod } from './utils.js';
 
 import { isHydrating } from 'runtime-compiler/config';
 import { injectDependency, lazyDependency, noOp } from 'runtime-compiler';
@@ -28,12 +28,13 @@ export type InferPath<T extends string> = T extends `${string}*${infer Next}`
   : [];
 
 // toResponse macro
-export type InferReturn<D extends HandlerData | undefined> =
+export type InferReturn<D extends HandlerData | undefined> = MaybePromise<
   D extends HandlerData
     ? D['type'] extends HandlerResponse<infer I>
       ? I
       : Response
-    : Response;
+    : Response
+>;
 
 export type InferHandler<
   P extends string,

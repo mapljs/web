@@ -48,13 +48,13 @@ export const insertRoute = (
     method !== 'POST' &&
     method !== 'PUT'
   )
-    ROUTES![bunPattern][''] ??= RES404;
+    ROUTES![bunPattern][''] ??= RES404();
 
   // Compatible with @mapl/router
   if (isWildcard)
     (ROUTES![bunPattern === '/*' ? '/' : bunPattern.slice(0, -3)] ??= {})[
       method
-    ] ??= RES404;
+    ] ??= RES404();
 };
 
 export const routerToString = (): string => {

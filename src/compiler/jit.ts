@@ -16,7 +16,7 @@ import type { RouterTag } from '../core/index.js';
 import type { HandlerData } from '../core/handler.js';
 
 import {
-    AsyncFunction,
+  AsyncFunction,
   exportDependency,
   getDependency,
   injectDependency,
@@ -32,12 +32,12 @@ import { isHydrating } from 'runtime-compiler/config';
 
 // Compiled values are loaded to the URL router
 let URL_ROUTER: Router<string>;
-export const RES404: () => string = isHydrating ? noOp : lazyDependency(injectDependency,
-  'new Response(null,{status:404})',
-);
-export const RES400: () => string = isHydrating ? noOp : lazyDependency(injectDependency,
-  'new Response(null,{status:400})'
-);
+export const RES404: () => string = isHydrating
+  ? noOp
+  : lazyDependency(injectDependency, 'new Response(null,{status:404})');
+export const RES400: () => string = isHydrating
+  ? noOp
+  : lazyDependency(injectDependency, 'new Response(null,{status:400})');
 
 export const paramArgs: string[] = createArgSet(
   new Array(16).fill(0).map((_1, i) => constants.PARAMS + i),
@@ -172,7 +172,7 @@ const compileToState = (router: RouterTag<GenericContext>): void => {
 
   compileGroup(
     router as any,
-    [false, false, , 'return ' + RES400, false],
+    [false, false, , 'return ' + RES400(), false],
     '',
     '',
   );
@@ -186,7 +186,7 @@ export const compileToString = (router: RouterTag<GenericContext>): string => {
     ')=>{' +
     compile(URL_ROUTER, constants.REQ + '.method', constants.PARSE_PATH, 1) +
     'return ' +
-    RES404 +
+    RES404() +
     '}'
   );
 };

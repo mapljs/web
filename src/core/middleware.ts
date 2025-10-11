@@ -6,7 +6,7 @@ import { noOp } from 'runtime-compiler';
 import type { InferErr, InferResult } from '@safe-std/error';
 
 declare const _: unique symbol;
-export interface MiddlewareTypes<out Context, in out Err, in out State> {
+export interface MiddlewareTypes<out Context, out Err, in out State> {
   [_]: [Context, Err, State];
 }
 export type AnyMiddlewareTypes = MiddlewareTypes<any, any, any>;

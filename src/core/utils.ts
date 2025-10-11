@@ -5,9 +5,12 @@ export type UnionToIntersection<U> = (
 ) extends (x: infer I) => void
   ? I
   : never;
+
 export type AwaitedReturn<U extends (...a: any[]) => any> = Awaited<
   ReturnType<U>
 >;
+
+export type MaybePromise<T> = Promise<T> | T;
 
 export type RequestMethod =
   | 'GET'
