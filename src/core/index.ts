@@ -7,7 +7,7 @@ import type {
 import type { UnionToIntersection } from './utils.js';
 
 declare const _: unique symbol;
-export interface RouterTag<in out C, out E = any> {
+export interface RouterTag<out C, out E = any> {
   [_]: [E, C];
 }
 export type ChildRouters<C> = Record<string, RouterTag<C, any>>;

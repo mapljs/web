@@ -1,7 +1,8 @@
 import { isHydrating } from 'runtime-compiler/config';
+import { injectDependency } from 'runtime-compiler';
+
 import type { Header } from '../core/context.js';
 import { macro, noOpMacro, type MiddlewareTypes } from '../core/middleware.js';
-import { injectDependency } from 'runtime-compiler';
 
 export const injectList = (list: any[]): string =>
   list.length !== 1

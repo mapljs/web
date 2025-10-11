@@ -2,7 +2,9 @@ import type { ScopeState } from '@mapl/framework';
 
 import type { AwaitedReturn } from './utils.js';
 import type { Context } from './context.js';
+
 import { noOp } from 'runtime-compiler';
+
 import type { InferErr, InferResult } from '@safe-std/error';
 
 declare const _: unique symbol;

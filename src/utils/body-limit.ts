@@ -1,7 +1,9 @@
 import { macro, type MiddlewareTypes } from '../core/middleware.js';
-import { isHydrating } from 'runtime-compiler/config';
-import { createAsyncScope } from '@mapl/framework';
+
 import { injectDependency, lazyDependency, noOp } from 'runtime-compiler';
+import { isHydrating } from 'runtime-compiler/config';
+
+import { createAsyncScope } from '@mapl/framework';
 
 export const RES413: () => string = isHydrating
   ? noOp

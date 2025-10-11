@@ -1,4 +1,5 @@
 import type { AnyErr } from '@safe-std/error';
+
 import type { Context } from './context.js';
 import type { RouterTag } from './index.js';
 import type { MaybePromise, RequestMethod } from './utils.js';
