@@ -20,20 +20,17 @@ export const size: (bytes: number) => MiddlewareTypes<any, never, {}> =
         macro(
           (scope) =>
             createAsyncScope(scope) +
-            'if(' +
+            'if(await ' +
+            injectDependency(
+              'async(r)=>{if(r.body!==null){let l=r.headers.get("content-length");if(l===null||r.headers.has("transfer-encoding")){let g=r.clone().body.getReader(),i=await g.read(),s=0;while(!i.done){s+=i.value.byteLength;if(s>' +
+                bytes +
+                ')return true;i=await g.read()}}else if(+l>' +
+                bytes +
+                ')return true}return false}',
+            ) +
+            '(' +
             constants.REQ +
-            '.body!==null){let l=' +
-            constants.REQ +
-            '.headers.get("content-length");if(l===null||' +
-            constants.REQ +'.headers.has("transfer-encoding")){let g='+
-            constants.REQ +
-            '.clone().body.getReader(),i=await g.read(),s=0;while(!i.done){s+=i.value.byteLength;if(s>' +
-            bytes +
-            ')return ' +
+            '))return ' +
             RES413() +
-            ';i=await g.read()}}else if(+l>' +
-            bytes +
-            ')return ' +
-            RES413() +
-            '}',
+            ';',
         );

@@ -7,7 +7,7 @@
         "@mapl/framework": "^0.6.3",
         "@mapl/router": "^0.6.4",
         "@safe-std/error": "^2.0.4",
-        "runtime-compiler": "^1.2.6",
+        "runtime-compiler": "^1.2.7",
       },
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
@@ -263,7 +263,7 @@
 
     "rolldown": ["rolldown@1.0.0-beta.42", "", { "dependencies": { "@oxc-project/types": "=0.94.0", "@rolldown/pluginutils": "1.0.0-beta.42", "ansis": "=4.2.0" }, "optionalDependencies": { "@rolldown/binding-android-arm64": "1.0.0-beta.42", "@rolldown/binding-darwin-arm64": "1.0.0-beta.42", "@rolldown/binding-darwin-x64": "1.0.0-beta.42", "@rolldown/binding-freebsd-x64": "1.0.0-beta.42", "@rolldown/binding-linux-arm-gnueabihf": "1.0.0-beta.42", "@rolldown/binding-linux-arm64-gnu": "1.0.0-beta.42", "@rolldown/binding-linux-arm64-musl": "1.0.0-beta.42", "@rolldown/binding-linux-x64-gnu": "1.0.0-beta.42", "@rolldown/binding-linux-x64-musl": "1.0.0-beta.42", "@rolldown/binding-openharmony-arm64": "1.0.0-beta.42", "@rolldown/binding-wasm32-wasi": "1.0.0-beta.42", "@rolldown/binding-win32-arm64-msvc": "1.0.0-beta.42", "@rolldown/binding-win32-ia32-msvc": "1.0.0-beta.42", "@rolldown/binding-win32-x64-msvc": "1.0.0-beta.42" }, "bin": { "rolldown": "bin/cli.mjs" } }, "sha512-xaPcckj+BbJhYLsv8gOqezc8EdMcKKe/gk8v47B0KPvgABDrQ0qmNPAiT/gh9n9Foe0bUkEv2qzj42uU5q1WRg=="],
 
-    "runtime-compiler": ["runtime-compiler@1.2.6", "", {}, "sha512-Dgzwe/Y9UZS+XuPGXw7XSSBBuf8YKnlvZL8YWd/1MBw4EZjaFcKE/mGkQL/1HxK6rjj5DBJc7C329eOZNAfP4g=="],
+    "runtime-compiler": ["runtime-compiler@1.2.7", "", {}, "sha512-ZtHIJoHFKfQEv+pE56oUA/8aR9o2n+QKBsEh4y9WU0v5AI76J5xbHAi4aJcL2xdtk8vRa0BgzeIy7TXQMDQKqg=="],
 
     "safe-buffer": ["safe-buffer@5.2.1", "", {}, "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ=="],
 
@@ -290,5 +290,9 @@
     "undici-types": ["undici-types@7.14.0", "", {}, "sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA=="],
 
     "@mapl/web/@mapl/framework": ["@mapl/framework@0.6.2", "", {}, "sha512-jdv5VEkPrnn0i7fkmXNKqeshKZ1M2KDWmCM/2qozPJTpIBuYTjB0+RDgweCMWJRVHUwluEHQ5X1gdHlzAAABIA=="],
+
+    "@mapl/web/runtime-compiler": ["runtime-compiler@1.2.6", "", {}, "sha512-Dgzwe/Y9UZS+XuPGXw7XSSBBuf8YKnlvZL8YWd/1MBw4EZjaFcKE/mGkQL/1HxK6rjj5DBJc7C329eOZNAfP4g=="],
+
+    "stnl/runtime-compiler": ["runtime-compiler@1.2.6", "", {}, "sha512-Dgzwe/Y9UZS+XuPGXw7XSSBBuf8YKnlvZL8YWd/1MBw4EZjaFcKE/mGkQL/1HxK6rjj5DBJc7C329eOZNAfP4g=="],
   }
 }

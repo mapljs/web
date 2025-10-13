@@ -7,9 +7,7 @@ import '../core/context.js';
 import type { HandlerData } from '../core/handler.js';
 import type { GenericContext } from '../index.js';
 
-export const hydrateRouter = (
-  router: RouterTag<GenericContext>,
-): void => {
+export const hydrateRouter = (router: RouterTag<GenericContext>): void => {
   hooks.compileHandler = (handler, _, _1, scope) => {
     const fn = handler[2];
     injectExternalDependency(fn);
@@ -26,9 +24,7 @@ export const hydrateRouter = (
   hydrateDependency(router as any, [false, false, , '', false], '');
 };
 
-export default (
-  router: RouterTag<GenericContext>,
-): void => {
+export default (router: RouterTag<GenericContext>): void => {
   hydrateRouter(router);
   // Mark the export slot for the final handler
   markExported();

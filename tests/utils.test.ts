@@ -1,81 +1,70 @@
 import { expect, test, describe } from 'bun:test';
 
-import { bodyLimit, handle, layer } from '@mapl/web';
+import { bodyLimit, handle } from '@mapl/web';
 import { router } from '@mapl/web/bun';
-import { compileToHandlerSync } from '@mapl/web/bun/compiler/jit';
 
-import { serve } from './utils.ts';
+import { serveBun, serveGeneric } from './utils.ts';
 
 describe('body limit', () => {
-  const PREFIX = serve({
-    routes: compileToHandlerSync(
-      router(
-        [
-          layer.tap((c) => {
-            console.log(c.req);
-          }),
-          bodyLimit.size(10)
-        ],
-        [
-          handle.post('/yield', async (c) => c.req.text(), {
-            handler: handle.text,
-          }),
-        ],
-      ),
-    ),
-    port: 3000,
-    hostname: '127.0.0.1',
-  });
+  const setupTest = (query: typeof fetch) => {
+    test('under size limit', async () => {
+      const res = await query('/yield', {
+        method: 'POST',
+        body: 'Hi',
+      });
 
-  test('under size limit', async () => {
-    const res = await fetch(PREFIX + '/yield', {
-      method: 'POST',
-      body: 'Hi',
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe('Hi');
     });
 
-    expect(res).toBeInstanceOf(Response);
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe('Hi');
-  });
+    test('over size limit', async () => {
+      const res = await query('/yield', {
+        method: 'POST',
+        body: '93jgu29hunq0',
+      });
 
-  test('over size limit', async () => {
-    const res = await fetch(PREFIX + '/yield', {
-      method: 'POST',
-      body: '93jgu29hunq0',
+      expect(res.status).toBe(413);
     });
 
-    expect(res).toBeInstanceOf(Response);
-    expect(res.status).toBe(413);
-  });
+    test('under size limit stream', async () => {
+      const res = await query('/yield', {
+        method: 'POST',
+        body: new ReadableStream({
+          start: (c) => {
+            for (let i = 0; i < 9; i++) c.enqueue('a');
+            c.close();
+          },
+        }),
+      });
 
-  test('under size limit stream', async () => {
-    const res = await fetch(PREFIX + '/yield', {
-      method: 'POST',
-      body: new ReadableStream({
-        start: (c) => {
-          for (let i = 0; i < 9; i++) c.enqueue('a');
-          c.close();
-        },
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe('a'.repeat(9));
+    });
+
+    test('over size limit stream', async () => {
+      const res = await query('/yield', {
+        method: 'POST',
+        body: new ReadableStream({
+          start: (c) => {
+            for (let i = 0; i < 4; i++) c.enqueue('abc' + Math.random());
+            c.close();
+          },
+        }),
+      });
+
+      expect(res.status).toBe(413);
+    });
+  };
+
+  const app = router(
+    [bodyLimit.size(10)],
+    [
+      handle.post('/yield', async (c) => c.req.text(), {
+        handler: handle.text,
       }),
-    });
+    ],
+  );
 
-    expect(res).toBeInstanceOf(Response);
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe('a'.repeat(9));
-  });
-
-  test('over size limit stream', async () => {
-    const res = await fetch(PREFIX + '/yield', {
-      method: 'POST',
-      body: new ReadableStream({
-        start: (c) => {
-          for (let i = 0; i < 4; i++) c.enqueue('abc' + Math.random());
-          c.close();
-        },
-      }),
-    });
-
-    expect(res).toBeInstanceOf(Response);
-    expect(res.status).toBe(413);
-  });
+  describe('bun', () => setupTest(serveBun(3001, app)));
+  describe('generic', () => setupTest(serveGeneric(3000, app)));
 });
