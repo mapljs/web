@@ -4,7 +4,7 @@
     "": {
       "name": "@mapl/web",
       "dependencies": {
-        "@mapl/framework": "^0.6.2",
+        "@mapl/framework": "^0.6.3",
         "@mapl/router": "^0.6.4",
         "@safe-std/error": "^2.0.4",
         "runtime-compiler": "^1.2.6",
@@ -115,7 +115,7 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@mapl/framework": ["@mapl/framework@0.6.2", "", {}, "sha512-jdv5VEkPrnn0i7fkmXNKqeshKZ1M2KDWmCM/2qozPJTpIBuYTjB0+RDgweCMWJRVHUwluEHQ5X1gdHlzAAABIA=="],
+    "@mapl/framework": ["@mapl/framework@0.6.3", "", {}, "sha512-X2di6GWjQ+lIWIyVhKuEnd83b6Y/d03UPHNX4uIYfVV1UH5wDXkkWzsugg1IagzE/JI9wRkgq7Ra5kaSfq9cqg=="],
 
     "@mapl/router": ["@mapl/router@0.6.4", "", {}, "sha512-yHGwrh4uGnpnjOFVHMcpVMANwIyqfr+0HGWQudXaHIE7iaHZlQz+4sQQzdEJfnBZsf03bviGKm5gQ6eDGmvo+g=="],
 
@@ -288,5 +288,7 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@7.14.0", "", {}, "sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA=="],
+
+    "@mapl/web/@mapl/framework": ["@mapl/framework@0.6.2", "", {}, "sha512-jdv5VEkPrnn0i7fkmXNKqeshKZ1M2KDWmCM/2qozPJTpIBuYTjB0+RDgweCMWJRVHUwluEHQ5X1gdHlzAAABIA=="],
   }
 }

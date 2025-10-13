@@ -18,7 +18,7 @@ export default handle.error(
     ],
     [
       handle.post('/body', (c) => c.body, {
-        type: stringifier.json(
+        handler: stringifier.json(
           t.dict({
             name: t.string,
             pwd: t.string,
@@ -29,6 +29,6 @@ export default handle.error(
   ),
   (err) => err.payload,
   {
-    type: handle.text,
+    handler: handle.text,
   },
 );

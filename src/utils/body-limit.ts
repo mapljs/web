@@ -25,14 +25,13 @@ export const size: (bytes: number) => MiddlewareTypes<any, never, {}> =
             '.body!==null){let l=' +
             constants.REQ +
             '.headers.get("content-length");if(l===null||' +
-            constants.REQ +
-            '.headers.has("transfer-encoding")){let g=' +
+            constants.REQ +'.headers.has("transfer-encoding")){let g='+
             constants.REQ +
             '.clone().body.getReader(),i=await g.read(),s=0;while(!i.done){s+=i.value.byteLength;if(s>' +
             bytes +
             ')return ' +
             RES413() +
-            ';i=await g.read()}}else if(l>' +
+            ';i=await g.read()}}else if(+l>' +
             bytes +
             ')return ' +
             RES413() +

@@ -13,7 +13,7 @@ export interface HandlerResponse<I = any> {
 }
 
 export interface HandlerData extends Record<symbol, any> {
-  type?: HandlerResponse;
+  handler?: HandlerResponse;
 }
 
 export type Handler<
@@ -31,7 +31,7 @@ export type InferPath<T extends string> = T extends `${string}*${infer Next}`
 // toResponse macro
 export type InferReturn<D extends HandlerData | undefined> = MaybePromise<
   D extends HandlerData
-    ? D['type'] extends HandlerResponse<infer I>
+    ? D['handler'] extends HandlerResponse<infer I>
       ? I
       : Response
     : Response

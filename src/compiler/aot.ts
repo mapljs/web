@@ -13,14 +13,14 @@ export const hydrateRouter = (
   hooks.compileHandler = (handler, _, _1, scope) => {
     const fn = handler[2];
     injectExternalDependency(fn);
-    (handler[3] as HandlerData)?.type?.(
+    (handler[3] as HandlerData)?.handler?.(
       '',
       scope[1] || fn.length > countParams(handler[1]),
     );
   };
   hooks.compileErrorHandler = (_, fn, dat, scope) => {
     injectExternalDependency(fn);
-    (dat as HandlerData)?.type?.('', scope[1] || fn.length > 1);
+    (dat as HandlerData)?.handler?.('', scope[1] || fn.length > 1);
     return '';
   };
   hydrateDependency(router as any, [false, false, , '', false], '');

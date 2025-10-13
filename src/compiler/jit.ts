@@ -1,11 +1,11 @@
 import {
   compileGroup,
-  createArgSet,
   contextInit,
   setContextInit,
   hooks,
   type Hook,
   type ErrorHandler,
+  getParamArgs,
 } from '@mapl/framework';
 
 import compile from '@mapl/router/method/compiler';
@@ -39,10 +39,6 @@ export const RES400: () => string = isHydrating
   ? noOp
   : lazyDependency(injectDependency, 'new Response(null,{status:400})');
 
-export const paramArgs: string[] = createArgSet(
-  new Array(16).fill(0).map((_1, i) => constants.PARAMS + i),
-);
-
 /**
  * @internal
  */
@@ -54,7 +50,7 @@ export const compileReturn = (
   contextCreated: boolean,
   result: string,
 ): string => {
-  const res = dat?.type;
+  const res = dat?.handler;
   if (res == null) return 'return ' + result;
 
   const str = res(fnAsync ? 'await ' + result : result, contextCreated);
@@ -107,16 +103,16 @@ const compileToState = (router: RouterTag<GenericContext>): void => {
 
   hooks.compileHandler = (handler, prevContent, path, scope) => {
     const fn = handler[2];
-    // String builders
-    let call = injectExternalDependency(fn) + '(';
 
     // Load parameter args from subpath
     const paramCount = countParams(handler[1]);
-    paramCount > 0 && (call += paramArgs[paramCount]);
+
+    // String builders
+    let call = injectExternalDependency(fn) + '(' + getParamArgs(paramCount);
 
     // Load other args
     if (fn.length > paramCount) {
-      call += paramCount === 0 ? constants.CTX : ',' + constants.CTX;
+      call += constants.CTX;
 
       // Create context to pass in the function
       if (!scope[1]) {

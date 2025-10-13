@@ -10,7 +10,7 @@ export default router(
   ],
   [
     handle.any('/path', () => '' + performance.now(), {
-      type: handle.text,
+      handler: handle.text,
     }),
   ],
   {

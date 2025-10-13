@@ -1,6 +1,6 @@
 import { expect, test, describe } from 'bun:test';
 
-import { bodyLimit, handle } from '@mapl/web';
+import { bodyLimit, handle, layer } from '@mapl/web';
 import { router } from '@mapl/web/bun';
 import { compileToHandlerSync } from '@mapl/web/bun/compiler/jit';
 
@@ -10,10 +10,15 @@ describe('body limit', () => {
   const PREFIX = serve({
     routes: compileToHandlerSync(
       router(
-        [bodyLimit.size(10)],
+        [
+          layer.tap((c) => {
+            console.log(c.req);
+          }),
+          bodyLimit.size(10)
+        ],
         [
           handle.post('/yield', async (c) => c.req.text(), {
-            type: handle.text,
+            handler: handle.text,
           }),
         ],
       ),

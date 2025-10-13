@@ -3,6 +3,7 @@ import {
   contextInit,
   setContextInit,
   hooks,
+  getParamArgs,
 } from '@mapl/framework';
 
 import { countParams } from '@mapl/router/path';
@@ -23,7 +24,6 @@ import { evaluate, evaluateSync } from 'runtime-compiler/jit';
 import {
   compileErrorHandler,
   compileReturn,
-  paramArgs,
   RES400,
 } from '../../compiler/jit.js';
 import { insertRoute, resetRouter, routerToString } from './router.js';
@@ -35,16 +35,16 @@ const compileToState = (router: RouterTag<BunContext>): void => {
 
   hooks.compileHandler = (handler, prevContent, path, scope) => {
     const fn = handler[2];
-    // String builders
-    let call = injectExternalDependency(fn) + '(';
 
     // Load parameter args from subpath
     const paramCount = countParams(handler[1]);
-    paramCount > 0 && (call += paramArgs[paramCount]);
+
+    // String builders
+    let call = injectExternalDependency(fn) + '(' + getParamArgs(paramCount);
 
     // Load other args
     if (fn.length > paramCount) {
-      call += paramCount === 0 ? constants.CTX : ',' + constants.CTX;
+      call += constants.CTX;
 
       // Create context to pass in the function
       if (!scope[1]) {
