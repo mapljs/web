@@ -98,7 +98,7 @@ export const HTML_OPTIONS: () => string = isHydrating
 /**
  * Return HTML
  */
-export const html: HandlerResponse<BodyInit> = isHydrating
+export const html: HandlerResponse<BodyInit | null | undefined> = isHydrating
   ? noOp
   : (res, hasContext) =>
       hasContext
@@ -115,7 +115,7 @@ export const html: HandlerResponse<BodyInit> = isHydrating
 /**
  * Return a body init
  */
-export const text: HandlerResponse<BodyInit> = isHydrating
+export const text: HandlerResponse<BodyInit | null | undefined> = isHydrating
   ? noOp
   : (res, hasContext) =>
       'return new Response(' +

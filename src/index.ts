@@ -32,7 +32,7 @@ export * as handle from './core/handler.js';
 export * as cors from './utils/cors.js';
 export * as bearerAuth from './utils/bearer-auth.js';
 export * as basicAuth from './utils/basic-auth.js';
-export * as bodyLimit from './utils/body-limit.js';
 
+export { default as bodyLimit } from './utils/body-limit.js';
 export { default as redirect } from './utils/redirect.js';
 export { default as staticHeaders } from './utils/static-headers.js';

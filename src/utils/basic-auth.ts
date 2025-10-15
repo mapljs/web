@@ -1,6 +1,6 @@
 import type { Header } from '../core/context.js';
 
-export const extract = (
+export const parse = (
   req: Request,
 ):
   | {

@@ -1,6 +1,6 @@
 import type { Header } from '../core/context.js';
 
-export const extract = (req: Request): string | undefined => {
+export const parse = (req: Request): string | undefined => {
   const header = req.headers.get('authorization');
   if (header?.startsWith('Bearer ')) return header.slice(7);
 };
