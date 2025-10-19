@@ -13,7 +13,6 @@ import type { HandlerData } from '../../core/handler.js';
 
 import {
   AsyncFunction,
-  evaluateCode,
   exportDependency,
   getDependency,
   injectDependency,

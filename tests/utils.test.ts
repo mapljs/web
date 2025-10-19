@@ -1,9 +1,15 @@
 import { expect, test, describe } from 'bun:test';
 
-import { bodyLimit, handle, layer } from '@mapl/web';
+import { bodyLimit, handle } from '@mapl/web';
 import { router } from '@mapl/web/bun';
 
 import { serveBun, serveGeneric } from './utils.ts';
+
+describe('compresser', () => {
+  test('single chunk', async () => {
+
+  });
+});
 
 describe('body limit', () => {
   const setupTest = (query: typeof fetch) => {
@@ -59,13 +65,16 @@ describe('body limit', () => {
   const app = router(
     [],
     [
-      handle.post('/yield', async (c) => {
-        if (await bodyLimit(c.req, 10))
-          return c.req.text();
-        c.status = 413;
-      }, {
-        handler: handle.text,
-      }),
+      handle.post(
+        '/yield',
+        async (c) => {
+          if (await bodyLimit(c.req, 10)) return c.req.text();
+          c.status = 413;
+        },
+        {
+          handler: handle.text,
+        },
+      ),
     ],
   );
 
