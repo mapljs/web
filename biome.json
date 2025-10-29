@@ -1,0 +1,60 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "vcs": {
+    "enabled": false
+  },
+  "files": {
+    "experimentalScannerIgnores": ["node_modules"],
+    "includes": [
+      "**/*.{js,ts,jsx,tsx,json,astro,svelte,vue}",
+      "!{lib,bench}/**/*"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "arrowParentheses": "always",
+      "semicolons": "always"
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "bracketSpacing": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "style": {
+        "useConsistentArrayType": "error",
+        "noNamespace": "error",
+        "noImplicitBoolean": "warn",
+        "noUselessElse": "error",
+        "useCollapsedElseIf": "error",
+        "useConst": "error",
+        "useNodejsImportProtocol": "error",
+        "useImportType": "error",
+        "useExponentiationOperator": "info"
+      },
+      "complexity": {
+        "noForEach": "info",
+        "noUselessCatch": "info",
+        "useArrowFunction": "warn"
+      },
+      "correctness": {
+        "useYield": "warn",
+        "noUnusedImports": "warn",
+        "useImportExtensions": "error",
+        "useIsNan": "warn"
+      },
+      "nursery": {
+        "noImportCycles": "error",
+        "noShadow": "error",
+        "useExhaustiveSwitchCases": "info",
+        "noUnassignedVariables": "warn"
+      },
+      "recommended": false
+    }
+  }
+}
