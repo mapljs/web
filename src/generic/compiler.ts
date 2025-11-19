@@ -8,6 +8,7 @@ import compileMethodRouter from '@mapl/router/method/compiler';
 import {
   addExtraCode,
   evaluate,
+  evaluateToString,
   hydrate as finishHydration,
   injectDependency,
   type LocalDependency,
@@ -40,7 +41,7 @@ export const registerRouteCb: typeof registerRoute = (
   );
 };
 
-export const buildToString = (router: Router): string => {
+const buildWrapper = (router: Router): string => {
   methodRouter = createRouter();
   setRegisterRoute(registerRouteCb);
 
@@ -54,19 +55,44 @@ export const buildToString = (router: Router): string => {
   )}return ${constants.RES_404}}}`;
 };
 
+/**
+ * Build to a local dependency.
+ * Use in `default` and `build` mode.
+ */
 export const buildToDependency = (router: Router): LocalDependency<BuiltFn> =>
-  injectDependency(buildToString(router));
+  injectDependency(buildWrapper(router));
 
 /**
- * Build the router synchronously
+ * Hydrate to a local dependency.
+ * Use in `hydrate` mode.
+ */
+export const hydrateToDependency = (router: Router): void => {
+  hydrateRouter(router, [false, false] as any);
+}
+
+/**
+ * Build the router into evaluatable string.
+ * Use in `build` mode.
+ *
+ * @example
+ * `(${buildToString(app)})(hydrate(app));`
+ */
+export const buildToString = (router: Router): string => (
+  addExtraCode('return' + buildWrapper(router)),
+  evaluateToString()
+);
+
+/**
+ * Build the router to a lazy function.
+ * Use in `default` mode.
  */
 export const build = (router: Router): BuiltFn => (
-  addExtraCode('return' + buildToString(router)), evaluate()
+  addExtraCode('return' + buildWrapper(router)), evaluate()
 );
 
 /**
  * Return the arguments needed in `hydrate` mode.
  */
 export const hydrate = (router: Router): any[] => (
-  hydrateRouter(router, [false, false] as any), finishHydration()
+  hydrateToDependency(router), finishHydration()
 );
