@@ -27,6 +27,10 @@ const TRACE = ['TRACE'] as const;
 export const trace: RegisterRouteFn = (...args: any) =>
   TRACE.concat(args) as any;
 
+const QUERY = ['QUERY'] as const;
+export const query: RegisterRouteFn = (...args: any) =>
+  QUERY.concat(args) as any;
+
 const ANY = [''] as const;
 export const any: RegisterRouteFn = (...args: any) => ANY.concat(args) as any;
 

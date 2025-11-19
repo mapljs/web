@@ -3,7 +3,7 @@ import { existsSync, rmSync } from 'node:fs';
 import { minify } from 'oxc-minify';
 import { transform } from 'oxc-transform';
 import pkg from '../package.json';
-import { cp, LIB, ROOT, SOURCE } from './utils.ts';
+import { cp, LIB, linkLocalPackage, ROOT, SOURCE } from './utils.ts';
 
 import * as constants from '../src/constants.ts';
 const defs = Object.fromEntries(
@@ -70,3 +70,5 @@ pkg.trustedDependencies = pkg.devDependencies = pkg.scripts = undefined as any;
 
 Bun.write(LIB + '/package.json', JSON.stringify(pkg));
 cp(ROOT, LIB, 'README.md');
+
+linkLocalPackage('@mapl/web', LIB);

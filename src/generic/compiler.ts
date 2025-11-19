@@ -6,25 +6,25 @@ import {
 import compileMethodRouter from '@mapl/router/method/compiler';
 
 import {
-  evaluateSync,
-  exportDependency,
-  finishHydration,
-  getDependency,
+  addExtraCode,
+  evaluate,
+  hydrate as finishHydration,
   injectDependency,
-  markExported,
   type LocalDependency,
 } from 'runtime-compiler';
 
 import {
-  build,
-  hydrate,
+  build as buildRouter,
+  hydrate as hydrateRouter,
   setRegisterRoute,
   type registerRoute,
   type Router,
 } from '../compiler/router.ts';
 import { finalizeReturn } from '../compiler/state.ts';
 
-export let methodRouter: MethodRouter<string>;
+export type BuiltFn = () => (req: Request) => any;
+
+let methodRouter: MethodRouter<string>;
 
 export const registerRouteCb: typeof registerRoute = (
   route,
@@ -44,30 +44,29 @@ export const buildToString = (router: Router): string => {
   methodRouter = createRouter();
   setRegisterRoute(registerRouteCb);
 
-  build(router, [false, false] as any, '', '');
+  buildRouter(router, [false, false] as any, '', '');
 
   return `()=>{${constants.DECL_GLOBALS}return(${constants.REQ})=>{${compileMethodRouter(
     methodRouter,
     `${constants.REQ}.method`,
     `let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_START}=${constants.FULL_URL}.indexOf('/',10)+1,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',${constants.PATH_START}),${constants.PATH}=${constants.PATH_END}===-1?${constants.FULL_URL}.slice(${constants.PATH_START}):${constants.FULL_URL}.slice(${constants.PATH_START},${constants.PATH_END});`,
     1,
-  )}return${constants.RES_404}}}`;
+  )}return ${constants.RES_404}}}`;
 };
 
-export const buildToDependency = (
-  router: Router,
-): LocalDependency<() => (req: Request) => any> =>
+export const buildToDependency = (router: Router): LocalDependency<BuiltFn> =>
   injectDependency(buildToString(router));
 
-export const buildSync = (router: Router): (() => (req: Request) => any) => {
-  const id = exportDependency(buildToDependency(router));
-  evaluateSync();
-  return getDependency(id);
-};
+/**
+ * Build the router synchronously
+ */
+export const build = (router: Router): BuiltFn => (
+  addExtraCode('return' + buildToString(router)), evaluate()
+);
 
-export const hydrateSync = (router: Router): (() => (req: Request) => any) => {
-  hydrate(router, [false, false] as any);
-  const id = markExported<() => (req: Request) => any>();
-  finishHydration();
-  return getDependency(id);
-};
+/**
+ * Return the arguments needed in `hydrate` mode.
+ */
+export const hydrate = (router: Router): any[] => (
+  hydrateRouter(router, [false, false] as any), finishHydration()
+);

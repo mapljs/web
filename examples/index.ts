@@ -1,5 +1,5 @@
-import { inject, route, router, send } from '../lib/index.js';
-import { compiler, request } from '../lib/generic/index.js';
+import { inject, route, router, send } from '@mapl/web';
+import { compiler, request } from '@mapl/web/generic';
 
 const app = router(
   [],
@@ -16,5 +16,5 @@ const app = router(
 );
 
 export default {
-  fetch: compiler.buildSync(app)(),
+  fetch: compiler.build(app)(),
 };

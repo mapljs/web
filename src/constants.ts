@@ -3,6 +3,7 @@ export * from '@mapl/router/constants';
 
 // Additional args
 export const CTX = 'mc';
+
 export const HEADERS = 'mh';
 export const TMP = 'mt';
 
@@ -10,6 +11,7 @@ export const CREATE_CTX: string = `let ${HEADERS}=[],${CTX}={status:200,headers:
 
 // Mapl locals
 export const REQ = 'mr';
+export const INFO = 'mi';
 export const FULL_URL = 'mu';
 
 export const RES_404 = 'mnf';
