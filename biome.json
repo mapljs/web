@@ -1,13 +1,13 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.2/schema.json",
   "vcs": {
     "enabled": false
   },
   "files": {
-    "experimentalScannerIgnores": ["node_modules"],
     "includes": [
       "**/*.{js,ts,jsx,tsx,json,astro,svelte,vue}",
-      "!{lib,bench}/**/*"
+      "!{lib,bench}/**/*",
+      "!**/node_modules"
     ]
   },
   "javascript": {
@@ -22,6 +22,9 @@
     "indentStyle": "space",
     "indentWidth": 2,
     "bracketSpacing": true
+  },
+  "assist": {
+    "enabled": false
   },
   "linter": {
     "enabled": true,
@@ -51,8 +54,7 @@
       "nursery": {
         "noImportCycles": "error",
         "noShadow": "error",
-        "useExhaustiveSwitchCases": "info",
-        "noUnassignedVariables": "warn"
+        "useExhaustiveSwitchCases": "info"
       },
       "recommended": false
     }

@@ -5,6 +5,14 @@ import { transform } from 'oxc-transform';
 import pkg from '../package.json';
 import { cp, LIB, ROOT, SOURCE } from './utils.ts';
 
+import * as constants from '../src/constants.ts';
+const defs = Object.fromEntries(
+  Object.entries(constants).map((entry) => [
+    `constants.${entry[0]}`,
+    JSON.stringify(entry[1]),
+  ]),
+);
+
 // Remove old content
 if (existsSync(LIB)) rmSync(LIB, { recursive: true });
 
@@ -27,6 +35,7 @@ await Promise.all(
           },
         },
         lang: 'ts',
+        define: defs,
       },
     );
 
@@ -40,6 +49,7 @@ await Promise.all(
           ),
           {
             compress: false,
+            mangle: false,
           },
         ).code,
       );
