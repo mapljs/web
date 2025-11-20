@@ -13,8 +13,8 @@ import { AsyncFunction } from 'runtime-compiler/utils';
 export const buildCall = (
   state: State,
   fn: (...args: any[]) => any,
-  params: string,
-  paramsWithCtx: string,
+  paramCount: number,
+  paramMap: string[]
 ): string => {
   let fnId = injectExternalDependency(fn);
   if (fn instanceof AsyncFunction) {
@@ -24,37 +24,12 @@ export const buildCall = (
 
   const deps = getDeps(fn);
   return deps == null
-    ? fn.length > 0
-      ? ((state[1] = true), `${fnId}(${paramsWithCtx})`)
-      : `${fnId}(${params})`
-    : fn.length > deps.length
-      ? ((state[1] = true), `${fnId}(${deps.join()},${paramsWithCtx})`)
-      : `${fnId}(${deps.join()},${params})`;
-};
-
-/**
- * Compile a function to call statement.
- * Use in `default` and `build` mode.
- *
- * @example
- * buildCallNoAwait([true, true], (err, c) => { ... }, 'e0', 'e0,c');
- */
-export const buildCallNoAwait = (
-  state: State,
-  fn: (...args: any[]) => any,
-  params: string,
-  paramsWithCtx: string,
-): string => {
-  const fnId = injectExternalDependency(fn);
-  const deps = getDeps(fn);
-
-  return deps == null
-    ? fn.length > 0
-      ? ((state[1] = true), `${fnId}(${paramsWithCtx})`)
-      : `${fnId}(${params})`
-    : fn.length > deps.length
-      ? ((state[1] = true), `${fnId}(${deps.join()},${paramsWithCtx})`)
-      : `${fnId}(${deps.join()},${params})`;
+    ? fn.length > paramCount
+      ? ((state[1] = true), `${fnId}(${paramMap[paramCount << 1 | 1]})`)
+      : `${fnId}(${paramMap[paramCount << 1]})`
+    : fn.length > paramCount + deps.length
+      ? ((state[1] = true), `${fnId}(${deps.join()},${paramMap[paramCount << 1 | 1]})`)
+      : `${fnId}(${deps.join()},${paramMap[paramCount << 1]})`;
 };
 
 /**
@@ -67,27 +42,11 @@ export const buildCallNoAwait = (
 export const hydrateCall = (
   state: State,
   fn: (...args: any[]) => any,
+  paramCount: number
 ): void => {
   injectExternalDependency(fn);
   state[0] ||= fn instanceof AsyncFunction;
 
   const deps = getDeps(fn);
-  state[1] ||= fn.length > (deps == null ? 0 : deps.length);
-};
-
-/**
- * Hydrate an fn.
- * Use in `hydrate` mode.
- *
- * @example
- * hydrateCallNoAwait([true, true], (err, c) => { ... });
- */
-export const hydrateCallNoAwait = (
-  state: State,
-  fn: (...args: any[]) => any,
-): void => {
-  injectExternalDependency(fn);
-
-  const deps = getDeps(fn);
-  state[1] ||= fn.length > (deps == null ? 0 : deps.length);
+  state[1] ||= fn.length > (deps == null ? paramCount : deps.length + paramCount);
 };

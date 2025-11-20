@@ -18,8 +18,8 @@ export type InferPath<Path extends string> =
       : [string, ...InferPath<Rest>]
     : [];
 
-export type RouteLayer<Params extends string[] = string[]> = [
-  build: (data: any[], state: State, paramCount: Params['length']) => string,
+export type RouteLayer<Params extends any[] = any[]> = [
+  build: (data: any[], state: State, paramCount: Params['length'], paramMap: string[]) => string,
   ...any[],
 ];
 
@@ -54,6 +54,24 @@ export const setRegisterRoute = (f: typeof registerRoute): void => {
   registerRoute = f;
 };
 
+export const EMPTY_PARAM_MAP: string[] = ['', constants.CTX];
+
+let routeParamMap: string[] = [];
+/**
+ * Set route param map
+ *
+ * @example
+ * setRouteParamMap([
+ *   '', 'c', 'err', 'err,c'
+ * ]);
+ *
+ * routeParamMap[paramCount << 1]; // No context
+ * routeParamMap[paramCount << 1 | 1]; // With context
+ */
+export const setRouteParamMap = (m: string[]): void => {
+  routeParamMap = m;
+};
+
 // Build implementations
 /**
  * Use in `default` and `build` mode.
@@ -80,7 +98,7 @@ export const build = (
 
     for (let j = 2, paramCount = countParams(route[1]); j < route.length; j++) {
       const layer = route[j] as RouteLayer;
-      routeContent += layer[0](layer, routeState, paramCount);
+      routeContent += layer[0](layer, routeState, paramCount, routeParamMap);
     }
 
     registerRoute(route, routeState, prefix, routeContent);
@@ -115,9 +133,9 @@ export const hydrate = (router: Router, state: State): void => {
     const route = routes[i];
     const routeState = state.slice();
 
-    for (let j = 2; j < route.length; j++) {
+    for (let j = 2, paramCount = countParams(route[1]); j < route.length; j++) {
       const layer = route[j] as RouteLayer<string[]>;
-      layer[0](layer, routeState, 0);
+      layer[0](layer, routeState, paramCount, routeParamMap);
     }
   }
 

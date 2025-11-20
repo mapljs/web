@@ -16,8 +16,10 @@ import {
 
 import {
   build as buildRouter,
+  EMPTY_PARAM_MAP,
   hydrate as hydrateRouter,
   setRegisterRoute,
+  setRouteParamMap,
   type registerRoute,
   type Router,
 } from '../compiler/router.ts';
@@ -42,9 +44,19 @@ export const registerRouteCb: typeof registerRoute = (
 };
 
 const buildWrapper = (router: Router): string => {
+  // Init router
   methodRouter = createRouter();
   setRegisterRoute(registerRouteCb);
 
+  // Init param map
+  const paramMap = ['', constants.CTX, constants.PARAMS + 0, `${constants.PARAMS}0,${constants.CTX}`];
+  for (let i = 1; i <= 8; i++) {
+    const str = `${paramMap[i << 2]},${constants.PARAMS}${i}`;
+    paramMap.push(str, str + ',' + constants.CTX);
+  }
+  setRouteParamMap(paramMap);
+
+  // Run build
   buildRouter(router, [false, false] as any, '', '');
 
   return `()=>{${constants.DECL_GLOBALS}return(${constants.REQ})=>{${compileMethodRouter(

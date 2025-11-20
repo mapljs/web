@@ -15,6 +15,9 @@ const app = router(
   ],
 );
 
+const fn = compiler.build(app);
+console.log(fn.toString());
+
 export default {
-  fetch: compiler.build(app)(),
+  fetch: fn(),
 };

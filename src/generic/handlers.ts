@@ -4,30 +4,18 @@ import type { Context, MaybePromise } from './types.ts';
 import type { RouteLayer } from '../compiler/router.ts';
 import { buildCall, hydrateCall } from '../compiler/call.ts';
 
-// Build args for faster compilation
-const paramArgs = ['', constants.PARAMS + 0];
-const paramArgsWithCtx = [
-  constants.CTX,
-  constants.PARAMS + 0 + ',' + constants.CTX,
-];
-for (let i = 1; i <= 9; i++) {
-  const args = `${paramArgs[i]},${constants.PARAMS + i}`;
-  paramArgs.push(args);
-  paramArgsWithCtx.push(args + ',' + constants.CTX);
-}
-
 // Send text and streams
 type SendFn<Params extends string[]> = (
   ...args: [...Params, c: Context]
 ) => MaybePromise<BodyInit | null>;
 export const sendFn: RouteLayer[0] = isHydrating
-  ? (data, state) => (hydrateCall(state, data[1]), '')
-  : (data, state, paramCount) => {
+  ? (data, state, paramCount) => (hydrateCall(state, data[1], paramCount), '')
+  : (data, state, paramCount, paramMap) => {
       const call = buildCall(
         state,
         data[1],
-        paramArgs[paramCount],
-        paramArgsWithCtx[paramCount],
+        paramCount,
+        paramMap
       );
       return state[1]
         ? `return new Response(${call},${constants.CTX})`
@@ -42,13 +30,13 @@ type SendJSONFn<Params extends string[]> = (
   ...args: [...Params, c: Context]
 ) => any;
 export const sendJSONFn: RouteLayer[0] = isHydrating
-  ? (data, state) => (hydrateCall(state, data[1]), '')
-  : (data, state, paramCount) => {
+  ? (data, state, paramCount) => (hydrateCall(state, data[1], paramCount), '')
+  : (data, state, paramCount, paramMap) => {
       const call = buildCall(
         state,
         data[1],
-        paramArgs[paramCount],
-        paramArgsWithCtx[paramCount],
+        paramCount,
+        paramMap
       );
       return state[1]
         ? `${constants.HEADERS}.push(${constants.JSON_HEADER});return new Response(${call},${constants.CTX})`
@@ -60,13 +48,13 @@ export const json = <Params extends string[]>(
 
 // Send HTML
 export const sendHTMLFn: RouteLayer[0] = isHydrating
-  ? (data, state) => (hydrateCall(state, data[1]), '')
-  : (data, state, paramCount) => {
+  ? (data, state, paramCount) => (hydrateCall(state, data[1], paramCount), '')
+  : (data, state, paramCount, paramMap) => {
       const call = buildCall(
         state,
         data[1],
-        paramArgs[paramCount],
-        paramArgsWithCtx[paramCount],
+        paramCount,
+        paramMap
       );
       return state[1]
         ? `${constants.HEADERS}.push(${constants.HTML_HEADER});return new Response(${call},${constants.CTX})`
