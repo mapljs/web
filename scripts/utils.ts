@@ -17,7 +17,6 @@ export const exec = (...args: Parameters<typeof $>) =>
 export const cd = (dir: string) => $.cwd(dir);
 export const linkLocalPackage = (name: string, source: string) => {
   const output = join(NODE_MODS, name);
-  if (existsSync(output))
-    rmSync(output, { recursive: true });
+  if (existsSync(output)) rmSync(output, { recursive: true });
   symlinkSync(source, output, 'dir');
-}
+};

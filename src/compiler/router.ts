@@ -7,7 +7,7 @@ import type { State } from './state.ts';
  */
 
 export type Layer<Data extends any[] = any[]> = [
-  build: (data: [any, ...Data], state: State) => string,
+  build: (data: any[], state: State) => string,
   ...Data,
 ];
 
@@ -18,13 +18,22 @@ export type InferPath<Path extends string> =
       : [string, ...InferPath<Rest>]
     : [];
 
-export type RouteLayer<Params extends any[] = any[]> = [
-  build: (data: any[], state: State, paramCount: Params['length'], paramMap: string[]) => string,
+export type RouteLayer<Params extends any[]> = [
+  build: (
+    data: any[],
+    state: State,
+    paramCount: Params['length'],
+    paramMap: string[],
+  ) => string,
   ...any[],
 ];
 
-export type Route = [method: string, path: string, ...layers: RouteLayer[]];
-export type RouteNoMethod = [path: string, ...layers: RouteLayer[]];
+export type Route = [
+  method: string,
+  path: string,
+  ...layers: RouteLayer<any[]>[],
+];
+export type RouteNoMethod = [path: string, ...layers: RouteLayer<any[]>[]];
 
 export type RegisterRouteFn = <const Path extends string>(
   path: Path,
@@ -97,7 +106,7 @@ export const build = (
     let routeContent = content;
 
     for (let j = 2, paramCount = countParams(route[1]); j < route.length; j++) {
-      const layer = route[j] as RouteLayer;
+      const layer = route[j] as RouteLayer<any[]>;
       routeContent += layer[0](layer, routeState, paramCount, routeParamMap);
     }
 

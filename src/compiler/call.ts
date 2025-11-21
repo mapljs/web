@@ -14,7 +14,7 @@ export const buildCall = (
   state: State,
   fn: (...args: any[]) => any,
   paramCount: number,
-  paramMap: string[]
+  paramMap: string[],
 ): string => {
   let fnId = injectExternalDependency(fn);
   if (fn instanceof AsyncFunction) {
@@ -25,10 +25,11 @@ export const buildCall = (
   const deps = getDeps(fn);
   return deps == null
     ? fn.length > paramCount
-      ? ((state[1] = true), `${fnId}(${paramMap[paramCount << 1 | 1]})`)
+      ? ((state[1] = true), `${fnId}(${paramMap[(paramCount << 1) | 1]})`)
       : `${fnId}(${paramMap[paramCount << 1]})`
     : fn.length > paramCount + deps.length
-      ? ((state[1] = true), `${fnId}(${deps.join()},${paramMap[paramCount << 1 | 1]})`)
+      ? ((state[1] = true),
+        `${fnId}(${deps.join()},${paramMap[(paramCount << 1) | 1]})`)
       : `${fnId}(${deps.join()},${paramMap[paramCount << 1]})`;
 };
 
@@ -42,11 +43,12 @@ export const buildCall = (
 export const hydrateCall = (
   state: State,
   fn: (...args: any[]) => any,
-  paramCount: number
+  paramCount: number,
 ): void => {
   injectExternalDependency(fn);
   state[0] ||= fn instanceof AsyncFunction;
 
   const deps = getDeps(fn);
-  state[1] ||= fn.length > (deps == null ? paramCount : deps.length + paramCount);
+  state[1] ||=
+    fn.length > (deps == null ? paramCount : deps.length + paramCount);
 };

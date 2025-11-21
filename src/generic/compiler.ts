@@ -16,7 +16,6 @@ import {
 
 import {
   build as buildRouter,
-  EMPTY_PARAM_MAP,
   hydrate as hydrateRouter,
   setRegisterRoute,
   setRouteParamMap,
@@ -49,7 +48,12 @@ const buildWrapper = (router: Router): string => {
   setRegisterRoute(registerRouteCb);
 
   // Init param map
-  const paramMap = ['', constants.CTX, constants.PARAMS + 0, `${constants.PARAMS}0,${constants.CTX}`];
+  const paramMap = [
+    '',
+    constants.CTX,
+    constants.PARAMS + 0,
+    `${constants.PARAMS}0,${constants.CTX}`,
+  ];
   for (let i = 1; i <= 8; i++) {
     const str = `${paramMap[i << 2]},${constants.PARAMS}${i}`;
     paramMap.push(str, str + ',' + constants.CTX);
@@ -80,7 +84,7 @@ export const buildToDependency = (router: Router): LocalDependency<BuiltFn> =>
  */
 export const hydrateToDependency = (router: Router): void => {
   hydrateRouter(router, [false, false] as any);
-}
+};
 
 /**
  * Build the router into evaluatable string.
@@ -90,8 +94,7 @@ export const hydrateToDependency = (router: Router): void => {
  * `(${buildToString(app)})(hydrate(app));`
  */
 export const buildToString = (router: Router): string => (
-  addExtraCode('return' + buildWrapper(router)),
-  evaluateToString()
+  addExtraCode('return' + buildWrapper(router)), evaluateToString()
 );
 
 /**
