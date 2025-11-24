@@ -6,17 +6,14 @@ import { AsyncFunction } from 'runtime-compiler/utils';
 /**
  * Compile a function to call statement.
  * Use in `default` and `build` mode.
- *
- * @example
- * buildCall([true, true], (err, c) => { ... }, 'e0', 'e0,c');
  */
 export const buildCall = (
   state: State,
   fn: (...args: any[]) => any,
   paramCount: number,
-  paramMap: string[],
+  params: string,
 ): string => {
-  let fnId = injectExternalDependency(fn);
+  let fnId = injectExternalDependency(fn) as string;
   if (fn instanceof AsyncFunction) {
     state[0] = true;
     fnId = 'await ' + fnId;
@@ -25,20 +22,15 @@ export const buildCall = (
   const deps = getDeps(fn);
   return deps == null
     ? fn.length > paramCount
-      ? ((state[1] = true), `${fnId}(${paramMap[(paramCount << 1) | 1]})`)
-      : `${fnId}(${paramMap[paramCount << 1]})`
+      ? ((state[1] = true), `${fnId}(${params}${constants.CTX})`)
+      : `${fnId}(${params})`
     : fn.length > paramCount + deps.length
-      ? ((state[1] = true),
-        `${fnId}(${deps.join()},${paramMap[(paramCount << 1) | 1]})`)
-      : `${fnId}(${deps.join()},${paramMap[paramCount << 1]})`;
+      ? ((state[1] = true), `${fnId}(${deps.join()},${params}${constants.CTX})`)
+      : `${fnId}(${deps.join()},${params})`;
 };
 
 /**
- * Hydrate an fn.
- * Use in `hydrate` mode.
- *
- * @example
- * hydrateCall([true, true], (err, c) => { ... });
+ * Hydrate a call.
  */
 export const hydrateCall = (
   state: State,

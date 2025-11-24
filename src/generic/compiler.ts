@@ -17,12 +17,15 @@ import {
 import {
   build as buildRouter,
   hydrate as hydrateRouter,
-  setRegisterRoute,
-  setRouteParamMap,
-  type registerRoute,
   type Router,
 } from '../compiler/router.ts';
 import { finalizeReturn } from '../compiler/state.ts';
+import {
+  setHandlerArgs,
+  setRegisterRoute,
+  setRouteParamMap,
+  type registerRoute,
+} from '../compiler/globals.ts';
 
 export type BuiltFn = () => (req: Request) => any;
 
@@ -38,26 +41,21 @@ export const registerRouteCb: typeof registerRoute = (
     methodRouter,
     route[0],
     prefix + route[1],
-    finalizeReturn(state, content, `(${constants.REQ})`),
+    finalizeReturn(state, content),
   );
 };
 
 const buildWrapper = (router: Router): string => {
+  setHandlerArgs(`(${constants.REQ})`);
+
   // Init router
   methodRouter = createRouter();
   setRegisterRoute(registerRouteCb);
 
   // Init param map
-  const paramMap = [
-    '',
-    constants.CTX,
-    constants.PARAMS + 0,
-    `${constants.PARAMS}0,${constants.CTX}`,
-  ];
-  for (let i = 1; i <= 8; i++) {
-    const str = `${paramMap[i << 2]},${constants.PARAMS}${i}`;
-    paramMap.push(str, str + ',' + constants.CTX);
-  }
+  const paramMap = ['', `${constants.PARAMS}0,`];
+  for (let i = 1; i <= 8; i++)
+    paramMap.push(`${paramMap[i]}${constants.PARAMS}${i},`);
   setRouteParamMap(paramMap);
 
   // Run build

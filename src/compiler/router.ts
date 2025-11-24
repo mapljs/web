@@ -1,5 +1,6 @@
 import { countParams } from '@mapl/router/utils';
 import type { State } from './state.ts';
+import { registerRoute, routeParamMap } from './globals.ts';
 
 /*
  * From what i've tested closures use 5x more
@@ -22,18 +23,19 @@ export type RouteLayer<Params extends any[]> = [
   build: (
     data: any[],
     state: State,
-    paramCount: Params['length'],
-    paramMap: string[],
+    paramCount: number,
+    paramString: string,
   ) => string,
   ...any[],
-];
+] & {
+  _?: Params;
+};
 
 export type Route = [
   method: string,
   path: string,
   ...layers: RouteLayer<any[]>[],
 ];
-export type RouteNoMethod = [path: string, ...layers: RouteLayer<any[]>[]];
 
 export type RegisterRouteFn = <const Path extends string>(
   path: Path,
@@ -49,37 +51,21 @@ export type Router =
   | [layers: Layer[], routes: Route[]]
   | [layers: Layer[], routes: Route[], children: Record<string, Router>];
 
-// Hooks
 /**
- * Will be called in `default` and `build` mode.
+ * Run a layer
  */
-export let registerRoute: (
-  route: Route,
+export const evaluateLayer = (layer: Layer, state: State): string =>
+  layer[0](layer, state);
+
+/**
+ * Run a route layer
+ */
+export const evaluateRouteLayer = (
+  layer: RouteLayer<any[]>,
   state: State,
-  prefix: string,
-  content: string,
-) => any;
-export const setRegisterRoute = (f: typeof registerRoute): void => {
-  registerRoute = f;
-};
-
-export const EMPTY_PARAM_MAP: string[] = ['', constants.CTX];
-
-let routeParamMap: string[] = [];
-/**
- * Set route param map
- *
- * @example
- * setRouteParamMap([
- *   '', 'c', 'err', 'err,c'
- * ]);
- *
- * routeParamMap[paramCount << 1]; // No context
- * routeParamMap[paramCount << 1 | 1]; // With context
- */
-export const setRouteParamMap = (m: string[]): void => {
-  routeParamMap = m;
-};
+  paramCount: number,
+  params: string,
+): string => layer[0](layer, state, paramCount, params);
 
 // Build implementations
 /**
@@ -94,10 +80,8 @@ export const build = (
   prefix: string,
   content: string,
 ): void => {
-  for (let i = 0, layers = router[0]; i < layers.length; i++) {
-    const layer = layers[i];
-    content += layer[0](layer, state);
-  }
+  for (let i = 0, layers = router[0]; i < layers.length; i++)
+    content += evaluateLayer(layers[i], state);
 
   for (let i = 0, routes = router[1]; i < routes.length; i++) {
     const route = routes[i];
@@ -105,10 +89,19 @@ export const build = (
     const routeState = state.slice();
     let routeContent = content;
 
-    for (let j = 2, paramCount = countParams(route[1]); j < route.length; j++) {
-      const layer = route[j] as RouteLayer<any[]>;
-      routeContent += layer[0](layer, routeState, paramCount, routeParamMap);
-    }
+    for (
+      let j = 2,
+        paramCount = countParams(route[1]),
+        params = routeParamMap[paramCount];
+      j < route.length;
+      j++
+    )
+      routeContent += evaluateRouteLayer(
+        route[j] as RouteLayer<any[]>,
+        routeState,
+        paramCount,
+        params,
+      );
 
     registerRoute(route, routeState, prefix, routeContent);
   }
@@ -133,19 +126,20 @@ export const build = (
  * build(router, [false, false] as any);
  */
 export const hydrate = (router: Router, state: State): void => {
-  for (let i = 0, layers = router[0]; i < layers.length; i++) {
-    const layer = layers[i];
-    layer[0](layer, state);
-  }
+  for (let i = 0, layers = router[0]; i < layers.length; i++)
+    evaluateLayer(layers[i], state);
 
   for (let i = 0, routes = router[1]; i < routes.length; i++) {
     const route = routes[i];
     const routeState = state.slice();
 
-    for (let j = 2, paramCount = countParams(route[1]); j < route.length; j++) {
-      const layer = route[j] as RouteLayer<string[]>;
-      layer[0](layer, routeState, paramCount, routeParamMap);
-    }
+    for (let j = 2, paramCount = countParams(route[1]); j < route.length; j++)
+      evaluateRouteLayer(
+        route[j] as RouteLayer<any[]>,
+        routeState,
+        paramCount,
+        '',
+      );
   }
 
   if (router.length > 2) {

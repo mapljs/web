@@ -5,7 +5,7 @@ export * from '@mapl/router/constants';
 export const CTX = 'mc';
 
 export const HEADERS = 'mh';
-export const TMP = 'mt';
+export const PARSED_RESULT = 'mt';
 
 export const CREATE_CTX: string = `let ${HEADERS}=[],${CTX}={status:200,headers:${HEADERS}};`;
 

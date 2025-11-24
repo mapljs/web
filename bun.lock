@@ -8,7 +8,7 @@
         "@biomejs/biome": "^2.3.2",
         "@mapl/router": "^0.7.7",
         "@safe-std/error": "^2.0.4",
-        "runtime-compiler": "^2.0.10",
+        "runtime-compiler": "^2.1.2",
       },
       "devDependencies": {
         "@mapl/web": "./lib",
@@ -170,7 +170,7 @@
 
     "rolldown": ["rolldown@1.0.0-beta.45", "", { "dependencies": { "@oxc-project/types": "=0.95.0", "@rolldown/pluginutils": "1.0.0-beta.45" }, "optionalDependencies": { "@rolldown/binding-android-arm64": "1.0.0-beta.45", "@rolldown/binding-darwin-arm64": "1.0.0-beta.45", "@rolldown/binding-darwin-x64": "1.0.0-beta.45", "@rolldown/binding-freebsd-x64": "1.0.0-beta.45", "@rolldown/binding-linux-arm-gnueabihf": "1.0.0-beta.45", "@rolldown/binding-linux-arm64-gnu": "1.0.0-beta.45", "@rolldown/binding-linux-arm64-musl": "1.0.0-beta.45", "@rolldown/binding-linux-x64-gnu": "1.0.0-beta.45", "@rolldown/binding-linux-x64-musl": "1.0.0-beta.45", "@rolldown/binding-openharmony-arm64": "1.0.0-beta.45", "@rolldown/binding-wasm32-wasi": "1.0.0-beta.45", "@rolldown/binding-win32-arm64-msvc": "1.0.0-beta.45", "@rolldown/binding-win32-ia32-msvc": "1.0.0-beta.45", "@rolldown/binding-win32-x64-msvc": "1.0.0-beta.45" }, "bin": { "rolldown": "bin/cli.mjs" } }, "sha512-iMmuD72XXLf26Tqrv1cryNYLX6NNPLhZ3AmNkSf8+xda0H+yijjGJ+wVT9UdBUHOpKzq9RjKtQKRCWoEKQQBZQ=="],
 
-    "runtime-compiler": ["runtime-compiler@2.0.10", "", {}, "sha512-P6+OdyxtVLfEEbsWSzovzBDPLcT/+LycrtF8iphIXDpei8c94BFyhfHDc75DDnDomrX1r9hNVo+Pw5HqkpDDZg=="],
+    "runtime-compiler": ["runtime-compiler@2.1.2", "", {}, "sha512-7dTibAgRx7mlb9iB+gK3Sjzy/RZOy9q4E73wKArqgwSio62mZPzGsoJfynPrtTgKvSlAV92j8j2GHx3eDKEMzg=="],
 
     "srvx": ["srvx@0.8.16", "", { "bin": { "srvx": "bin/srvx.mjs" } }, "sha512-hmcGW4CgroeSmzgF1Ihwgl+Ths0JqAJ7HwjP2X7e3JzY7u4IydLMcdnlqGQiQGUswz+PO9oh/KtCpOISIvs9QQ=="],
 
@@ -179,5 +179,7 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
+
+    "@mapl/web/runtime-compiler": ["runtime-compiler@2.0.10", "", {}, "sha512-P6+OdyxtVLfEEbsWSzovzBDPLcT/+LycrtF8iphIXDpei8c94BFyhfHDc75DDnDomrX1r9hNVo+Pw5HqkpDDZg=="],
   }
 }

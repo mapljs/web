@@ -1,6 +1,7 @@
 import { injectDependency } from 'runtime-compiler';
+import { handlerArgs } from './globals.ts';
 
-export interface State {
+export interface State extends Array<any> {
   /**
    * Whether scope should be async
    */
@@ -14,7 +15,7 @@ export interface State {
   /**
    * Fork the current state
    */
-  slice: () => State;
+  slice: () => this;
 }
 
 /**
@@ -26,19 +27,15 @@ export const initState = (): State => [false, false] as any;
  * Use in `default` and `build` mode.
  *
  * @example
- * finalizeReturn([true, true], 'return await fn(c);', '(req, server)');
+ * finalizeReturn([true, true], 'return await fn(c);');
  */
-export const finalizeReturn = (
-  state: State,
-  content: string,
-  callArgs: string,
-): string =>
+export const finalizeReturn = (state: State, content: string): string =>
   state[0]
     ? 'return ' +
       injectDependency(
-        `async${callArgs}=>{${state[1] ? constants.CREATE_CTX + content : content}}`,
+        `async${handlerArgs}=>{${state[1] ? constants.CREATE_CTX + content : content}}`,
       ) +
-      callArgs
+      handlerArgs
     : state[1]
       ? constants.CREATE_CTX + content
       : content;
@@ -47,13 +44,9 @@ export const finalizeReturn = (
  * Use in `default` and `build` mode.
  *
  * @example
- * finalizeFn([true, true], 'return await fn(c);', '(req, server)');
+ * finalizeFn([true, true], 'return await fn(c);');
  */
-export const finalizeFn = (
-  state: State,
-  content: string,
-  callArgs: string,
-): string =>
+export const finalizeFn = (state: State, content: string): string =>
   injectDependency(
-    `${state[0] ? 'async' + callArgs : callArgs}=>{${state[1] ? constants.CREATE_CTX + content : content}}`,
+    `${state[0] ? 'async' + handlerArgs : handlerArgs}=>{${state[1] ? constants.CREATE_CTX + content : content}}`,
   );
