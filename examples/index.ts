@@ -20,9 +20,11 @@ const app = router(
   [
     route.get(
       '/',
-      send.raw(
-        inject([parser.result(randomParser)], (val) => val)
-      ),
+      send.raw(inject([parser.result(randomParser)], (val) => val)),
+    ),
+    route.get(
+      '/user/*',
+      send.raw((id) => id),
     ),
     route.post(
       '/body',

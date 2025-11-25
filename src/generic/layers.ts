@@ -1,7 +1,6 @@
 import { isHydrating } from 'runtime-compiler/config';
 
-import type { Layer,
-} from '../compiler/router.ts';
+import type { Layer } from '../compiler/router.ts';
 import { buildCall, hydrateCall } from '../compiler/call.ts';
 
 import type { Context } from './types.ts';
