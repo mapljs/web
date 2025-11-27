@@ -24,6 +24,12 @@ export interface State extends Array<any> {
 export const initState = (): State => [false, false] as any;
 
 /**
+ * Wrap content correctly
+ */
+const wrapContent = (state: State, content: string): string =>
+  state[1] ? constants.CREATE_CTX + content : content;
+
+/**
  * Use in `default` and `build` mode.
  *
  * @example
@@ -33,12 +39,10 @@ export const finalizeReturn = (state: State, content: string): string =>
   state[0]
     ? 'return ' +
       injectDependency(
-        `async${handlerArgs}=>{${state[1] ? constants.CREATE_CTX + content : content}}`,
+        `async${handlerArgs}=>{${wrapContent(state, content)}}`,
       ) +
       handlerArgs
-    : state[1]
-      ? constants.CREATE_CTX + content
-      : content;
+    : wrapContent(state, content);
 
 /**
  * Use in `default` and `build` mode.
@@ -48,5 +52,5 @@ export const finalizeReturn = (state: State, content: string): string =>
  */
 export const finalizeFn = (state: State, content: string): string =>
   injectDependency(
-    `${state[0] ? 'async' + handlerArgs : handlerArgs}=>{${state[1] ? constants.CREATE_CTX + content : content}}`,
+    `${state[0] ? 'async' + handlerArgs : handlerArgs}=>{${wrapContent(state, content)}}`,
   );
