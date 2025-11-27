@@ -65,7 +65,7 @@ const buildWrapper = (router: Router): string => {
     methodRouter,
     `${constants.REQ}.method`,
     `let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_START}=${constants.FULL_URL}.indexOf('/',10)+1,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',${constants.PATH_START}),${constants.PATH}=${constants.PATH_END}===-1?${constants.FULL_URL}.slice(${constants.PATH_START}):${constants.FULL_URL}.slice(${constants.PATH_START},${constants.PATH_END});`,
-    1,
+    0,
   )}return ${constants.RES_404}}}`;
 };
 
