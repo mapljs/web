@@ -1,4 +1,4 @@
-import { inject, layer, parser, route, router, send } from '@mapl/web';
+import { inject, layer, parser, router, send, cors } from '@mapl/web';
 import { compiler, request } from '@mapl/web/generic';
 import { err } from '@safe-std/error';
 
@@ -10,23 +10,24 @@ const randomParser = parser.init(
   }),
 );
 
-const app = router(
+const app = router.init(
   [
+    cors.init('*'),
     layer.tap(() => {
       console.log('time:', performance.now());
     }),
     randomParser,
   ],
   [
-    route.get(
+    router.get(
       '/',
       send.raw(inject([parser.result(randomParser)], (val) => val)),
     ),
-    route.get(
+    router.get(
       '/user/*',
       send.raw((id) => id),
     ),
-    route.post(
+    router.post(
       '/body',
       send.json(inject([request], async (req) => req.json())),
     ),

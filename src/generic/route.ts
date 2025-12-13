@@ -1,6 +1,7 @@
 import type {
   RegisterRouteFn,
   RegisterRouteWithMethodFn,
+  Router,
 } from '../compiler/router.ts';
 
 const GET = ['GET'] as const;
@@ -35,3 +36,9 @@ const ANY = [''] as const;
 export const any: RegisterRouteFn = (...args: any) => ANY.concat(args) as any;
 
 export const def: RegisterRouteWithMethodFn = (...args: any) => args;
+
+export const init = (
+  layers: Router[0],
+  routes: Router[1],
+  children?: Router[2],
+): Router => (children == null ? [layers, routes] : [layers, routes, children]);

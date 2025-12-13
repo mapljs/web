@@ -6,3 +6,13 @@ export interface Context {
 }
 
 export type MaybePromise<T> = T | Promise<T>;
+
+export type RequestMethod =
+  | 'GET'
+  | 'POST'
+  | 'PUT'
+  | 'DELETE'
+  | 'PATCH'
+  | 'OPTIONS'
+  | 'TRACE'
+  | (string & {});

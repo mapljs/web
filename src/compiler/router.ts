@@ -1,6 +1,7 @@
 import { countParams } from '@mapl/router/utils';
 import type { State } from './state.ts';
 import { registerRoute, routeParamMap } from './globals.ts';
+import type { RequestMethod } from '../generic/types.ts';
 
 /*
  * From what i've tested closures use 5x more
@@ -42,7 +43,7 @@ export type RegisterRouteFn = <const Path extends string>(
   ...layers: RouteLayer<InferPath<Path>>[]
 ) => Route;
 export type RegisterRouteWithMethodFn = <const Path extends string>(
-  method: string,
+  method: RequestMethod,
   path: Path,
   ...layers: RouteLayer<InferPath<Path>>[]
 ) => Route;
