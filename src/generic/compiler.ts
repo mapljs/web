@@ -89,7 +89,7 @@ export const hydrateToDependency = (router: Router): void => {
  * Use in `build` mode.
  *
  * @example
- * `(${buildToString(app)})(hydrate(app));`
+ * `const fetch = (${buildToString(app)})(hydrate(app))();`
  */
 export const buildToString = (router: Router): string => (
   addExtraCode('return' + buildWrapper(router)), evaluateToString()

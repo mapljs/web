@@ -1,5 +1,8 @@
 /**
  * @module Global compiler hooks
+ *
+ * ONLY COMPILER MODULES SHOULD INCLUDE THIS FILE.
+ * IF NOT IT BREAKS BUNDLING :(
  */
 
 import type { Route } from './router.ts';
