@@ -1,7 +1,8 @@
 import { getDeps } from 'runtime-compiler/call';
-import type { State } from './state.ts';
 import { injectExternalDependency } from 'runtime-compiler';
 import { AsyncFunction } from 'runtime-compiler/utils';
+
+import type { State } from './state.ts';
 
 /**
  * Compile a function to call statement.

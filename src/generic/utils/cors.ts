@@ -4,8 +4,14 @@ import { isHydrating } from 'runtime-compiler/config';
 import { injectDependency } from 'runtime-compiler';
 import { injectArgsList } from 'runtime-compiler/utils';
 
+declare const _1: unique symbol;
 export type PreflightHeader = Header & {
-  '~': 0;
+  [_1]?: 0;
+};
+
+declare const _2: unique symbol;
+export type NonPreflightHeader = Header & {
+  [_2]?: 0;
 };
 
 export const allowMethods = (
@@ -21,14 +27,14 @@ export const allowHeaders = (headers: string | string[]): PreflightHeader =>
 export const maxAge = (seconds: number): PreflightHeader =>
   ['access-control-max-age', '' + seconds] as any;
 
-export const allowCredentials: Header = [
+export const allowCredentials: NonPreflightHeader = [
   'access-control-allow-credentials',
   'true',
 ] as any;
 
 export const exposeHeaders = (
   headers: '*' | (string & {}) | [string, string, ...string[]],
-): Header => ['access-control-expose-headers', '' + headers] as any;
+): NonPreflightHeader => ['access-control-expose-headers', '' + headers] as any;
 
 const hydrateInit: Layer<any> = [
   (_, state) => ((state[1] = true), ''),
@@ -100,7 +106,7 @@ const buildInit: Layer<any>[0] = (layer, state) => {
 export const init: (
   origins: '*' | (string & {}) | [string, string, ...string[]],
   preflightHeaders?: [PreflightHeader, ...PreflightHeader[]],
-  headers?: [Header, ...Header[]],
+  headers?: [NonPreflightHeader, ...NonPreflightHeader[]],
 ) => Layer<any[]> = isHydrating
   ? () => hydrateInit
   : (origin, preflightHeaders, headers) => [

@@ -10,8 +10,7 @@ import {
   evaluate,
   evaluateToString,
   hydrate as finishHydration,
-  injectDependency,
-  type LocalDependency,
+  type Expression,
 } from 'runtime-compiler';
 
 import {
@@ -45,7 +44,7 @@ export const registerRouteCb: typeof registerRoute = (
   );
 };
 
-const buildWrapper = (router: Router): string => {
+const buildWrapper = (router: Router): Expression<BuiltFn> => {
   setHandlerArgs(`(${constants.REQ})`);
 
   // Init router
@@ -66,15 +65,8 @@ const buildWrapper = (router: Router): string => {
     `${constants.REQ}.method`,
     `let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_START}=${constants.FULL_URL}.indexOf('/',10)+1,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',${constants.PATH_START}),${constants.PATH}=${constants.PATH_END}===-1?${constants.FULL_URL}.slice(${constants.PATH_START}):${constants.FULL_URL}.slice(${constants.PATH_START},${constants.PATH_END});`,
     0,
-  )}return ${constants.RES_404}}}`;
+  )}return ${constants.RES_404}}}` as any;
 };
-
-/**
- * Build to a local dependency.
- * Use in `default` and `build` mode.
- */
-export const buildToDependency = (router: Router): LocalDependency<BuiltFn> =>
-  injectDependency(buildWrapper(router));
 
 /**
  * Hydrate to a local dependency.

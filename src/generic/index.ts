@@ -1,5 +1,5 @@
-import type { LocalDependency } from 'runtime-compiler';
+import type { Identifier } from 'runtime-compiler';
 
-export const request = constants.REQ as LocalDependency<Request>;
+export const request = constants.REQ as Identifier<Request>;
 
 export * as compiler from './compiler.ts';

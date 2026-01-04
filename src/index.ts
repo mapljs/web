@@ -1,5 +1,3 @@
-import type { Router } from './compiler/router.ts';
-
 export * as send from './generic/handlers.ts';
 export * as router from './generic/route.ts';
 

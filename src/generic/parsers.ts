@@ -2,7 +2,7 @@ import { type InferErr, type InferResult, isErr } from '@safe-std/error';
 
 import {
   injectExternalDependency,
-  type LocalDependency,
+  type Identifier,
 } from 'runtime-compiler';
 import { isHydrating } from 'runtime-compiler/config';
 
@@ -19,18 +19,18 @@ interface ParseLayerFn {
     fn: (c: Context) => T,
     handleError: RouteLayer<[InferErr<Awaited<T>>]>,
   ): Layer<
-    [LocalDependency<InferResult<Awaited<T>>>, typeof fn, typeof handleError]
+    [Identifier<InferResult<Awaited<T>>>, typeof fn, typeof handleError]
   >;
 
   <const T>(
     fn: (c: Context) => T,
-  ): Layer<[LocalDependency<Awaited<T>>, typeof fn]>;
+  ): Layer<[Identifier<Awaited<T>>, typeof fn]>;
 }
 
 /**
  * Check whether value is an error
  */
-export const IS_ERR: LocalDependency<typeof isErr> =
+export const IS_ERR: Identifier<typeof isErr> =
   injectExternalDependency(isErr);
 
 const buildParse: Layer<[any, any]>[0] = isHydrating
@@ -60,6 +60,6 @@ export const init: ParseLayerFn = (fn: any, handleError?: any) =>
 /**
  * Get the parsed result of a parser
  */
-export const result = <T extends LocalDependency<any>>(
+export const result = <T extends Identifier<any>>(
   parser: Layer<[T, ...any[]]>,
 ): T => parser[1];
