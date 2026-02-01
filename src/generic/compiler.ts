@@ -1,103 +1,157 @@
 import {
-  createRouter,
-  insertItem,
+  createRouter as createMethodRouter,
+  insertItem as insertItemToMethodRouter,
   type Router as MethodRouter,
 } from '@mapl/router/method';
 import compileMethodRouter from '@mapl/router/method/compiler';
+import { countParams } from '@mapl/router/utils';
 
 import {
-  addExtraCode,
   evaluate,
-  evaluateToString,
-  hydrate as finishHydration,
-  type Expression,
+  exportScope,
+  markExported,
+  statements,
+  type ExportedDependency,
+  type Value,
 } from 'runtime-compiler';
+import { isHydrating, onlyBuild } from 'runtime-compiler/config';
 
-import {
-  build as buildRouter,
-  hydrate as hydrateRouter,
-  type Router,
-} from '../compiler/router.ts';
-import { finalizeReturn } from '../compiler/state.ts';
-import {
-  setHandlerArgs,
-  setRegisterRoute,
-  setRouteParamMap,
-  type registerRoute,
-} from '../compiler/globals.ts';
+import { SCOPE, setHandlerArgs } from '../compilers/globals.ts';
+import { wrapScope, type HandlerScope } from '../compilers/scope.ts';
 
-export type BuiltFn = () => (req: Request) => any;
+import type { ChildRouter, Router } from '../router.ts';
+import type { AnyRouteLayer } from '../layer.ts';
 
-let methodRouter: MethodRouter<string>;
+/**
+ * Describe compiler compiled result
+ */
+export type CompiledResult = (req: Request) => Response | Promise<Response>;
 
-export const registerRouteCb: typeof registerRoute = (
-  route,
-  state,
-  prefix,
-  content,
-) => {
-  insertItem(
-    methodRouter,
-    route[0],
-    prefix + route[1],
-    finalizeReturn(state, content),
-  );
+let METHOD_ROUTER: MethodRouter<string>;
+let PARAM_MAP: string[];
+
+const loadToMethodRouter = (
+  router: Router,
+  scope: HandlerScope,
+  prefix: string,
+  content: string,
+): void => {
+  for (let i = 0, layers = router[0]; i < layers.length; i++) {
+    const self = layers[i];
+    content += self[0](self, scope);
+  }
+
+  for (let i = 0, routes = router[1]; i < routes.length; i++) {
+    const route = routes[i];
+
+    const routeScope = scope.slice();
+    let routeContent = content;
+
+    for (
+      let j = 2,
+        paramCount = countParams(route[1]),
+        params = PARAM_MAP[paramCount];
+      j < route.length;
+      j++
+    ) {
+      const self = route[j] as any as AnyRouteLayer<any[]>;
+      routeContent += self[0](self, routeScope, params, paramCount);
+    }
+
+    insertItemToMethodRouter(
+      METHOD_ROUTER,
+      route[0],
+      prefix + route[1],
+      wrapScope(routeScope, routeContent),
+    );
+  }
+
+  for (let i = 2; i < router.length; i++) {
+    const childRouter = router[i] as ChildRouter;
+
+    loadToMethodRouter(
+      childRouter[1],
+      scope.slice(),
+      childRouter[0] === '/' ? prefix : prefix + childRouter[0],
+      content,
+    );
+  }
 };
 
-const buildWrapper = (router: Router): Expression<BuiltFn> => {
-  setHandlerArgs(`(${constants.REQ})`);
+/**
+ * Load all global state for a router
+ *
+ * @example
+ * setHandlerArgs(constants.GENERIC_ARGS);
+ * _load(router);
+ */
+export const _load = (router: Router): void => {
+  // Initialize globals
+  METHOD_ROUTER = createMethodRouter();
 
-  // Init router
-  methodRouter = createRouter();
-  setRegisterRoute(registerRouteCb);
-
-  // Init param map
-  const paramMap = ['', `${constants.PARAMS}0,`];
+  PARAM_MAP = ['', `${constants.PARAMS}0`];
   for (let i = 1; i <= 8; i++)
-    paramMap.push(`${paramMap[i]}${constants.PARAMS}${i},`);
-  setRouteParamMap(paramMap);
+    PARAM_MAP.push(`${PARAM_MAP[i]},${constants.PARAMS}${i}`);
 
-  // Run build
-  buildRouter(router, [false, false] as any, '', '');
+  // Load router data to method router to build
+  loadToMethodRouter(router, [0] as any as HandlerScope, '', '');
+};
 
-  return `()=>{${constants.DECL_GLOBALS}return(${constants.REQ})=>{${compileMethodRouter(
-    methodRouter,
+export const loadToString = (): Value<CompiledResult> =>
+  `(${constants.REQ})=>{${compileMethodRouter(
+    METHOD_ROUTER,
     `${constants.REQ}.method`,
     `let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_START}=${constants.FULL_URL}.indexOf('/',10)+1,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',${constants.PATH_START}),${constants.PATH}=${constants.PATH_END}===-1?${constants.FULL_URL}.slice(${constants.PATH_START}):${constants.FULL_URL}.slice(${constants.PATH_START},${constants.PATH_END});`,
     0,
-  )}return ${constants.RES_404}}}` as any;
-};
+  )}return ${constants.RES_404}}` as any;
 
 /**
- * Hydrate to a local dependency.
- * Use in `hydrate` mode.
+ * Hydrate router data
  */
-export const hydrateToDependency = (router: Router): void => {
-  hydrateRouter(router, [false, false] as any);
+export const _hydrate = (router: Router, scope: HandlerScope): void => {
+  for (let i = 0, layers = router[0]; i < layers.length; i++) {
+    const self = layers[i];
+    self[0](self, scope);
+  }
+
+  for (let i = 0, routes = router[1]; i < routes.length; i++)
+    for (
+      let j = 2,
+        route = routes[i],
+        routeScope = scope.slice(),
+        paramCount = countParams(route[1]);
+      j < route.length;
+      j++
+    ) {
+      const self = route[j] as any as AnyRouteLayer<any[]>;
+      self[0](self, routeScope, '', paramCount);
+    }
+
+  for (let i = 2; i < router.length; i++)
+    _hydrate((router[i] as ChildRouter)[1], scope.slice());
 };
 
 /**
- * Build the router into evaluatable string.
- * Use in `build` mode.
- *
  * @example
- * `const fetch = (${buildToString(app)})(hydrate(app))();`
+ * export default {
+ *   // Must be set as a property of an object
+ *   fetch: getDependency(build(app))
+ * };
  */
-export const buildToString = (router: Router): string => (
-  addExtraCode('return' + buildWrapper(router)), evaluateToString()
-);
+export const build: (router: Router) => ExportedDependency<CompiledResult> =
+  isHydrating
+    ? (router) => (_hydrate(router, [0] as any as HandlerScope), markExported())
+    : onlyBuild
+      ? (router) => (
+          setHandlerArgs(constants.GENERIC_ARGS),
+          _load(router),
+          exportScope(SCOPE, loadToString())
+        )
+      : (router) => {
+          setHandlerArgs(constants.GENERIC_ARGS);
+          _load(router);
 
-/**
- * Build the router to a lazy function.
- * Use in `default` mode.
- */
-export const build = (router: Router): BuiltFn => (
-  addExtraCode('return' + buildWrapper(router)), evaluate()
-);
-
-/**
- * Return the arguments needed in `hydrate` mode.
- */
-export const hydrate = (router: Router): any[] => (
-  hydrateToDependency(router), finishHydration()
-);
+          const id = exportScope(SCOPE, loadToString());
+          evaluate();
+          return id;
+        };
