@@ -1,0 +1,20 @@
+import { layer, router, send } from '@mapl/web';
+import { request } from '@mapl/web/generic';
+
+export default router.init(
+  [
+    layer.tap(() => {
+      console.log('time:', performance.now());
+    }),
+  ],
+  [
+    router.get(
+      '/user/*',
+      send.raw((id) => id),
+    ),
+    router.post(
+      '/body',
+      send.json(async (req) => req.json(), request),
+    ),
+  ],
+);
