@@ -2,15 +2,14 @@
 AOT compilation example usage.
 - `entry.ts`: Export built dependencies IDs
   ```ts
-  // Exclude `runtime-compiler/config` when bundling
+  // Exclude `runtime-compiler` when bundling
   export const appId = build(app);
   ```
 - `build.ts`: Build hydration code
   ```ts
+  import { statements } from 'runtime-compiler';
   import 'runtime-compiler/config/loader/build';
   import './entry.ts';
-
-  import { statements } from 'runtime-compiler';
 
   // Replace `runtime-compiler/config` with `runtime-compiler/config/mode/hydrate` when bundling.
   const hydratedCode = `
