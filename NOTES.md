@@ -1,23 +1,29 @@
 # AOT
-Build entry point but exclude `runtime-compiler`.
+AOT compilation example usage.
+- `entry.ts`: Export built dependencies IDs
+  ```ts
+  // Exclude `runtime-compiler/config` when bundling
+  export const appId = build(app);
+  ```
+- `build.ts`: Build hydration code
+  ```ts
+  import 'runtime-compiler/config/loader/build';
+  import './entry.ts';
 
-## Build mode
-- Replace `runtime-compiler/config` with `runtime-compiler/config/mode/build`.
-- Run `compiler.buildToString` on exported app and get the content.
+  import { statements } from 'runtime-compiler';
 
-## Hydrate mode
-- Replace `runtime-compiler/config` with `runtime-compiler/config/mode/hydrate`.
-- Create hydration file with:
-```ts
-// app.ts
-export default compile.build(app);
+  // Replace `runtime-compiler/config` with `runtime-compiler/config/mode/hydrate` when bundling.
+  const hydratedCode = `
+    import { $ } from 'runtime-compiler';
+    export * from './entry.ts';
+    ${statements}
+  `;
 
-// hydrate.ts
-import id from './app.ts';
-import getDependency from 'runtime-compiler';
-
-export default {
-  fetch: getDependency(id)
-};
-```
-- Use the file however u want.
+  // Or with no bundler magic
+  const hydratedCode = `
+    import 'runtime-compiler/config/loader/hydrate';
+    import { $ } from 'runtime-compiler';
+    export * from './entry.ts';
+    ${statements}
+  `;
+  ```

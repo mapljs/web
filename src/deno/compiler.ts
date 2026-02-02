@@ -14,7 +14,7 @@ import {
   loadToString,
 } from '../generic/compiler.ts';
 import type { HandlerScope } from '../compilers/scope';
-import { SCOPE, setHandlerArgs } from '../compilers/globals.ts';
+import { setHandlerArgs } from '../compilers/globals.ts';
 
 /**
  * Describe compiler compiled result

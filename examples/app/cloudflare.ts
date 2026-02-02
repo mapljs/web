@@ -5,7 +5,6 @@ import main from './main.ts';
 const createFetch = getDependency(build(main));
 
 export default {
-  // Must be set as 'fetch' property of an object
   fetch(...args) {
     // Set up stuff...
     return (this.fetch = createFetch())(...args);

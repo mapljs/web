@@ -35,7 +35,6 @@ export const loadToString = (): Value<CompiledResult> =>
  * const createFetch = getDependency(build(app));
  *
  * export default {
- *   // Must be set as 'fetch' property of an object
  *   fetch(...args) {
  *     // Set up stuff...
  *     return (this.fetch = createFetch())(...args);

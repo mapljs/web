@@ -67,7 +67,3 @@ export const patch: HandleMethod = (...args) =>
 const OPTIONS = ['OPTIONS'];
 export const options: HandleMethod = (...args) =>
   OPTIONS.concat(args as any) as any;
-
-const TRACE = ['TRACE'];
-export const trace: HandleMethod = (...args) =>
-  TRACE.concat(args as any) as any;
