@@ -1,11 +1,10 @@
 import {
-  evaluate,
   exportExpr,
   markExported,
   type ExportedDependency,
   type Value,
 } from 'runtime-compiler';
-import { isHydrating, onlyBuild } from 'runtime-compiler/config';
+import { isHydrating } from 'runtime-compiler/config';
 
 import type { Router } from '../router.ts';
 
@@ -16,19 +15,18 @@ import {
 } from '../generic/compiler.ts';
 
 import type { HandlerScope } from '../compilers/scope';
-import { SCOPE, setHandlerArgs } from '../compilers/globals.ts';
+import { TMP_SCOPE, setHandlerArgs } from '../compilers/globals.ts';
 
 /**
  * Describe compiler compiled result
  */
-export type CompiledResult = () => ExportedHandlerFetchHandler<Cloudflare.Env, unknown>;
+export type CompiledResult = () => ExportedHandlerFetchHandler<
+  Cloudflare.Env,
+  unknown
+>;
 
 export const loadToString = (): Value<CompiledResult> =>
-  ('()=>{' +
-    SCOPE[0] +
-    'return ' +
-    genericLoadToString() +
-    '}') as any;
+  ('()=>{' + TMP_SCOPE[0] + 'return ' + genericLoadToString() + '}') as any;
 
 /**
  * @example
@@ -44,17 +42,8 @@ export const loadToString = (): Value<CompiledResult> =>
 export const build: (router: Router) => ExportedDependency<CompiledResult> =
   isHydrating
     ? (router) => (_hydrate(router, [0] as any as HandlerScope), markExported())
-    : onlyBuild
-      ? (router) => (
-          setHandlerArgs(constants.CLOUDFLARE_ARGS),
-          _load(router),
-          exportExpr(loadToString())
-        )
-      : (router) => {
-          setHandlerArgs(constants.CLOUDFLARE_ARGS);
-          _load(router);
-
-          const id = exportExpr(loadToString());
-          evaluate();
-          return id as any;
-        };
+    : (router) => (
+        setHandlerArgs(constants.CLOUDFLARE_ARGS),
+        _load(router),
+        exportExpr(loadToString())
+      );

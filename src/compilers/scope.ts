@@ -1,5 +1,5 @@
 import { declareLocal } from 'runtime-compiler';
-import { HANDLER_ARGS, SCOPE } from './globals.ts';
+import { HANDLER_ARGS, TMP_SCOPE } from './globals.ts';
 
 /**
  * Handler scope state.
@@ -22,7 +22,7 @@ export const wrapScope = (scope: HandlerScope, content: string): string => {
   return (flags & 1) === 1
     ? 'return ' +
         declareLocal(
-          SCOPE,
+          TMP_SCOPE,
           ('async' + HANDLER_ARGS + '=>{' + content + '}') as any,
         ) +
         HANDLER_ARGS

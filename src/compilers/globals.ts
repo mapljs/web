@@ -23,16 +23,14 @@ export const setHandlerArgs = (str: string): void => {
 /**
  * Store local variables
  */
-export let SCOPE: Scope;
+export let TMP_SCOPE: Scope;
 
 /**
  * Check whether value is an error
  */
 export let IS_ERR: Identifier<typeof isErr>;
 
-export const clearScope = (): void => {
-  SCOPE = [constants.DECL_GLOBALS, 0];
-  IS_ERR = declareLocal(SCOPE, injectExternal(isErr)) as any;
+export const initScope = (): void => {
+  TMP_SCOPE = [constants.DECL_GLOBALS, 0];
+  IS_ERR = declareLocal(TMP_SCOPE, injectExternal(isErr)) as any;
 };
-
-clearScope();

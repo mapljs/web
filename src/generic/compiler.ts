@@ -7,16 +7,14 @@ import compileMethodRouter from '@mapl/router/method/compiler';
 import { countParams } from '@mapl/router/utils';
 
 import {
-  evaluate,
   exportScope,
   markExported,
-  statements,
   type ExportedDependency,
   type Value,
 } from 'runtime-compiler';
-import { isHydrating, onlyBuild } from 'runtime-compiler/config';
+import { isHydrating } from 'runtime-compiler/config';
 
-import { SCOPE, setHandlerArgs } from '../compilers/globals.ts';
+import { TMP_SCOPE, initScope, setHandlerArgs } from '../compilers/globals.ts';
 import { wrapScope, type HandlerScope } from '../compilers/scope.ts';
 
 import type { ChildRouter, Router } from '../router.ts';
@@ -86,6 +84,8 @@ const loadToMethodRouter = (
  * _load(router);
  */
 export const _load = (router: Router): void => {
+  initScope();
+
   // Initialize globals
   METHOD_ROUTER = createMethodRouter();
 
@@ -134,24 +134,14 @@ export const _hydrate = (router: Router, scope: HandlerScope): void => {
 /**
  * @example
  * export default {
- *   // Must be set as a property of an object
  *   fetch: getDependency(build(app))
  * };
  */
 export const build: (router: Router) => ExportedDependency<CompiledResult> =
   isHydrating
     ? (router) => (_hydrate(router, [0] as any as HandlerScope), markExported())
-    : onlyBuild
-      ? (router) => (
-          setHandlerArgs(constants.GENERIC_ARGS),
-          _load(router),
-          exportScope(SCOPE, loadToString())
-        )
-      : (router) => {
-          setHandlerArgs(constants.GENERIC_ARGS);
-          _load(router);
-
-          const id = exportScope(SCOPE, loadToString());
-          evaluate();
-          return id;
-        };
+    : (router) => (
+        setHandlerArgs(constants.GENERIC_ARGS),
+        _load(router),
+        exportScope(TMP_SCOPE, loadToString())
+      );

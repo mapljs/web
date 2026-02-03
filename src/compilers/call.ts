@@ -6,7 +6,7 @@ import {
 import { isHydrating } from 'runtime-compiler/config';
 import { AsyncFunction } from 'runtime-compiler/utils';
 
-import { SCOPE } from './globals.ts';
+import { TMP_SCOPE } from './globals.ts';
 import type { HandlerScope } from './scope.ts';
 import type { SendLayer } from '../response.ts';
 
@@ -22,12 +22,13 @@ export const buildCall: (
   argsCount: number,
 ) => string = isHydrating
   ? (scope, fn, _, argsCount) => {
+      injectExternal(fn);
       fn instanceof AsyncFunction && (scope[0] |= 1);
       fn.length > argsCount && (scope[0] |= 2);
-      return injectExternal(fn);
+      return '';
     }
   : (scope, fn, args, argsCount) => {
-      let str = declareLocal(SCOPE, injectExternal(fn)) + '(' + args;
+      let str = declareLocal(TMP_SCOPE, injectExternal(fn)) + '(' + args;
       if (fn instanceof AsyncFunction) {
         scope[0] |= 1;
         str = 'await ' + str;
