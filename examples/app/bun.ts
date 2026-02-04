@@ -1,7 +1,9 @@
-import { build } from "@mapl/web/bun";
-import { getDependency } from "runtime-compiler";
-import main from "./main.ts";
+import { build } from '@mapl/web/bun';
+import { getDependency } from 'runtime-compiler';
+import main from './main.ts';
+
+const routes = getDependency(build(main));
 
 Bun.serve({
-  routes: getDependency(build(main))
+  routes: routes,
 });

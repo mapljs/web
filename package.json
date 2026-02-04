@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "A compiled web framework for all runtimes",
   "keywords": [
     "fast",
@@ -41,7 +41,7 @@
     "@biomejs/biome"
   ],
   "dependencies": {
-    "@mapl/router": "^0.8.3",
+    "@mapl/router": "^0.8.4",
     "@safe-std/error": "^2.0.4",
     "runtime-compiler": "^3.1.0"
   }

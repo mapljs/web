@@ -42,58 +42,68 @@ const loadToMethodRouter = (
     let path = route[1];
     let routeContent;
 
+    // Preprocess the path
+    // '/a/*' -> '/a/:q0'
+    // '/**' -> '/*'
     if (path.includes('*')) {
-      routeContent = 'let{';
-      let paramCount = 0;
+      let paramCount;
 
-      {
-        let newPath = '',
+      if (path.endsWith('**')) {
+        routeContent = 'let{';
+        paramCount = 0;
+
+        let len = path.length - 3,
+          newPath = '',
           startIdx = 0;
 
-        if (path.endsWith('**')) {
-          let len = path.length - 3;
+        for (
+          let i = path.indexOf('*');
+          i > -1 && i < len;
+          i = path.indexOf('*', i + 2)
+        ) {
+          const id = constants.PARAMS + paramCount++;
 
-          for (
-            let i = path.indexOf('*');
-            i > -1 && i < len;
-            i = path.indexOf('*', i + 2)
-          ) {
-            const id = constants.PARAMS + paramCount++;
+          routeContent += id + ',';
+          newPath += path.slice(startIdx, i) + ':' + id;
 
-            routeContent += id + ',';
-            newPath += path.slice(startIdx, i) + ':' + id;
-
-            startIdx = i + 1;
-          }
-
-          // Finish the path
-          startIdx < len && (newPath += path.slice(startIdx, len));
-          path = newPath + '/*';
-
-          // Add wildcard param
-          routeContent += '"*":' + constants.PARAMS + paramCount++;
-        } else {
-          for (
-            let i = path.indexOf('*');
-            i > -1;
-            i = path.indexOf('*', i + 2)
-          ) {
-            const id = constants.PARAMS + paramCount++;
-
-            routeContent += id + ',';
-            newPath += path.slice(startIdx, i) + ':' + id;
-
-            startIdx = i + 1;
-          }
-
-          // Finish the path
-          path =
-            startIdx < path.length ? newPath + path.slice(startIdx) : newPath;
+          startIdx = i + 1;
         }
 
-        // Finish content
-        routeContent += '}=' + constants.REQ + '.params;' + content;
+        // Finish the path
+        startIdx < len && (newPath += path.slice(startIdx, len));
+        path = newPath + '/*';
+
+        // Add wildcard param
+        routeContent += '"*":' + constants.PARAMS + paramCount++;
+      } else {
+        routeContent = 'let{' + constants.PARAMS + '0';
+        paramCount = 1;
+
+        // First star always exist
+        const firstStar = path.indexOf('*');
+        let newPath = path.slice(0, firstStar) + ':' + constants.PARAMS + '0',
+          startIdx = firstStar + 1;
+
+        for (
+          let i = path.indexOf('*', firstStar + 2);
+          i > -1;
+          i = path.indexOf('*', i + 2)
+        ) {
+          const id = constants.PARAMS + paramCount++;
+
+          routeContent += id + ',';
+          newPath += path.slice(startIdx, i) + ':' + id;
+
+          startIdx = i + 1;
+        }
+
+        // Finish the path
+        path =
+          startIdx < path.length ? newPath + path.slice(startIdx) : newPath;
       }
+
+      // Finish content
+      routeContent += '}=' + constants.REQ + '.params;' + content;
 
       for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
@@ -159,38 +169,35 @@ export const _hydrate = (router: Router, scope: HandlerScope): void => {
 
     let path = route[1];
     if (path.includes('*')) {
-      let paramCount = 0;
+      let paramCount = 1;
 
+      // Count params
       {
-        if (path.endsWith('**')) {
-          let len = path.length - 3;
-
-          for (
-            let i = path.indexOf('*');
-            i > -1 && i < len;
-            i = path.indexOf('*', i + 2), paramCount++
-          );
-
-          paramCount++;
-        } else {
-          for (
-            let i = path.indexOf('*');
-            i > -1;
-            i = path.indexOf('*', i + 2), paramCount++
-          );
+        let i = path.lastIndexOf('*');
+        if (i > 1) {
+          i = path.lastIndexOf('*', i - 2);
+          while (i > 1) {
+            paramCount++;
+            i = path.lastIndexOf('*', i - 2);
+          }
+          i > -1 && paramCount++;
         }
       }
 
-      for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
+      for (
+        let j = 2,
+          params = PARAM_MAP[paramCount];
+        j < route.length;
+        j++
+      ) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
         self[0](self, routeScope, params, paramCount);
       }
-    } else {
+    } else
       for (let j = 2; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
         self[0](self, routeScope, '', 0);
       }
-    }
   }
 
   for (let i = 2; i < router.length; i++)
