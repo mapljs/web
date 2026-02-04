@@ -103,14 +103,14 @@ const loadToMethodRouter = (
       }
 
       // Finish content
-      routeContent += '}=' + constants.REQ + '.params;' + content;
+      routeContent += `}=${constants.REQ}.params,${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',11);` + content;
 
       for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
         routeContent += self[0](self, routeScope, params, paramCount);
       }
     } else {
-      routeContent = content;
+      routeContent = `let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',11);` + content;
 
       for (let j = 2; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
