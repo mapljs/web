@@ -1,5 +1,5 @@
 import type { AnyLayer, AnyRouteLayer } from './layer.ts';
-import { argsToArray } from './utils.ts';
+import { argsToArray, type NonEmptyArray } from './utils.ts';
 
 /**
  * @example
@@ -34,7 +34,7 @@ export type InferParams<Path extends string> =
 // Handle a specific method
 export type HandleMethod = <Path extends string>(
   path: Path,
-  ...layers: AnyRouteLayer<InferParams<Path>>[]
+  ...layers: NonEmptyArray<AnyRouteLayer<InferParams<Path>>>
 ) => Route;
 
 /**
@@ -45,10 +45,10 @@ export const init: (...args: Router) => Router = argsToArray;
 /**
  * Handle custom request method.
  */
-export const handle: <Method extends string, Path extends string>(
-  method: Uppercase<Method>,
+export const handle: <Path extends string>(
+  method: Uppercase<string>,
   path: Path,
-  ...layers: AnyRouteLayer<InferParams<Path>>[]
+  ...layers: NonEmptyArray<AnyRouteLayer<InferParams<Path>>>
 ) => Route = argsToArray;
 
 /**
