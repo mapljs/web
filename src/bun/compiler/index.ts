@@ -23,6 +23,7 @@ import { initRouter, insertItem, toRoutes } from './router.ts';
 export type CompiledResult = Bun.Serve.Routes<any, string>;
 
 let PARAM_MAP: string[];
+let WILDCARD_PARAM_MAP: string[];
 
 const loadToMethodRouter = (
   router: Router,
@@ -40,78 +41,59 @@ const loadToMethodRouter = (
     const routeScope = scope.slice();
 
     let path = route[1];
-    let routeContent;
+    let routeContent = content;
 
     // Preprocess the path
     // '/a/*' -> '/a/:q0'
     // '/**' -> '/*'
     if (path.includes('*')) {
-      let paramCount;
+      routeContent = `let ${constants.PARAMS}=${constants.REQ}.params;` + routeContent;
+      let paramCount = 1;
 
       if (path.endsWith('**')) {
-        routeContent = 'let{';
-        paramCount = 0;
+        let newPath = '/*',
+          endIdx = path.length - 3,
+          nextIdx = path.lastIndexOf('*', endIdx);
 
-        let len = path.length - 3,
-          newPath = '',
-          startIdx = 0;
+        while (nextIdx > 1) {
+          newPath = ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath;
 
-        for (
-          let i = path.indexOf('*');
-          i > -1 && i < len;
-          i = path.indexOf('*', i + 2)
-        ) {
-          const id = constants.PARAMS + paramCount++;
-
-          routeContent += id + ',';
-          newPath += path.slice(startIdx, i) + ':' + id;
-
-          startIdx = i + 1;
+          endIdx = nextIdx;
+          nextIdx = path.lastIndexOf('*', nextIdx - 2);
         }
 
-        // Finish the path
-        startIdx < len && (newPath += path.slice(startIdx, len));
-        path = newPath + '/*';
+        path = nextIdx > -1
+          ? path.slice(0, nextIdx - 1) + ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath
+          : path.slice(0, endIdx) + newPath;
 
-        // Add wildcard param
-        routeContent += '"*":' + constants.PARAMS + paramCount++;
+        for (let j = 2, params = WILDCARD_PARAM_MAP[paramCount]; j < route.length; j++) {
+          const self = route[j] as any as AnyRouteLayer<any[]>;
+          routeContent += self[0](self, routeScope, params, paramCount);
+        }
       } else {
-        routeContent = 'let{' + constants.PARAMS + '0';
-        paramCount = 1;
+        // Inline first iteration
+        let nextIdx = path.lastIndexOf('*'),
+          newPath = ':q0' + path.slice(nextIdx + 1),
+          endIdx = nextIdx;
+        nextIdx = path.lastIndexOf('*', nextIdx - 2);
 
-        // First star always exist
-        const firstStar = path.indexOf('*');
-        let newPath = path.slice(0, firstStar) + ':' + constants.PARAMS + '0',
-          startIdx = firstStar + 1;
+        while (nextIdx > 1) {
+          newPath = ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath;
 
-        for (
-          let i = path.indexOf('*', firstStar + 2);
-          i > -1;
-          i = path.indexOf('*', i + 2)
-        ) {
-          const id = constants.PARAMS + paramCount++;
-
-          routeContent += id + ',';
-          newPath += path.slice(startIdx, i) + ':' + id;
-
-          startIdx = i + 1;
+          endIdx = nextIdx;
+          nextIdx = path.lastIndexOf('*', nextIdx - 2);
         }
 
-        // Finish the path
-        path =
-          startIdx < path.length ? newPath + path.slice(startIdx) : newPath;
-      }
+        path = nextIdx > -1
+          ? path.slice(0, nextIdx - 1) + ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath
+          : path.slice(0, endIdx) + newPath;
 
-      // Finish content
-      routeContent += `}=${constants.REQ}.params,${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',11);` + content;
-
-      for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
-        const self = route[j] as any as AnyRouteLayer<any[]>;
-        routeContent += self[0](self, routeScope, params, paramCount);
+        for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
+          const self = route[j] as any as AnyRouteLayer<any[]>;
+          routeContent += self[0](self, routeScope, params, paramCount);
+        }
       }
     } else {
-      routeContent = `let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',11);` + content;
-
       for (let j = 2; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
         routeContent += self[0](self, routeScope, '', 0);
@@ -144,9 +126,14 @@ export const _load = (router: Router): void => {
   initScope();
   initRouter();
 
-  PARAM_MAP = ['', `${constants.PARAMS}0`];
-  for (let i = 1; i <= 8; i++)
-    PARAM_MAP.push(`${PARAM_MAP[i]},${constants.PARAMS}${i}`);
+  // Params are in reverse order
+  PARAM_MAP = ['', `${constants.PARAMS}.q0`];
+  WILDCARD_PARAM_MAP = ['', `${constants.PARAMS}['*']`]
+  for (let i = 1; i <= 8; i++) {
+    const newParam = `${constants.PARAMS}.q` + i + ',';
+    PARAM_MAP.push(newParam + PARAM_MAP[i]);
+    WILDCARD_PARAM_MAP.push(newParam + WILDCARD_PARAM_MAP[i]);
+  }
 
   // Load router data to method router to build
   loadToMethodRouter(router, [0] as any as HandlerScope, '', '');
@@ -184,12 +171,7 @@ export const _hydrate = (router: Router, scope: HandlerScope): void => {
         }
       }
 
-      for (
-        let j = 2,
-          params = PARAM_MAP[paramCount];
-        j < route.length;
-        j++
-      ) {
+      for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
         self[0](self, routeScope, params, paramCount);
       }

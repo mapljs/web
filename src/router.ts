@@ -41,29 +41,80 @@ export type HandleMethod = <Path extends string>(
  * Create a router
  */
 export const init: (...args: Router) => Router = argsToArray;
-export const handle: <Path extends string>(
-  method: string,
+
+/**
+ * Handle custom request method.
+ */
+export const handle: <Method extends string, Path extends string>(
+  method: Uppercase<Method>,
   path: Path,
   ...layers: AnyRouteLayer<InferParams<Path>>[]
 ) => Route = argsToArray;
+
+/**
+ * Mount a child router.
+ */
 export const mount: (...args: ChildRouter) => ChildRouter = argsToArray;
 
-const GET = ['GET'];
-export const get: HandleMethod = (...args) => GET.concat(args as any) as any;
+/**
+ * Requests a representation of the specified resource. Requests using GET should only retrieve data and should not contain a request content.
+ */
+export const get: HandleMethod = (...args) => (
+  args.unshift('GET' as any), args as any
+);
 
-const POST = ['POST'];
-export const post: HandleMethod = (...args) => POST.concat(args as any) as any;
+/**
+ * Asks for a response identical to a GET request, but without a response body.
+ */
+export const head: HandleMethod = (...args) => (
+  args.unshift('HEAD' as any), args as any
+);
 
-const PUT = ['PUT'];
-export const put: HandleMethod = (...args) => PUT.concat(args as any) as any;
+/**
+ * Submits an entity to the specified resource, often causing a change in state or side effects on the server.
+ */
+export const post: HandleMethod = (...args) => (
+  args.unshift('POST' as any), args as any
+);
 
-const DELETE = ['DELETE'];
-export const del: HandleMethod = (...args) => DELETE.concat(args as any) as any;
+/**
+ * Replaces all current representations of the target resource with the request content.
+ */
+export const put: HandleMethod = (...args) => (
+  args.unshift('PUT' as any), args as any
+);
 
-const PATCH = ['PATCH'];
-export const patch: HandleMethod = (...args) =>
-  PATCH.concat(args as any) as any;
+/**
+ * Deletes the specified resource.
+ */
+export const del: HandleMethod = (...args) => (
+  args.unshift('DELETE' as any), args as any
+);
 
-const OPTIONS = ['OPTIONS'];
-export const options: HandleMethod = (...args) =>
-  OPTIONS.concat(args as any) as any;
+/**
+ * Establishes a tunnel to the server identified by the target resource.
+ */
+export const connect: HandleMethod = (...args) => (
+  args.unshift('CONNECT' as any), args as any
+);
+
+/**
+ * Describes the communication options for the target resource.
+ */
+export const options: HandleMethod = (...args) => (
+  args.unshift('OPTIONS' as any), args as any
+);
+
+/**
+ * Performs a message loop-back test along the path to the target resource.
+ */
+export const trace: HandleMethod = (...args) => (
+  args.unshift('TRACE' as any), args as any
+);
+
+/**
+ * Applies partial modifications to a resource.
+ */
+export const patch: HandleMethod = (...args) => (
+  args.unshift('PATCH' as any), args as any
+);

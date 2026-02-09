@@ -12,6 +12,14 @@ export default router.init(
       '/user/*',
       send.raw((id) => id),
     ),
+    router.get(
+      '/user/*/dashboard',
+      send.raw((id) => id),
+    ),
+    router.get(
+      '/search/**',
+      send.raw((id) => id),
+    ),
     router.post(
       '/body',
       send.json(async (req) => req.json(), request),

@@ -6,6 +6,11 @@ import {
 } from 'runtime-compiler';
 import { isHydrating } from 'runtime-compiler/config';
 
+import type {
+  ExportedHandlerFetchHandler,
+  Cloudflare,
+} from '@cloudflare/workers-types';
+
 import type { Router } from '../router.ts';
 
 import {

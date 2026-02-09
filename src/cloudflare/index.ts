@@ -1,6 +1,7 @@
 import type {
   Request as WorkerRequest,
   ExecutionContext,
+  Cloudflare,
 } from '@cloudflare/workers-types';
 import type { Identifier } from 'runtime-compiler';
 

@@ -43,7 +43,8 @@ export const buildCall: (
     };
 
 export const buildRouteCall: SendLayer<any>[0] = isHydrating
-  ? (self, scope, _, paramsCount) => buildCall(scope, self[1], '', self[2].length + paramsCount)
+  ? (self, scope, _, paramsCount) =>
+      buildCall(scope, self[1], '', self[2].length + paramsCount)
   : (self, scope, params, paramsCount) => {
       const args = self[2];
       return args.length > 0

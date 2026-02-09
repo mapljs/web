@@ -1,5 +1,3 @@
-import { countParams } from '@mapl/router/utils';
-
 let METHOD_ROUTER: Record<string, Record<string, string>>;
 let DEOPT_PATHS: string[];
 

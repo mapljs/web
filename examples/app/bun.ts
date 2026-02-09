@@ -4,6 +4,4 @@ import main from './main.ts';
 
 const routes = getDependency(build(main));
 
-Bun.serve({
-  routes: routes,
-});
+Bun.serve({ routes });
