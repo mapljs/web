@@ -171,9 +171,9 @@ export const _hydrate = (router: Router, scope: HandlerScope): void => {
         }
       }
 
-      for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
+      for (let j = 2; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
-        self[0](self, routeScope, params, paramCount);
+        self[0](self, routeScope, '', paramCount);
       }
     } else
       for (let j = 2; j < route.length; j++) {
