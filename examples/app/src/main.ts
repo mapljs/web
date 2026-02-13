@@ -26,5 +26,5 @@ export default router.init(
       send.json(async (req) => req.json(), request),
     ),
   ],
-  router.mount('/api', api)
+  router.mount('/api', api),
 );
