@@ -1,5 +1,6 @@
 import { layer, router, send } from '@mapl/web';
 import { request } from '@mapl/web/generic';
+import api from './api';
 
 export default router.init(
   [
@@ -25,4 +26,5 @@ export default router.init(
       send.json(async (req) => req.json(), request),
     ),
   ],
+  router.mount('/api', api)
 );

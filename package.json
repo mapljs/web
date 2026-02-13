@@ -1,6 +1,6 @@
 {
   "name": "@mapl/web",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "A compiled web framework for all runtimes",
   "keywords": [
     "fast",
@@ -35,15 +35,14 @@
     "oxc-transform": "^0.94.0",
     "rolldown": "latest",
     "srvx": "^0.8.16",
-    "typescript": "^5.9.3",
-    "uWebSockets.js": "uNetworking/uWebSockets.js#v20.57.0"
+    "typescript": "^5.9.3"
   },
   "trustedDependencies": [
     "@biomejs/biome"
   ],
   "dependencies": {
-    "@mapl/router": "^0.8.4",
+    "@mapl/router": "^0.8.7",
     "@safe-std/error": "^2.0.4",
-    "runtime-compiler": "^3.1.1"
+    "runtime-compiler": "^3.1.2"
   }
 }

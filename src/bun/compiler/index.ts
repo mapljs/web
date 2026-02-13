@@ -47,7 +47,8 @@ const loadToMethodRouter = (
     // '/a/*' -> '/a/:q0'
     // '/**' -> '/*'
     if (path.includes('*')) {
-      routeContent = `let ${constants.PARAMS}=${constants.REQ}.params;` + routeContent;
+      routeContent =
+        `let ${constants.PARAMS}=${constants.REQ}.params;` + routeContent;
       let paramCount = 1;
 
       if (path.endsWith('**')) {
@@ -56,17 +57,27 @@ const loadToMethodRouter = (
           nextIdx = path.lastIndexOf('*', endIdx);
 
         while (nextIdx > 1) {
-          newPath = ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath;
+          newPath =
+            ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath;
 
           endIdx = nextIdx;
           nextIdx = path.lastIndexOf('*', nextIdx - 2);
         }
 
-        path = nextIdx > -1
-          ? path.slice(0, nextIdx - 1) + ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath
-          : path.slice(0, endIdx) + newPath;
+        path =
+          nextIdx > -1
+            ? path.slice(0, nextIdx - 1) +
+              ':q' +
+              paramCount++ +
+              path.slice(nextIdx + 1, endIdx) +
+              newPath
+            : path.slice(0, endIdx) + newPath;
 
-        for (let j = 2, params = WILDCARD_PARAM_MAP[paramCount]; j < route.length; j++) {
+        for (
+          let j = 2, params = WILDCARD_PARAM_MAP[paramCount];
+          j < route.length;
+          j++
+        ) {
           const self = route[j] as any as AnyRouteLayer<any[]>;
           routeContent += self[0](self, routeScope, params, paramCount);
         }
@@ -78,15 +89,21 @@ const loadToMethodRouter = (
         nextIdx = path.lastIndexOf('*', nextIdx - 2);
 
         while (nextIdx > 1) {
-          newPath = ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath;
+          newPath =
+            ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath;
 
           endIdx = nextIdx;
           nextIdx = path.lastIndexOf('*', nextIdx - 2);
         }
 
-        path = nextIdx > -1
-          ? path.slice(0, nextIdx - 1) + ':q' + paramCount++ + path.slice(nextIdx + 1, endIdx) + newPath
-          : path.slice(0, endIdx) + newPath;
+        path =
+          nextIdx > -1
+            ? path.slice(0, nextIdx - 1) +
+              ':q' +
+              paramCount++ +
+              path.slice(nextIdx + 1, endIdx) +
+              newPath
+            : path.slice(0, endIdx) + newPath;
 
         for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
           const self = route[j] as any as AnyRouteLayer<any[]>;
@@ -128,7 +145,7 @@ export const _load = (router: Router): void => {
 
   // Params are in reverse order
   PARAM_MAP = ['', `${constants.PARAMS}.q0`];
-  WILDCARD_PARAM_MAP = ['', `${constants.PARAMS}['*']`]
+  WILDCARD_PARAM_MAP = ['', `${constants.PARAMS}['*']`];
   for (let i = 1; i <= 8; i++) {
     const newParam = `${constants.PARAMS}.q` + i + ',';
     PARAM_MAP.push(newParam + PARAM_MAP[i]);

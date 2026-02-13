@@ -4,6 +4,7 @@ import type { ResponseState } from './response.ts';
 
 import type { HandlerScope } from './compilers/scope.ts';
 import { buildCall } from './compilers/call.ts';
+import { isHydrating } from 'runtime-compiler/config';
 
 /**
  * @example
@@ -52,15 +53,16 @@ export interface RouteLayer<Params extends any[]> {
 ///
 /// Impls
 ///
-
-interface TapLayer extends Layer {
+export interface TapLayer extends Layer {
   1: (...args: any[]) => any;
   2: Identifier<any>[];
 }
-const loadTap: TapLayer[0] = (self, scope) => {
-  const args = self[2];
-  return buildCall(scope, self[1], args.join(), args.length) + ';';
-};
+const loadTap: TapLayer[0] = isHydrating
+  ? (self, scope) => buildCall(scope, self[1], '', self[2].length)
+  : (self, scope) => {
+      const args = self[2];
+      return buildCall(scope, self[1], args.join(), args.length) + ';';
+    };
 /**
  * Tap a function to request lifecycle.
  */

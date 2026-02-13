@@ -1,7 +1,7 @@
 import type { Identifier } from 'runtime-compiler';
 import type { RouteLayer } from './layer.ts';
-import { buildRouteCall } from './compilers/call.ts';
 import { isHydrating } from 'runtime-compiler/config';
+import { buildCall } from './compilers/call.ts';
 
 /**
  * Describe a header pair
@@ -16,12 +16,32 @@ export interface ResponseState {
   headers: ResponseHeader[];
 }
 
-export interface SendLayer<Params extends any[]> extends RouteLayer<Params> {
+export interface ResponseLayer<Params extends any[]>
+  extends RouteLayer<Params> {
   1: (...args: any[]) => any;
   2: Identifier<any>[];
 }
 
-const loadRaw: SendLayer<any>[0] = isHydrating
+const buildRouteCall: ResponseLayer<any>[0] = isHydrating
+  ? (self, scope, _, paramsCount) =>
+      buildCall(scope, self[1], '', self[2].length + paramsCount)
+  : (self, scope, params, paramsCount) => {
+      const args = self[2];
+      return args.length > 0
+        ? paramsCount > 0
+          ? buildCall(
+              scope,
+              self[1],
+              args.join() + ',' + params,
+              args.length + paramsCount,
+            )
+          : buildCall(scope, self[1], args.join(), args.length)
+        : paramsCount > 0
+          ? buildCall(scope, self[1], params, paramsCount)
+          : buildCall(scope, self[1], '', 0);
+    };
+
+const loadRaw: ResponseLayer<any>[0] = isHydrating
   ? buildRouteCall
   : (self, scope, params, paramsCount) =>
       'return new Response(' +
@@ -45,9 +65,9 @@ export const raw = <
     ]
   ) => BodyInit | Promise<BodyInit>,
   ...args: Args
-): SendLayer<Params> => [loadRaw, fn, args];
+): ResponseLayer<Params> => [loadRaw, fn, args];
 
-const loadJSON: SendLayer<any>[0] = isHydrating
+const loadJSON: ResponseLayer<any>[0] = isHydrating
   ? buildRouteCall
   : (self, scope, params, paramsCount) =>
       'return Response.json(' +
@@ -71,9 +91,9 @@ export const json = <
     ]
   ) => any,
   ...args: Args
-): SendLayer<Params> => [loadJSON, fn, args];
+): ResponseLayer<Params> => [loadJSON, fn, args];
 
-const loadHTML: SendLayer<any>[0] = isHydrating
+const loadHTML: ResponseLayer<any>[0] = isHydrating
   ? buildRouteCall
   : (self, scope, params, paramsCount) => {
       const call = buildRouteCall(self, scope, params, paramsCount);
@@ -106,4 +126,4 @@ export const html = <
     ]
   ) => BodyInit | Promise<BodyInit>,
   ...args: Args
-): SendLayer<Params> => [loadHTML, fn, args];
+): ResponseLayer<Params> => [loadHTML, fn, args];

@@ -1,6 +1,9 @@
+import type { Cloudflare, ExportedHandler } from '@cloudflare/workers-types';
+
 import { build } from '@mapl/web/cloudflare';
 import { getDependency } from 'runtime-compiler';
-import main from './main.ts';
+
+import main from './src/main.ts';
 
 const createFetch = getDependency(build(main));
 
