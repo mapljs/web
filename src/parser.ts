@@ -83,7 +83,7 @@ const loadOnErr: OnErrLayer<any>[0] = isHydrating
         IS_ERR +
         '(' +
         id +
-        '){' +
+        ')){' +
         handler[0](handler, scope, id, 1) +
         '}'
       );
