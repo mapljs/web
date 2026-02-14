@@ -1,7 +1,8 @@
 import type { Identifier } from 'runtime-compiler';
 import type { RouteLayer } from './layer.ts';
 import { isHydrating } from 'runtime-compiler/config';
-import { buildCall } from './compilers/call.ts';
+import { buildCall, hydrateCall } from './compilers/call.ts';
+import type { HandlerScope } from './compilers/scope.ts';
 
 /**
  * Describe a header pair
@@ -22,31 +23,44 @@ export interface ResponseLayer<Params extends any[]>
   2: Identifier<any>[];
 }
 
-const buildRouteCall: ResponseLayer<any>[0] = isHydrating
-  ? (self, scope, _, paramsCount) =>
-      buildCall(scope, self[1], '', self[2].length + paramsCount)
-  : (self, scope, params, paramsCount) => {
-      const args = self[2];
-      return args.length > 0
-        ? paramsCount > 0
-          ? buildCall(
-              scope,
-              self[1],
-              args.join() + ',' + params,
-              args.length + paramsCount,
-            )
-          : buildCall(scope, self[1], args.join(), args.length)
-        : paramsCount > 0
-          ? buildCall(scope, self[1], params, paramsCount)
-          : buildCall(scope, self[1], '', 0);
-    };
+const hydrateRouteCall = (
+  self: ResponseLayer<any>,
+  scope: HandlerScope,
+  _: any,
+  paramsCount: number,
+) => {
+  hydrateCall(scope, self[1], self[2].length + paramsCount);
+};
+
+const buildRouteCall = (
+  self: ResponseLayer<any>,
+  scope: HandlerScope,
+  params: string,
+  paramsCount: number,
+): string => {
+  const args = self[2];
+  return args.length > 0
+    ? paramsCount > 0
+      ? buildCall(
+          scope,
+          self[1],
+          args.join() + ',' + params,
+          args.length + paramsCount,
+        )
+      : buildCall(scope, self[1], args.join(), args.length)
+    : paramsCount > 0
+      ? buildCall(scope, self[1], params, paramsCount)
+      : buildCall(scope, self[1], '', 0);
+};
 
 const loadRaw: ResponseLayer<any>[0] = isHydrating
-  ? buildRouteCall
-  : (self, scope, params, paramsCount) =>
-      'return new Response(' +
-      buildRouteCall(self, scope, params, paramsCount) +
-      ((scope[0] & 2) === 2 ? ',' + constants.CTX + ')' : ')');
+  ? hydrateRouteCall
+  : (self, scope, params, paramsCount) => {
+      scope[0] +=
+        'return new Response(' +
+        buildRouteCall(self, scope, params, paramsCount) +
+        ((scope[2] & 2) === 2 ? ',' + constants.CTX + ')' : ')');
+    };
 /**
  * @example
  * router.get('/', send.raw(() => 'Hi'))
@@ -68,11 +82,13 @@ export const raw = <
 ): ResponseLayer<Params> => [loadRaw, fn, args];
 
 const loadJSON: ResponseLayer<any>[0] = isHydrating
-  ? buildRouteCall
-  : (self, scope, params, paramsCount) =>
-      'return Response.json(' +
-      buildRouteCall(self, scope, params, paramsCount) +
-      ((scope[0] & 2) === 2 ? ',' + constants.CTX + ')' : ')');
+  ? hydrateRouteCall
+  : (self, scope, params, paramsCount) => {
+      scope[0] +=
+        'return Response.json(' +
+        buildRouteCall(self, scope, params, paramsCount) +
+        ((scope[2] & 2) === 2 ? ',' + constants.CTX + ')' : ')');
+    };
 /**
  * @example
  * router.post('/', send.json(() => ({ hello: 'world' })))
@@ -94,11 +110,12 @@ export const json = <
 ): ResponseLayer<Params> => [loadJSON, fn, args];
 
 const loadHTML: ResponseLayer<any>[0] = isHydrating
-  ? buildRouteCall
+  ? hydrateRouteCall
   : (self, scope, params, paramsCount) => {
       const call = buildRouteCall(self, scope, params, paramsCount);
-      return (scope[0] & 2) === 2
-        ? constants.HEADERS +
+      scope[0] +=
+        (scope[2] & 2) === 2
+          ? constants.HEADERS +
             '.push(' +
             constants.HTML_HEADER +
             ');return new Response(' +
@@ -106,7 +123,7 @@ const loadHTML: ResponseLayer<any>[0] = isHydrating
             ',' +
             constants.CTX +
             ')'
-        : 'return new Response(' + call + ',' + constants.HTML_OPTION + ')';
+          : 'return new Response(' + call + ',' + constants.HTML_OPTION + ')';
     };
 /**
  * @example
@@ -127,3 +144,16 @@ export const html = <
   ) => BodyInit | Promise<BodyInit>,
   ...args: Args
 ): ResponseLayer<Params> => [loadHTML, fn, args];
+
+const loadWithoutContent: RouteLayer<any>[0] = isHydrating
+  ? (_, _1) => {}
+  : (_, scope) => {
+      scope[0] +=
+        (scope[2] & 2) === 2
+          ? `return new Response(null,${constants.CTX})`
+          : `return ${constants.RES_200}`;
+    };
+/**
+ * Return a response without content.
+ */
+export const withoutContent: RouteLayer<any> = [loadWithoutContent];

@@ -14,8 +14,12 @@ import {
 } from 'runtime-compiler';
 import { isHydrating } from 'runtime-compiler/config';
 
-import { TMP_SCOPE, initScope, setHandlerArgs } from '../compilers/globals.ts';
-import { wrapScope, type HandlerScope } from '../compilers/scope.ts';
+import {
+  TMP_SCOPE,
+  initGlobalScope,
+  setHandlerArgs,
+} from '../compilers/globals.ts';
+import { initScope, wrapScope, type HandlerScope } from '../compilers/scope.ts';
 
 import type { ChildRouter, Router } from '../router.ts';
 import type { AnyRouteLayer } from '../layer.ts';
@@ -32,18 +36,15 @@ const loadToMethodRouter = (
   router: Router,
   scope: HandlerScope,
   prefix: string,
-  content: string,
 ): void => {
   for (let i = 0, layers = router[0]; i < layers.length; i++) {
     const self = layers[i];
-    content += self[0](self, scope);
+    self[0](self, scope);
   }
 
   for (let i = 0, routes = router[1]; i < routes.length; i++) {
     const route = routes[i];
-
     const routeScope = scope.slice();
-    let routeContent = content;
 
     for (
       let j = 2,
@@ -53,14 +54,14 @@ const loadToMethodRouter = (
       j++
     ) {
       const self = route[j] as any as AnyRouteLayer<any[]>;
-      routeContent += self[0](self, routeScope, params, paramCount);
+      self[0](self, routeScope, params, paramCount);
     }
 
     insertItemToMethodRouter(
       METHOD_ROUTER,
       route[0],
       prefix + route[1],
-      wrapScope(routeScope, routeContent),
+      wrapScope(routeScope),
     );
   }
 
@@ -71,7 +72,6 @@ const loadToMethodRouter = (
       childRouter[1],
       scope.slice(),
       childRouter[0] === '/' ? prefix : prefix + childRouter[0],
-      content,
     );
   }
 };
@@ -84,7 +84,7 @@ const loadToMethodRouter = (
  * _load(router);
  */
 export const _load = (router: Router): void => {
-  initScope();
+  initGlobalScope();
 
   // Initialize globals
   METHOD_ROUTER = createMethodRouter();
@@ -94,7 +94,7 @@ export const _load = (router: Router): void => {
     PARAM_MAP.push(`${PARAM_MAP[i]},${constants.PARAMS}${i}`);
 
   // Load router data to method router to build
-  loadToMethodRouter(router, [0] as any as HandlerScope, '', '');
+  loadToMethodRouter(router, ['', 0, 0] as any as HandlerScope, '');
 };
 
 export const loadToString = (): Value<CompiledResult> =>
@@ -139,7 +139,7 @@ export const _hydrate = (router: Router, scope: HandlerScope): void => {
  */
 export const build: (router: Router) => ExportedDependency<CompiledResult> =
   isHydrating
-    ? (router) => (_hydrate(router, [0] as any as HandlerScope), markExported())
+    ? (router) => (_hydrate(router, initScope.slice()), markExported())
     : (router) => (
         setHandlerArgs(constants.GENERIC_ARGS),
         _load(router),

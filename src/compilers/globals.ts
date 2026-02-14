@@ -30,7 +30,7 @@ export let TMP_SCOPE: Scope;
  */
 export let IS_ERR: Identifier<typeof isErr>;
 
-export const initScope = (): void => {
-  TMP_SCOPE = [constants.DECL_GLOBALS, 0];
+export const initGlobalScope = (): void => {
+  TMP_SCOPE = [constants.DECL_GLOBALS, 0] as any;
   IS_ERR = declareLocal(TMP_SCOPE, injectExternal(isErr)) as any;
 };

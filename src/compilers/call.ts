@@ -15,29 +15,32 @@ export interface Call<T extends (...args: any[]) => any> {
   1: Identifier<any>[];
 }
 
-export const buildCall: (
+export const hydrateCall = (
+  scope: HandlerScope,
+  fn: (...args: any[]) => any,
+  argsCount: number,
+): void => {
+  injectExternal(fn);
+  fn instanceof AsyncFunction && (scope[2] |= 1);
+  fn.length > argsCount && (scope[2] |= 2);
+};
+
+export const buildCall = (
   scope: HandlerScope,
   fn: (...args: any[]) => any,
   args: string,
   argsCount: number,
-) => string = isHydrating
-  ? (scope, fn, _, argsCount) => {
-      injectExternal(fn);
-      fn instanceof AsyncFunction && (scope[0] |= 1);
-      fn.length > argsCount && (scope[0] |= 2);
-      return '';
-    }
-  : (scope, fn, args, argsCount) => {
-      let str = declareLocal(TMP_SCOPE, injectExternal(fn)) + '(' + args;
-      if (fn instanceof AsyncFunction) {
-        scope[0] |= 1;
-        str = 'await ' + str;
-      }
+): string => {
+  let str = declareLocal(TMP_SCOPE, injectExternal(fn)) + '(' + args;
+  if (fn instanceof AsyncFunction) {
+    scope[2] |= 1;
+    str = 'await ' + str;
+  }
 
-      if (fn.length > argsCount) {
-        scope[0] |= 2;
-        str += ',' + constants.CTX;
-      }
+  if (fn.length > argsCount) {
+    scope[2] |= 2;
+    str += ',' + constants.CTX;
+  }
 
-      return str + ')';
-    };
+  return str + ')';
+};

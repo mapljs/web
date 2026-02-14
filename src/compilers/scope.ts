@@ -1,23 +1,25 @@
-import { declareLocal } from 'runtime-compiler';
+import { declareLocal, type Scope } from 'runtime-compiler';
 import { HANDLER_ARGS, TMP_SCOPE } from './globals.ts';
 
 /**
  * Handler scope state.
  */
-export interface HandlerScope {
+export interface HandlerScope extends Scope {
   /**
    * Scope flags.
    *
-   * bit 0: scope requires async or not
-   * bit 1: scope requires context or not
+   * Bit positions:
+   * - `0`: whether scope requires async.
+   * - `1`: scope requires context or not.
    */
-  0: number;
-
-  slice: () => this;
+  2: number;
 }
 
-export const wrapScope = (scope: HandlerScope, content: string): string => {
-  const flags = scope[0];
+export const initScope: HandlerScope = ['', 0, 0] as any;
+
+export const wrapScope = (scope: HandlerScope): string => {
+  let content = scope[0];
+  const flags = scope[2];
   (flags & 2) === 2 && (content = constants.CREATE_CTX + content);
   return (flags & 1) === 1
     ? 'return ' +

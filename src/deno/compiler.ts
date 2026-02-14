@@ -8,7 +8,7 @@ import { isHydrating } from 'runtime-compiler/config';
 import type { Router } from '../router.ts';
 
 import { _hydrate, _load, loadToString } from '../generic/compiler.ts';
-import type { HandlerScope } from '../compilers/scope';
+import { initScope } from '../compilers/scope.ts';
 import { setHandlerArgs } from '../compilers/globals.ts';
 
 /**
@@ -22,7 +22,7 @@ export type CompiledResult = (req: Request) => Response | Promise<Response>;
  */
 export const build: (router: Router) => ExportedDependency<CompiledResult> =
   isHydrating
-    ? (router) => (_hydrate(router, [0] as any as HandlerScope), markExported())
+    ? (router) => (_hydrate(router, initScope.slice()), markExported())
     : (router) => (
         setHandlerArgs(constants.BUN_DENO_ARGS),
         _load(router),

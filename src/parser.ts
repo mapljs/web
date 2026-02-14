@@ -3,7 +3,7 @@ import type { Identifier } from 'runtime-compiler';
 import type { ResponseState } from './response.ts';
 import type { AnyLayer, Layer, AnyRouteLayer } from './layer.ts';
 import { isHydrating } from 'runtime-compiler/config';
-import { buildCall } from './compilers/call.ts';
+import { buildCall, hydrateCall } from './compilers/call.ts';
 import type { Err, InferErr, InferResult } from '@safe-std/error';
 import { IS_ERR } from './compilers/globals.ts';
 
@@ -22,16 +22,17 @@ export interface ParseLayer<Result> extends Layer, ResultStore<Result> {
 }
 let uniqueId = 0;
 const loadParse: ParseLayer<any>[0] = isHydrating
-  ? (self, scope) => buildCall(scope, self[2], '', self[3].length)
+  ? (self, scope) => {
+      hydrateCall(scope, self[2], self[3].length);
+    }
   : (self, scope) => {
       const args = self[3];
-      return (
+      scope[0] +=
         'let ' +
         self[1] +
         '=' +
         buildCall(scope, self[2], args.join(), args.length) +
-        ';'
-      );
+        ';';
     };
 /**
  * Parse a value.
@@ -70,23 +71,16 @@ const loadOnErr: OnErrLayer<any>[0] = isHydrating
 
       const handler = self[3];
       handler[0](handler, scope, '', 1);
-
-      return '';
     }
   : (self, scope) => {
       const id = self[1];
       const parser = self[2];
       const handler = self[3];
-      return (
-        parser[0](parser, scope) +
-        'if(' +
-        IS_ERR +
-        '(' +
-        id +
-        ')){' +
-        handler[0](handler, scope, id, 1) +
-        '}'
-      );
+
+      parser[0](parser, scope);
+      scope[0] += 'if(' + IS_ERR + '(' + id + ')){';
+      handler[0](handler, scope, id, 1);
+      scope[0] += '}';
     };
 /**
  * Handle errors of a parser layer.

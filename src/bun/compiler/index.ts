@@ -8,10 +8,14 @@ import { isHydrating } from 'runtime-compiler/config';
 
 import {
   TMP_SCOPE,
-  initScope,
+  initGlobalScope,
   setHandlerArgs,
 } from '../../compilers/globals.ts';
-import { wrapScope, type HandlerScope } from '../../compilers/scope.ts';
+import {
+  initScope,
+  wrapScope,
+  type HandlerScope,
+} from '../../compilers/scope.ts';
 
 import type { ChildRouter, Router } from '../../router.ts';
 import type { AnyRouteLayer } from '../../layer.ts';
@@ -29,11 +33,10 @@ const loadToMethodRouter = (
   router: Router,
   scope: HandlerScope,
   prefix: string,
-  content: string,
 ): void => {
   for (let i = 0, layers = router[0]; i < layers.length; i++) {
     const self = layers[i];
-    content += self[0](self, scope);
+    self[0](self, scope);
   }
 
   for (let i = 0, routes = router[1]; i < routes.length; i++) {
@@ -41,14 +44,13 @@ const loadToMethodRouter = (
     const routeScope = scope.slice();
 
     let path = route[1];
-    let routeContent = content;
 
     // Preprocess the path
     // '/a/*' -> '/a/:q0'
     // '/**' -> '/*'
     if (path.includes('*')) {
-      routeContent =
-        `let ${constants.PARAMS}=${constants.REQ}.params;` + routeContent;
+      routeScope[0] =
+        `let ${constants.PARAMS}=${constants.REQ}.params;` + routeScope[0];
       let paramCount = 1;
 
       if (path.endsWith('**')) {
@@ -79,7 +81,7 @@ const loadToMethodRouter = (
           j++
         ) {
           const self = route[j] as any as AnyRouteLayer<any[]>;
-          routeContent += self[0](self, routeScope, params, paramCount);
+          self[0](self, routeScope, params, paramCount);
         }
       } else {
         // Inline first iteration
@@ -107,17 +109,17 @@ const loadToMethodRouter = (
 
         for (let j = 2, params = PARAM_MAP[paramCount]; j < route.length; j++) {
           const self = route[j] as any as AnyRouteLayer<any[]>;
-          routeContent += self[0](self, routeScope, params, paramCount);
+          self[0](self, routeScope, params, paramCount);
         }
       }
     } else {
       for (let j = 2; j < route.length; j++) {
         const self = route[j] as any as AnyRouteLayer<any[]>;
-        routeContent += self[0](self, routeScope, '', 0);
+        self[0](self, routeScope, '', 0);
       }
     }
 
-    insertItem(route[0], prefix + path, wrapScope(routeScope, routeContent));
+    insertItem(route[0], prefix + path, wrapScope(routeScope));
   }
 
   for (let i = 2; i < router.length; i++) {
@@ -127,7 +129,6 @@ const loadToMethodRouter = (
       childRouter[1],
       scope.slice(),
       childRouter[0] === '/' ? prefix : prefix + childRouter[0],
-      content,
     );
   }
 };
@@ -140,7 +141,7 @@ const loadToMethodRouter = (
  * _load(router);
  */
 export const _load = (router: Router): void => {
-  initScope();
+  initGlobalScope();
   initRouter();
 
   // Params are in reverse order
@@ -153,7 +154,7 @@ export const _load = (router: Router): void => {
   }
 
   // Load router data to method router to build
-  loadToMethodRouter(router, [0] as any as HandlerScope, '', '');
+  loadToMethodRouter(router, initScope.slice(), '');
 };
 
 export const loadToString: () => Value<CompiledResult> = toRoutes as any;
@@ -211,7 +212,7 @@ export const _hydrate = (router: Router, scope: HandlerScope): void => {
  */
 export const build: (router: Router) => ExportedDependency<CompiledResult> =
   isHydrating
-    ? (router) => (_hydrate(router, [0] as any as HandlerScope), markExported())
+    ? (router) => (_hydrate(router, initScope.slice()), markExported())
     : (router) => (
         setHandlerArgs(constants.BUN_DENO_ARGS),
         _load(router),

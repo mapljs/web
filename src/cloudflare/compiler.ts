@@ -19,7 +19,7 @@ import {
   loadToString as genericLoadToString,
 } from '../generic/compiler.ts';
 
-import type { HandlerScope } from '../compilers/scope';
+import { initScope } from '../compilers/scope';
 import { TMP_SCOPE, setHandlerArgs } from '../compilers/globals.ts';
 
 /**
@@ -46,7 +46,7 @@ export const loadToString = (): Value<CompiledResult> =>
  */
 export const build: (router: Router) => ExportedDependency<CompiledResult> =
   isHydrating
-    ? (router) => (_hydrate(router, [0] as any as HandlerScope), markExported())
+    ? (router) => (_hydrate(router, initScope.slice()), markExported())
     : (router) => (
         setHandlerArgs(constants.CLOUDFLARE_ARGS),
         _load(router),
