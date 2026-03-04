@@ -1,9 +1,13 @@
-import { isHydrating } from 'runtime-compiler/config';
-import type { Layer } from './layer.ts';
 import type { ResponseHeader } from './response.ts';
-import { buildData, createBuildSlot, declareLocal } from 'runtime-compiler';
-import { TMP_SCOPE } from './compilers/globals.ts';
 
+/**
+ * describes that the request origin can influence the content of the response.
+ */
+export const varyOrigin: ResponseHeader = ['Vary', 'Origin'];
+
+/**
+ * Whether the server allows credentials to be included in cross-origin HTTP requests.
+ */
 export const allowCredentials: ResponseHeader = [
   'Access-Control-Allow-Credentials',
   'true',
@@ -59,38 +63,3 @@ export const exposeHeaders = (...headers: string[]): ResponseHeader => [
   'Access-Control-Expose-Headers',
   headers.join(', '),
 ];
-
-export interface AllowOriginsLayer extends Layer {
-  1: string[];
-}
-
-const VARY_ORIGIN_STORE = createBuildSlot();
-const loadAllowOrigins: AllowOriginsLayer[0] = isHydrating
-  ? (_, scope) => {
-      scope[2] |= 2;
-    }
-  : (self, scope) => {
-      scope[2] |= 2;
-
-      const origins = self[1];
-      const firstOrigin = JSON.stringify(origins[0]);
-
-      let str =
-        `{let o=${constants.REQ}.headers.get('Origin');${constants.HEADERS}.push(` +
-        (buildData[VARY_ORIGIN_STORE] ??= declareLocal(
-          TMP_SCOPE,
-          '["Vary","Origin"]' as any,
-        )) +
-        ',["Access-Control-Allow-Origin",o===' +
-        firstOrigin;
-      for (let i = 1; i < origins.length; i++)
-        str += `||o===` + JSON.stringify(origins[i]);
-
-      scope[0] += str + '?o:' + firstOrigin + '])}';
-    };
-/**
- * Create a layer that decides what origins can access the resource.
- */
-export const allowOrigins = (
-  ...origins: [string, string, ...string[]]
-): AllowOriginsLayer => [loadAllowOrigins, origins];

@@ -32,14 +32,14 @@ export interface AnyRouteLayer<Params extends any[]> {
     self: any,
     scope: HandlerScope,
     params: string,
-    paramsCount: number,
+    paramsCount: number
   ) => void;
   '~'?: Params;
 }
 
 /**
  * @example
- * f[0](f, scope, 'p0,p1,');
+ * f[0](f, scope, 'p0,p1');
  */
 export interface RouteLayer<Params extends any[]> {
   0: (

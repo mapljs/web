@@ -26,3 +26,28 @@ AOT compilation example usage.
     ${statements}
   `;
   ```
+
+# New design
+Ok so hear me out... for the 5th time I think I need to rewrite the API but anyways:
+```ts
+const root = router.init();
+
+router.handle(
+  router.get(root, '/', ...),
+  send.text(() => 'Hi')
+);
+
+router.use(layer);
+
+const api = router.branch(root, '/api');
+// ...
+```
+
+```ts
+// Middleware design
+layer((c) => {
+  const res = preprocess(c);
+  // Implement onEnd somehow to be fast
+  onEnd(() => postprocess(res));
+});
+````
