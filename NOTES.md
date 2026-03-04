@@ -31,14 +31,16 @@ AOT compilation example usage.
 Ok so hear me out... for the 5th time I think I need to rewrite the API but anyways:
 ```ts
 const root = router.init();
-layer.tap(root, () => {
 
-});
+router.handle(
+  router.get(root, '/', ...),
+  send.text(() => 'Hi')
+);
 
-const route = router.get(root, '/');
-send.text(route, () => 'Hi');
+router.use(layer);
 
 const api = router.branch(root, '/api');
+// ...
 ```
 
 ```ts
