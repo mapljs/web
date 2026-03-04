@@ -42,7 +42,6 @@
   ],
   "dependencies": {
     "@mapl/router": "^0.8.7",
-    "@safe-std/error": "^2.0.4",
     "runtime-compiler": "^3.1.5"
   }
 }
