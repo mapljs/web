@@ -1,7 +1,7 @@
 import { declareLocal, exportScope, markExported, type ExportedDependency } from 'runtime-compiler';
 import { isHydrating } from 'runtime-compiler/config';
 
-import type { Router } from '../generic/router.ts';
+import type { Router } from '../router.ts';
 
 import { createRouter, insertItem } from '@mapl/router/method';
 import compileRouter from '@mapl/router/method/compiler';

@@ -25,8 +25,8 @@ export default (isHydrating
           route[4],
           (flags & 1) === 1
             ? 'return ' +
-                declareLocal(route[6], `async${constants.CLOUDFLARE_ARGS}=>{${content}}`) +
-                constants.CLOUDFLARE_ARGS
+                declareLocal(route[6], `async${constants.CF_ARGS}=>{${content}}`) +
+                constants.CF_ARGS
             : content,
         );
       }
@@ -34,7 +34,7 @@ export default (isHydrating
       const scope = router[6];
 
       return exportExpr(
-        `()=>{${scope[0] + scope[2]}return ${constants.CLOUDFLARE_ARGS}=>{let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_START}=${constants.FULL_URL}.indexOf('/',10)+1,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',${constants.PATH_START}),${constants.PATH}=${constants.PATH_END}===-1?${constants.FULL_URL}.slice(${constants.PATH_START}):${constants.FULL_URL}.slice(${constants.PATH_START},${constants.PATH_END});${compileRouter(
+        `()=>{${scope[0] + scope[2]}return ${constants.CF_ARGS}=>{let ${constants.FULL_URL}=${constants.REQ}.url,${constants.PATH_START}=${constants.FULL_URL}.indexOf('/',10)+1,${constants.PATH_END}=${constants.FULL_URL}.indexOf('?',${constants.PATH_START}),${constants.PATH}=${constants.PATH_END}===-1?${constants.FULL_URL}.slice(${constants.PATH_START}):${constants.FULL_URL}.slice(${constants.PATH_START},${constants.PATH_END});${compileRouter(
           urlRouter,
           `${constants.REQ}.method`,
           0,

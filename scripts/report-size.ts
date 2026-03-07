@@ -1,7 +1,7 @@
 import { minify } from 'oxc-minify';
 import { LIB } from './utils.ts';
 
-const toByte = (num: number) => (num >= 1e3 ? (num / 1e3).toFixed(2) + 'KB' : num + 'B');
+const toByte = (num: number) => (num >= 1e3 ? +(num / 1e3).toFixed(2) + 'KB' : num + 'B');
 
 const arr = await Promise.all(
   [...new Bun.Glob('**/*.js').scanSync(LIB)].map(async (path) => {
@@ -18,15 +18,30 @@ const arr = await Promise.all(
     };
   }),
 );
+arr.push(
+  arr.reduce((prev, cur) => {
+    prev.size += cur.size;
+    prev.minified += cur.minified;
+    prev.gzip += cur.gzip;
+    prev.minifiedGzip += cur.minifiedGzip
+    return prev;
+  }, {
+    entry: 'Total',
+    size: 0,
+    minified: 0,
+    gzip: 0,
+    minifiedGzip: 0,
+  })
+);
 
 console.table(
   arr
-    .sort((a, b) => a.size - b.size)
+    .sort((a, b) => a.minified - b.minified)
     .map((val) => ({
       Entry: val.entry,
       Size: toByte(val.size),
-      Minify: toByte(val.minified),
+      Minified: toByte(val.minified),
       GZIP: toByte(val.gzip),
-      'Minify GZIP': toByte(val.minifiedGzip),
+      'Minified GZIP': toByte(val.minifiedGzip),
     })),
 );
