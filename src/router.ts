@@ -8,12 +8,7 @@ export interface BaseScope extends Scope {
    * Bit positions:
    * - `0`: whether scope requires async.
    */
-  2: number;
-
-  /**
-   * End part of the string, use this for appending end callbacks.
-   */
-  3: string;
+  3: number;
 
   /**
    * Base path.
@@ -24,27 +19,32 @@ export interface BaseScope extends Scope {
    * Parameter count of the base path.
    */
   5: number;
+
+  /**
+   * Parent scope.
+   */
+  6: Scope;
 }
 
 declare const _params: unique symbol;
 type _params = typeof _params;
 
 export interface Router<out Params extends any[] = any[]> extends BaseScope {
-  [_params]: Params;
+  [_params]?: Params;
 
   /**
    * Route list.
    */
-  6: Route[];
+  7: Route[];
 }
 
 export interface Route<out Params extends any[] = any[]> extends BaseScope {
-  [_params]: Params;
+  [_params]?: Params;
 
   /**
    * Route method.
    */
-  6: string;
+  7: string;
 }
 
 export type InferParams<
@@ -59,7 +59,8 @@ export type InferParams<
 /**
  * Create a root router.
  */
-export const init = (): Router<[]> => ['', 0, 0, '', '', 0, []] as any;
+export const init = (): Router<[]> =>
+  [constants.CREATE_CTX, 0, '', 0, '', 0, [constants.DECL_GLOBALS, 0, ''] as any, []] as any;
 
 /**
  * Create a subrouter.
@@ -91,9 +92,9 @@ export const route = <Params extends any[], Path extends string>(
   const route: Route<InferParams<Path, Params>> = router.slice();
   route[4] = route[4] === '' ? path : path === '/' ? route[4] : route[4] + path;
   route[5] += countParams(path);
-  route[6] = method;
+  route[7] = method;
 
-  router[6].push(route);
+  router[7].push(route);
 
   return route;
 };
@@ -107,7 +108,6 @@ export const post: RouteFn = (router, path) => route(router, 'POST', path);
 export const put: RouteFn = (router, path) => route(router, 'PUT', path);
 export const del: RouteFn = (router, path) => route(router, 'DELETE', path);
 export const patch: RouteFn = (router, path) => route(router, 'PATCH', path);
-export const options: RouteFn = (router, path) =>
-  route(router, 'OPTIONS', path);
+export const options: RouteFn = (router, path) => route(router, 'OPTIONS', path);
 export const trace: RouteFn = (router, path) => route(router, 'TRACE', path);
 export const any: RouteFn = (router, path) => route(router, '', path);

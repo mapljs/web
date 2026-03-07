@@ -1,8 +1,7 @@
 import { minify } from 'oxc-minify';
 import { LIB } from './utils.ts';
 
-const toByte = (num: number) =>
-  num >= 1e3 ? (num / 1e3).toFixed(2) + 'KB' : num + 'B';
+const toByte = (num: number) => (num >= 1e3 ? (num / 1e3).toFixed(2) + 'KB' : num + 'B');
 
 const arr = await Promise.all(
   [...new Bun.Glob('**/*.js').scanSync(LIB)].map(async (path) => {

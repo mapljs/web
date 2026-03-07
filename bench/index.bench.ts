@@ -10,8 +10,8 @@ summary(() => {
       [0]: () => fn,
       bench(fn: any) {
         do_not_optimize(sym in fn);
-      }
-    }
+      },
+    };
   });
 
   bench('with symbol field', function* () {
@@ -22,8 +22,8 @@ summary(() => {
       [0]: () => fn,
       bench(fn: any) {
         do_not_optimize(sym in fn);
-      }
-    }
+      },
+    };
   });
 });
 

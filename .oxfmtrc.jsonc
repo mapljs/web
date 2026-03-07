@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "singleQuote": true,
+  "arrowParens": "always",
+  "ignorePatterns": [
+    "lib/**/*",
+    "tests/suites/**/*",
+    "**/*.json",
+    "**/*.jsonc",
+    "**/*.md",
+    "**/*.lock",
+  ],
+}
