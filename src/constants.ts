@@ -21,6 +21,7 @@ export const CLOUDFLARE_ARGS: string = `(${REQ},${INFO},${EXEC_CTX})`;
 
 export const RES_404 = 'mnf';
 export const RES_200 = 'mok';
+export const RES = 'mrs';
 
 export const HTML_HEADER = 'mhh';
 export const HTML_OPTION = 'mho';

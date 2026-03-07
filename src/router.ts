@@ -1,5 +1,6 @@
 import { countParams } from '@mapl/router/utils';
 import type { Scope } from 'runtime-compiler';
+import { isHydrating } from 'runtime-compiler/config';
 
 export interface BaseScope extends Scope {
   /**
@@ -59,8 +60,10 @@ export type InferParams<
 /**
  * Create a root router.
  */
-export const init = (): Router<[]> =>
-  [constants.CREATE_CTX, 0, '', 0, '', 0, [constants.DECL_GLOBALS, 0, ''] as any, []] as any;
+export const init: () => Router<[]> = isHydrating
+  ? () => ['', 0, '', 0, '', 0, ['', 0, ''] as any, []] as any
+  : () =>
+      [constants.CREATE_CTX, 0, '', 0, '', 0, [constants.DECL_GLOBALS, 0, ''] as any, []] as any;
 
 /**
  * Create a subrouter.

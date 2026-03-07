@@ -1,11 +1,22 @@
-import { router } from '@mapl/web';
-import compile from '@mapl/web/compiler/generic';
+import { router, send } from '@mapl/web';
+import { compile as genericCompile, vars } from '@mapl/web/generic';
+import { compile as denoCompile } from '@mapl/web/deno';
+import { compile as cloudflareCompile } from '@mapl/web/cloudflare';
 import { getDependency } from 'runtime-compiler';
 
 const root = router.init();
 
-router.get(root, '/');
-router.post(root, '/json');
-router.get(root, '/health');
+send.body(
+  router.get(root, '/'),
+  (req, c) => {
+    c.status = 418;
+    return req.url;
+  },
+  vars.request,
+);
 
-console.log(getDependency(compile(root)).toString());
+router.post(root, '/json');
+
+console.log('\ngeneric:', getDependency(genericCompile(root)).toString());
+console.log('\ndeno:', getDependency(denoCompile(root)).toString());
+console.log('\ncloudflare:', getDependency(cloudflareCompile(root)).toString());
