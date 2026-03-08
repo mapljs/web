@@ -20,7 +20,7 @@ export interface ResponseState {
 export const PARAMS_MAP: string[] = ['', `${constants.PARAMS}0,`];
 for (let i = 1; i <= 16; i++) PARAMS_MAP.push(`${PARAMS_MAP[i]}${constants.PARAMS}${i},`);
 
-export const _call = (route: Route, f: (...args: any[]) => any, deps: Identifier<any>[]): string => injectValue(f, route) + '(' + deps.join() + ',' + PARAMS_MAP[route[5]] + (
+export const _call = (route: Route, f: (...args: any[]) => any, deps: Identifier<any>[]): string => injectValue(f, route) + (deps.length > 0 ? `(${deps.join()},` : '(') + PARAMS_MAP[route[5]] + (
   f.length > deps.length + route[5]
     ? constants.CTX + ');'
     : ');'
