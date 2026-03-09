@@ -15,17 +15,9 @@ send.body(
   vars.request,
 );
 
-send.html(
-  router.get(root, '/home'),
-  (req) => `<a>${req.url}</a>`,
-  vars.request
-);
+send.html(router.get(root, '/home'), (req) => `<a>${req.url}</a>`, vars.request);
 
-send.jsonAsync(
-  router.post(root, '/json'),
-  (req) => req.json(),
-  vars.request
-);
+send.jsonAsync(router.post(root, '/json'), (req) => req.json(), vars.request);
 
 console.log('\ngeneric:', getDependency(genericCompile(root)).toString());
 console.log('\ndeno:', getDependency(denoCompile(root)).toString());
