@@ -6,7 +6,7 @@
       "name": "lib-template",
       "dependencies": {
         "@mapl/router": "^0.10.2",
-        "runtime-compiler": "^3.1.7",
+        "runtime-compiler": "^3.1.8",
       },
       "devDependencies": {
         "@cloudflare/workers-types": "^4.20260213.0",
@@ -183,7 +183,7 @@
 
     "rolldown": ["rolldown@1.0.0-rc.4", "", { "dependencies": { "@oxc-project/types": "=0.113.0", "@rolldown/pluginutils": "1.0.0-rc.4" }, "optionalDependencies": { "@rolldown/binding-android-arm64": "1.0.0-rc.4", "@rolldown/binding-darwin-arm64": "1.0.0-rc.4", "@rolldown/binding-darwin-x64": "1.0.0-rc.4", "@rolldown/binding-freebsd-x64": "1.0.0-rc.4", "@rolldown/binding-linux-arm-gnueabihf": "1.0.0-rc.4", "@rolldown/binding-linux-arm64-gnu": "1.0.0-rc.4", "@rolldown/binding-linux-arm64-musl": "1.0.0-rc.4", "@rolldown/binding-linux-x64-gnu": "1.0.0-rc.4", "@rolldown/binding-linux-x64-musl": "1.0.0-rc.4", "@rolldown/binding-openharmony-arm64": "1.0.0-rc.4", "@rolldown/binding-wasm32-wasi": "1.0.0-rc.4", "@rolldown/binding-win32-arm64-msvc": "1.0.0-rc.4", "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.4" }, "bin": { "rolldown": "bin/cli.mjs" } }, "sha512-V2tPDUrY3WSevrvU2E41ijZlpF+5PbZu4giH+VpNraaadsJGHa4fR6IFwsocVwEXDoAdIv5qgPPxgrvKAOIPtA=="],
 
-    "runtime-compiler": ["runtime-compiler@3.1.7", "", {}, "sha512-tElaJBsa9lwB/HGy3s/8R6GyhzXuse7dHKnv5yhjY8I4rfASgYTd5zEmT5PVNjKH9LCpExTMAwc3Lz5MwWU9Og=="],
+    "runtime-compiler": ["runtime-compiler@3.1.8", "", {}, "sha512-9OHxJNoDPsOC/JDgqQ/FUpGQTzW1RMNkWahOiRjIe0DidaQUm9ZDleMBgHgbZund/uVqTi7Eqp+qmLQBYbvPog=="],
 
     "srvx": ["srvx@0.8.16", "", { "bin": { "srvx": "bin/srvx.mjs" } }, "sha512-hmcGW4CgroeSmzgF1Ihwgl+Ths0JqAJ7HwjP2X7e3JzY7u4IydLMcdnlqGQiQGUswz+PO9oh/KtCpOISIvs9QQ=="],
 

@@ -107,6 +107,7 @@ export type RouteFn = <Params extends any[], Path extends string>(
   path: Path,
 ) => Route<InferParams<Path, Params>>;
 export const get: RouteFn = (router, path) => route(router, 'GET', path);
+export const head: RouteFn = (router, path) => route(router, 'HEAD', path);
 export const post: RouteFn = (router, path) => route(router, 'POST', path);
 export const put: RouteFn = (router, path) => route(router, 'PUT', path);
 export const del: RouteFn = (router, path) => route(router, 'DELETE', path);

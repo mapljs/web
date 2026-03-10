@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@mapl/router": "^0.10.2",
-    "runtime-compiler": "^3.1.7"
+    "runtime-compiler": "^3.1.8"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260213.0",

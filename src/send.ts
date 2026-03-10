@@ -26,7 +26,7 @@ export const _call = (route: Route, f: (...args: any[]) => any, deps: Identifier
   PARAMS_MAP[route[5]] +
   (f.length > deps.length + route[5] ? constants.CTX + ');' : ');');
 
-export const _hydrateCall: (route: Route, f: (...args: any[]) => any, ...args: any[]) => void = (
+export const _hydrateCall: (route: Route, f: (...args: any[]) => any) => void = (
   route,
   f,
 ): void => {
@@ -77,7 +77,7 @@ export const body: <Params extends any[], const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => BodyInit,
   ...args: Deps
 ) => void = isHydrating
-  ? _hydrateCall
+  ? (_hydrateCall as any)
   : (route, f, ...deps) => {
       _setResponse(route, f, deps);
       _returnRaw(route);
@@ -97,7 +97,7 @@ export const bodyAsync: <Params extends any[], const Deps extends Identifier<any
   ) => BodyInit | Promise<BodyInit>,
   ...args: Deps
 ) => void = isHydrating
-  ? _hydrateCall
+  ? (_hydrateCall as any)
   : (route, f, ...deps) => {
       _setAwaitedResponse(route, f, deps);
       _returnRaw(route);
@@ -118,7 +118,7 @@ export const json: <Params extends any[], const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => any,
   ...args: Deps
 ) => void = isHydrating
-  ? _hydrateCall
+  ? (_hydrateCall as any)
   : (route, f, ...deps) => {
       _setResponse(route, f, deps);
       _returnJSON(route);
@@ -136,7 +136,7 @@ export const jsonAsync: <Params extends any[], const Deps extends Identifier<any
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => Promise<any>,
   ...args: Deps
 ) => void = isHydrating
-  ? _hydrateCall
+  ? (_hydrateCall as any)
   : (route, f, ...deps) => {
       _setAwaitedResponse(route, f, deps);
       _returnJSON(route);
@@ -154,7 +154,7 @@ export const html: <Params extends any[], const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => BodyInit,
   ...args: Deps
 ) => void = isHydrating
-  ? _hydrateCall
+  ? (_hydrateCall as any)
   : (route, f, ...deps) => {
       _setResponse(route, f, deps);
       _returnHTML(route);
@@ -172,7 +172,7 @@ export const htmlAsync: <Params extends any[], const Deps extends Identifier<any
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => Promise<BodyInit>,
   ...args: Deps
 ) => void = isHydrating
-  ? _hydrateCall
+  ? (_hydrateCall as any)
   : (route, f, ...deps) => {
       _setAwaitedResponse(route, f, deps);
       _returnHTML(route);

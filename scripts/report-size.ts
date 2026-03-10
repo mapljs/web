@@ -1,5 +1,5 @@
 import { minify } from 'oxc-minify';
-import { rolldown, type OutputChunk } from 'rolldown';
+import { rolldown } from 'rolldown';
 
 import { LIB, ROOT } from './utils.ts';
 
