@@ -113,5 +113,4 @@ export const put: RouteFn = (router, path) => route(router, 'PUT', path);
 export const del: RouteFn = (router, path) => route(router, 'DELETE', path);
 export const patch: RouteFn = (router, path) => route(router, 'PATCH', path);
 export const options: RouteFn = (router, path) => route(router, 'OPTIONS', path);
-export const trace: RouteFn = (router, path) => route(router, 'TRACE', path);
 export const any: RouteFn = (router, path) => route(router, '', path);

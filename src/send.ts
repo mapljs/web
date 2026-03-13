@@ -1,5 +1,5 @@
-import type { Identifier } from 'runtime-compiler';
-import { injectValue, type InferDependencies } from './compiler/utils.ts';
+import { declareExternal, type Identifier } from 'runtime-compiler';
+import type { InferDependencies } from './compiler/utils.ts';
 import type { Route } from './router.ts';
 import { isHydrating } from 'runtime-compiler/config';
 
@@ -20,25 +20,25 @@ export interface ResponseState {
 export const PARAMS_MAP: string[] = ['', `${constants.PARAMS}0,`];
 for (let i = 1; i <= 16; i++) PARAMS_MAP.push(`${PARAMS_MAP[i]}${constants.PARAMS}${i},`);
 
-export const _call = (route: Route, f: (...args: any[]) => any, deps: Identifier<any>[]): string =>
-  injectValue(f, route) +
+export const _callStatement = (
+  route: Route,
+  f: (...args: any[]) => any,
+  deps: Identifier<any>[],
+): string =>
+  declareExternal(route, f) +
   (deps.length > 0 ? `(${deps.join()},` : '(') +
   PARAMS_MAP[route[5]] +
   (f.length > deps.length + route[5] ? constants.CTX + ');' : ');');
 
-export const _hydrateCall: (route: Route, f: (...args: any[]) => any) => void = (
-  route,
-  f,
-): void => {
-  injectValue(f, route);
-};
+export const _hydrateCallStatement: (route: Route, f: (...args: any[]) => any) => void =
+  declareExternal;
 
 export const _setResponse = (
   route: Route,
   f: (...args: any[]) => any,
   deps: Identifier<any>[],
 ): void => {
-  route[0] += `let ${constants.RES}=` + _call(route, f, deps);
+  route[0] += `let ${constants.RES}=` + _callStatement(route, f, deps);
 };
 
 export const _setAwaitedResponse = (
@@ -46,7 +46,7 @@ export const _setAwaitedResponse = (
   f: (...args: any[]) => any,
   deps: Identifier<any>[],
 ): void => {
-  route[0] += `let ${constants.RES}=await ` + _call(route, f, deps);
+  route[0] += `let ${constants.RES}=await ` + _callStatement(route, f, deps);
   route[3] |= 1;
 };
 
@@ -77,7 +77,7 @@ export const body: <Params extends any[], const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => BodyInit,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (route, f, ...deps) => {
       _setResponse(route, f, deps);
       _returnRaw(route);
@@ -97,7 +97,7 @@ export const bodyAsync: <Params extends any[], const Deps extends Identifier<any
   ) => BodyInit | Promise<BodyInit>,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (route, f, ...deps) => {
       _setAwaitedResponse(route, f, deps);
       _returnRaw(route);
@@ -118,7 +118,7 @@ export const json: <Params extends any[], const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => any,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (route, f, ...deps) => {
       _setResponse(route, f, deps);
       _returnJSON(route);
@@ -136,7 +136,7 @@ export const jsonAsync: <Params extends any[], const Deps extends Identifier<any
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => Promise<any>,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (route, f, ...deps) => {
       _setAwaitedResponse(route, f, deps);
       _returnJSON(route);
@@ -154,7 +154,7 @@ export const html: <Params extends any[], const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => BodyInit,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (route, f, ...deps) => {
       _setResponse(route, f, deps);
       _returnHTML(route);
@@ -172,7 +172,7 @@ export const htmlAsync: <Params extends any[], const Deps extends Identifier<any
   f: (...args: [...InferDependencies<Deps>, ...Params, res: ResponseState]) => Promise<BodyInit>,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (route, f, ...deps) => {
       _setAwaitedResponse(route, f, deps);
       _returnHTML(route);

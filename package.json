@@ -25,8 +25,8 @@
     "build:publish": "bun task build && bun task report-size && bun task publish"
   },
   "dependencies": {
-    "@mapl/router": "^0.10.2",
-    "runtime-compiler": "^3.1.8"
+    "@mapl/router": "^0.10.3",
+    "runtime-compiler": "^3.2.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260213.0",

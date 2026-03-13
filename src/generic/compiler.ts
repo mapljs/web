@@ -1,4 +1,10 @@
-import { declareLocal, exportScope, markExported, type ExportedDependency } from 'runtime-compiler';
+import {
+  content,
+  declareLocal,
+  exportScope,
+  markExported,
+  type ExportedDependency,
+} from 'runtime-compiler';
 import { isHydrating } from 'runtime-compiler/config';
 
 import type { Router } from '../router.ts';
@@ -13,8 +19,6 @@ export default (isHydrating
 
       for (let i = 0, routes = router[7]; i < routes.length; i++) {
         const route = routes[i];
-
-        const content = route[0] + route[2];
         const flags = route[3];
 
         insertItem(
@@ -23,9 +27,9 @@ export default (isHydrating
           route[4],
           (flags & 1) === 1
             ? 'return ' +
-                declareLocal(route[6], `async${constants.GENERIC_ARGS}=>{${content}}`) +
+                declareLocal(route[6], `async${constants.GENERIC_ARGS}=>{${content(route)}};`) +
                 constants.GENERIC_ARGS
-            : content,
+            : content(route),
         );
       }
 
@@ -35,7 +39,7 @@ export default (isHydrating
           urlRouter,
           `${constants.REQ}.method`,
           0,
-        )}return ${constants.RES_404}}` as any,
+        )}return ${constants.RES_404}}`,
       );
     }) as (
   router: Router<[]>,

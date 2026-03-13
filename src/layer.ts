@@ -1,17 +1,17 @@
 import type { ResponseState } from './send.ts';
 import type { Router } from './router.ts';
 
-import { injectValue, type InferDependencies } from './compiler/utils.ts';
+import type { InferDependencies } from './compiler/utils.ts';
 
-import { nextId, type Identifier } from 'runtime-compiler';
+import { declareExternal, type Identifier, declareLocal } from 'runtime-compiler';
 import { isHydrating } from 'runtime-compiler/config';
 
-export const _call = (
+export const _callStatement = (
   router: Router,
   f: (...args: any[]) => any,
   deps: Identifier<any>[],
 ): string =>
-  injectValue(f, router) +
+  declareExternal(router, f) +
   (deps.length > 0
     ? f.length > deps.length
       ? `(${deps.join()},${constants.CTX});`
@@ -20,21 +20,17 @@ export const _call = (
       ? `(${constants.CTX});`
       : `();`);
 
-export const _callAsync = (
+export const _callAsyncStatement = (
   router: Router,
   f: (...args: any[]) => any,
   deps: Identifier<any>[],
-): string => (
-  router[3] |= 1,
-  _call(router, f, deps)
-);
+): string => ((router[3] |= 1), _callStatement(router, f, deps));
 
-export const _hydrateCall = (router: Router, f: (...args: any[]) => any): string => (
-  injectValue(f, router), '' as any
-);
+export const _hydrateCallStatement: (router: Router, f: (...args: any[]) => any) => string =
+  declareExternal;
 
-export const _hydrateCallAsync = (router: Router, f: (...args: any[]) => any): string => (
-  (router[3] |= 1), injectValue(f, router), '' as any
+export const _hydrateCallAsyncStatement = (router: Router, f: (...args: any[]) => any): string => (
+  (router[3] |= 1), declareExternal(router, f), '' as any
 );
 
 /**
@@ -50,9 +46,9 @@ export const tap: <const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, res: ResponseState]) => any,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (router, f, ...args) => {
-      router[0] += _call(router, f, args);
+      router[0] += _callStatement(router, f, args);
     };
 
 /**
@@ -69,9 +65,9 @@ export const tapAsync: <const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, res: ResponseState]) => any,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCallAsync as any)
+  ? (_hydrateCallAsyncStatement as any)
   : (router, f, ...args) => {
-      router[0] += 'await ' + _callAsync(router, f, args);
+      router[0] += 'await ' + _callAsyncStatement(router, f, args);
     };
 
 /**
@@ -87,9 +83,9 @@ export const defer: <const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, res: ResponseState]) => any,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCall as any)
+  ? (_hydrateCallStatement as any)
   : (router, f, ...args) => {
-      router[2] = _call(router, f, args) + router[2];
+      router[2] = _callStatement(router, f, args) + router[2];
     };
 
 /**
@@ -106,9 +102,9 @@ export const deferAsync: <const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, res: ResponseState]) => any,
   ...args: Deps
 ) => void = isHydrating
-  ? (_hydrateCallAsync as any)
+  ? (_hydrateCallAsyncStatement as any)
   : (router, f, ...args) => {
-      router[2] = 'await ' + _callAsync(router, f, args) + router[2];
+      router[2] = 'await ' + _callAsyncStatement(router, f, args) + router[2];
     };
 
 /**
@@ -132,12 +128,8 @@ export const parse: <const T, const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, res: ResponseState]) => T,
   ...args: Deps
 ) => Identifier<T> = isHydrating
-  ? (_hydrateCall as any)
-  : (router, f, ...args) => {
-      const id = nextId(router);
-      router[0] += `let ${id}=` + _call(router, f, args);
-      return id as any;
-    };
+  ? (_hydrateCallStatement as any)
+  : (router, f, ...args) => declareLocal(router, _callStatement(router, f, args));
 
 /**
  * @example
@@ -160,9 +152,5 @@ export const parseAsync: <const T, const Deps extends Identifier<any>[]>(
   f: (...args: [...InferDependencies<Deps>, res: ResponseState]) => T,
   ...args: Deps
 ) => Identifier<Awaited<T>> = isHydrating
-  ? (_hydrateCallAsync as any)
-  : (router, f, ...args) => {
-      const id = nextId(router);
-      router[0] += `let ${id}=await ` + _callAsync(router, f, args);
-      return id as any;
-    };
+  ? (_hydrateCallAsyncStatement as any)
+  : (router, f, ...args) => declareLocal(router, 'await ' + _callStatement(router, f, args));

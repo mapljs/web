@@ -15,6 +15,11 @@ send.body(
   vars.request,
 );
 
+send.body(
+  router.get(root, '/*'),
+  (id) => id
+);
+
 send.html(router.get(root, '/home'), (req) => `<a>${req.url}</a>`, vars.request);
 
 send.jsonAsync(router.post(root, '/json'), (req) => req.json(), vars.request);

@@ -5,8 +5,8 @@
     "": {
       "name": "lib-template",
       "dependencies": {
-        "@mapl/router": "^0.10.2",
-        "runtime-compiler": "^3.1.8",
+        "@mapl/router": "^0.10.3",
+        "runtime-compiler": "^3.2.0",
       },
       "devDependencies": {
         "@cloudflare/workers-types": "^4.20260213.0",
@@ -31,7 +31,7 @@
 
     "@emnapi/wasi-threads": ["@emnapi/wasi-threads@1.1.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ=="],
 
-    "@mapl/router": ["@mapl/router@0.10.2", "", {}, "sha512-2DLlsnJJv02tBLAhhlv/e3tsBLk0b9R3GMAfiXC3X4QUyZoBBkldaMPop/PnE4nlUS1cBNS170IyGDzKjBbx7w=="],
+    "@mapl/router": ["@mapl/router@0.10.3", "", {}, "sha512-s2iItDlCHlgKfaOdTwGco98etDNvEnWJSi4++8iKx2wgpyEbdma3cndG1iX7rmJGytg2dhjfLJCBe/a3csOj8w=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.0.7", "", { "dependencies": { "@emnapi/core": "^1.5.0", "@emnapi/runtime": "^1.5.0", "@tybys/wasm-util": "^0.10.1" } }, "sha512-SeDnOO0Tk7Okiq6DbXmmBODgOAb9dp9gjlphokTUxmt8U3liIP1ZsozBahH69j/RJv+Rfs6IwUKHTgQYJ/HBAw=="],
 
@@ -183,7 +183,7 @@
 
     "rolldown": ["rolldown@1.0.0-rc.4", "", { "dependencies": { "@oxc-project/types": "=0.113.0", "@rolldown/pluginutils": "1.0.0-rc.4" }, "optionalDependencies": { "@rolldown/binding-android-arm64": "1.0.0-rc.4", "@rolldown/binding-darwin-arm64": "1.0.0-rc.4", "@rolldown/binding-darwin-x64": "1.0.0-rc.4", "@rolldown/binding-freebsd-x64": "1.0.0-rc.4", "@rolldown/binding-linux-arm-gnueabihf": "1.0.0-rc.4", "@rolldown/binding-linux-arm64-gnu": "1.0.0-rc.4", "@rolldown/binding-linux-arm64-musl": "1.0.0-rc.4", "@rolldown/binding-linux-x64-gnu": "1.0.0-rc.4", "@rolldown/binding-linux-x64-musl": "1.0.0-rc.4", "@rolldown/binding-openharmony-arm64": "1.0.0-rc.4", "@rolldown/binding-wasm32-wasi": "1.0.0-rc.4", "@rolldown/binding-win32-arm64-msvc": "1.0.0-rc.4", "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.4" }, "bin": { "rolldown": "bin/cli.mjs" } }, "sha512-V2tPDUrY3WSevrvU2E41ijZlpF+5PbZu4giH+VpNraaadsJGHa4fR6IFwsocVwEXDoAdIv5qgPPxgrvKAOIPtA=="],
 
-    "runtime-compiler": ["runtime-compiler@3.1.8", "", {}, "sha512-9OHxJNoDPsOC/JDgqQ/FUpGQTzW1RMNkWahOiRjIe0DidaQUm9ZDleMBgHgbZund/uVqTi7Eqp+qmLQBYbvPog=="],
+    "runtime-compiler": ["runtime-compiler@3.2.0", "", {}, "sha512-Y5duSzouYl2HTunbFehz2ZAgndpcgKTFd7yOQragL+zt+ps3OxMYB4V29eGrK2OBNTuVhS/8987bLtqt21E7ZQ=="],
 
     "srvx": ["srvx@0.8.16", "", { "bin": { "srvx": "bin/srvx.mjs" } }, "sha512-hmcGW4CgroeSmzgF1Ihwgl+Ths0JqAJ7HwjP2X7e3JzY7u4IydLMcdnlqGQiQGUswz+PO9oh/KtCpOISIvs9QQ=="],
 
